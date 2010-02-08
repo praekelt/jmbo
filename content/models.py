@@ -1,13 +1,45 @@
+# python imports
+from datetime import datetime
+
+# djanog imports
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template import defaultfilters
 
+# 3rd party imports
+from photologue.models import ImageModel
+
+# our app imports
 from publisher.models import Publisher
 
-# Models
+# Utility Functions
+def slugify(self):
+    """
+    URL friendly slugs are generated using django.template.defaultfilters' slugify.
+    Numbers are added to the end of slugs for uniqueness.
+    """
+    # get the title from either the title or the id
+    title = getattr(self, 'title', None) or self.id
 
+    # slugify with the default django filter
+    slug = defaultfilters.slugify(title)
+    if self.slug == slug:
+        return slug
+    
+    #check to see if slug exists, increment slug tail if it does
+    slugs = [content.slug for content in ModelBase.objects.all()]
+    i = 1
+    numbered_slug = slug
+    while numbered_slug in slugs:
+        numbered_slug = "%s-%s" % (slug, i)
+        i += 1
+    return numbered_slug
+
+# Models
 class ModelBase(Publisher):
     """
-    ALL objects used on a BCMS system should inherit from ModelBase.
+    ALL objects used on a Content system should inherit from ModelBase.
     ModelBase is a lightweight baseclass adding extra functionality not offered natively by Django.
     It should be seen as adding value to child classes primarily through functions.
     Child classes should provide model fields specific to their requirements.  
@@ -27,9 +59,6 @@ class ModelBase(Publisher):
         editable=False, 
         null=True
     )
-    labels =  models.ManyToManyField(
-        'label.Label', blank=True, help_text='Labels categorizing this item.'
-    )
 
     def save(self, *args, **kwargs):
         if(not self.content_type):
@@ -39,7 +68,6 @@ class ModelBase(Publisher):
             self.slug = slugify(self)
         super(ModelBase, self).save(*args, **kwargs)
     
-
     def as_leaf_class(self):
         """
         Inspired by http://www.djangosnippets.org/snippets/1031/
@@ -52,7 +80,6 @@ class ModelBase(Publisher):
             if(model == ModelBase):
                 return self
             return model.objects.get(id=self.id)
-
 
     def delete(self, *args, **kwargs):
         for related in self._meta.get_all_related_objects():
@@ -71,8 +98,7 @@ class ModelBase(Publisher):
         else: 
             return self.slug
 
-class ContentBase(ModelBase):
-
+class ContentBase(ModelBase, ImageModel):
     title = models.CharField(
         max_length='256', help_text='A short descriptive title.'
     )
@@ -87,9 +113,6 @@ class ContentBase(ModelBase):
         'Modified Date & Time', editable=False,
         help_text='Date and time on which this item was last modified. This is automatically set each time the item is saved.'
     )
-    image = ScaledImageField(
-        help_text='Image associated with this item. The uploaded image will be automatically scaled and cropped to required resolutions.'
-    )
     rating = models.IntegerField(
         blank=True,
         null=True,
@@ -103,6 +126,9 @@ class ContentBase(ModelBase):
     )
 
     def save(self, *args, **kwargs):
+        """
+        Set created time on initial save.
+        """
         if not self.id and not self.created:
             self.created = datetime.now()
         self.modified = datetime.now()
@@ -110,9 +136,3 @@ class ContentBase(ModelBase):
 
     def __unicode__(self):
         return self.title
-
-    def has_visible_labels(self):
-        for label in self.labels.all():
-            if label.is_visible:
-                return True
-        return False
