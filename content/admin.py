@@ -20,8 +20,13 @@ class ContentBaseAdmin(ModelBaseAdmin):
             fieldset[1]['fields'] += ('title', 'description',)
 
     fieldsets += (
-        ('Meta', {'fields': ('image', 'created', 'owner', 'rating',),
-                  'classes': ('collapse',),
+        ('Meta', {
+            'fields': ('created', 'owner', 'rating',),
+            'classes': ('collapse',),
+        }),
+        ('Image', {
+            'fields': ('image', 'crop_from', 'effect',),
+            'classes': ('collapse',),
         }),
     )
    
