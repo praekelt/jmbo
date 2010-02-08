@@ -10,6 +10,7 @@ setup(
     packages = find_packages(),
     install_requires = [
         'django-photologue==2.3',
+        'django-tagging==0.3.1',
     ],
     include_package_data=True,
 )
