@@ -17,7 +17,7 @@ class ContentBaseAdmin(ModelBaseAdmin):
     fieldsets = deepcopy(ModelBaseAdmin.fieldsets)
     for fieldset in fieldsets:
         if fieldset[0] == None:
-            fieldset[1]['fields'] += ('title', 'description',)
+            fieldset[1]['fields'] += ('title', 'description', 'tags')
 
     fieldsets += (
         ('Meta', {

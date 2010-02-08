@@ -11,6 +11,7 @@ from django.template import defaultfilters
 from photologue.models import ImageModel
 from tagging.fields import TagField
 from tagging.models import Tag
+from tagging_autocomplete.models import TagAutocompleteField
 
 # our app imports
 from publisher.models import Publisher
@@ -107,9 +108,7 @@ class ContentBase(ModelBase, ImageModel):
     description = models.TextField(
         help_text='A short description. More verbose than the title but limited to one or two sentences.'
     )
-    tags = TagField(
-        widget=TagAutocomplete()
-    )
+    tags = TagAutocompleteField()
     created = models.DateTimeField(
         'Created Date & Time', blank=True,
         help_text='Date and time on which this item was created. This is automatically set on creation, but can be changed subsequently.'
