@@ -8,5 +8,8 @@ setup(
     author_email='dev@praekelt.com',
     url='https://github.com/praekelt/django-content',
     packages = find_packages(),
+    install_requires = [
+        'django-photologue==2.3',
+    ],
     include_package_data=True,
 )
