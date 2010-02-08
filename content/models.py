@@ -1,7 +1,7 @@
 # python imports
 from datetime import datetime
 
-# djanog imports
+# django imports
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -9,6 +9,8 @@ from django.template import defaultfilters
 
 # 3rd party imports
 from photologue.models import ImageModel
+from tagging.fields import TagField
+from tagging.models import Tag
 
 # our app imports
 from publisher.models import Publisher
@@ -105,6 +107,9 @@ class ContentBase(ModelBase, ImageModel):
     description = models.TextField(
         help_text='A short description. More verbose than the title but limited to one or two sentences.'
     )
+    tags = TagField(
+        widget=TagAutocomplete()
+    )
     created = models.DateTimeField(
         'Created Date & Time', blank=True,
         help_text='Date and time on which this item was created. This is automatically set on creation, but can be changed subsequently.'
@@ -126,12 +131,14 @@ class ContentBase(ModelBase, ImageModel):
     )
 
     def save(self, *args, **kwargs):
-        """
-        Set created time on initial save.
-        """
+        # set created time on initial save.
         if not self.id and not self.created:
             self.created = datetime.now()
         self.modified = datetime.now()
+        
+        # update tags
+        Tag.objects.update_tags(self, self.tags)
+        
         super(ContentBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
