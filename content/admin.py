@@ -1,25 +1,23 @@
+# python imports
 from copy import deepcopy
 
+# django imports
 from django.contrib import admin
 
-class ModelBaseAdmin(admin.ModelAdmin):
-    list_display = ('is_public',)
-    list_filter = ('is_public',)
-    fieldsets = (
-        (None, {'fields': ('is_public',)}),
-    )
+# our own app imports
+from publisher.admin import PublisherAdmin
 
-class ContentBaseAdmin(ModelBaseAdmin):
-    list_display = ('title', 'owner', 'created', 'modified', 'admin_thumbnail') + ModelBaseAdmin.list_display
-    list_filter = ('created', 'modified',) + ModelBaseAdmin.list_filter
+class ContentBaseAdmin(PublisherAdmin):
+    list_display = ('title', 'owner', 'created', 'modified', 'admin_thumbnail') + PublisherAdmin.list_display
+    list_filter = ('created', 'modified',) + PublisherAdmin.list_filter
     search_fields = ('title', 'description')
    
-    fieldsets = deepcopy(ModelBaseAdmin.fieldsets)
-    for fieldset in fieldsets:
-        if fieldset[0] == None:
-            fieldset[1]['fields'] += ('title', 'description', 'tags')
-
-    fieldsets += (
+    fieldsets = list(deepcopy(PublisherAdmin.fieldsets))
+    fieldsets.insert(0, 
+        (None, {
+            'fields': ('title', 'description', 'tags')
+        }))
+    fieldsets += ( 
         ('Meta', {
             'fields': ('created', 'owner', 'rating',),
             'classes': ('collapse',),
@@ -29,7 +27,7 @@ class ContentBaseAdmin(ModelBaseAdmin):
             'classes': ('collapse',),
         }),
     )
-   
+    
     def save_model(self, request, obj, form, change):
         if not obj.owner:
             obj.owner = request.user
