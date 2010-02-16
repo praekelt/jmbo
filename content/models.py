@@ -14,6 +14,7 @@ from tagging.models import Tag
 from tagging_autocomplete.models import TagAutocompleteField
 
 # our app imports
+from content.abstract_models import Leaf
 from publisher.models import Publisher
 
 # Utility Functions
@@ -40,7 +41,7 @@ def slugify(self):
     return numbered_slug
 
 # Models
-class ModelBase(Publisher):
+class ModelBase(Leaf, Publisher):
     """
     ALL objects used on a Content system should inherit from ModelBase.
     ModelBase is a lightweight baseclass adding extra functionality not offered natively by Django.
@@ -52,37 +53,37 @@ class ModelBase(Publisher):
         max_length='275',
         db_index=True,
     )
-    content_type = models.ForeignKey(
-        ContentType, 
-        editable=False, 
-        null=True
-    )
-    classname = models.CharField(
-        max_length=32, 
-        editable=False, 
-        null=True
-    )
+    #content_type = models.ForeignKey(
+    #    ContentType, 
+    #    editable=False, 
+    #    null=True
+    #)
+    #classname = models.CharField(
+    #    max_length=32, 
+    #    editable=False, 
+    #    null=True
+    #)
 
     def save(self, *args, **kwargs):
-        if(not self.content_type):
-            self.content_type = ContentType.objects.get_for_model(self.__class__)
-        self.classname = self.__class__.__name__
+        #if(not self.content_type):
+        #    self.content_type = ContentType.objects.get_for_model(self.__class__)
+        #self.classname = self.__class__.__name__
         if not self.slug:
             self.slug = slugify(self)
         super(ModelBase, self).save(*args, **kwargs)
     
-    def as_leaf_class(self):
-        """
-        Inspired by http://www.djangosnippets.org/snippets/1031/
-        """
-        try:
-            return self.__getattribute__(self.classname.lower())
-        except AttributeError:
-            content_type = self.content_type
-            model = content_type.model_class()
-            if(model == ModelBase):
-                return self
-            return model.objects.get(id=self.id)
+    #def as_leaf_class(self):
+    #    """
+    #    Inspired by http://www.djangosnippets.org/snippets/1031/
+    #    """
+    #    try:
+    #        return self.__getattribute__(self.classname.lower())
+    #    except AttributeError:
+    #        content_type = self.content_type
+    #        model = content_type.model_class()
+    #        if(model == ModelBase):
+    #            return self
+    #        return model.objects.get(id=self.id)
 
     def delete(self, *args, **kwargs):
         for related in self._meta.get_all_related_objects():
