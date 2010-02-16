@@ -8,6 +8,9 @@ setup(
     author_email='dev@praekelt.com',
     url='https://github.com/praekelt/django-content',
     packages = find_packages(),
+    dependency_links = [
+        'http://dist.repoze.org/',
+    ],
     install_requires = [
         'PIL==1.1.6',
         'django-photologue==2.3',
