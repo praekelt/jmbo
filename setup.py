@@ -9,6 +9,7 @@ setup(
     url='https://github.com/praekelt/django-content',
     packages = find_packages(),
     install_requires = [
+        'PIL==1.1.6',
         'django-photologue==2.3',
         'django-tagging==0.3.1',
         'django-tagging-autocomplete==0.3.1',
