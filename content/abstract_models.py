@@ -34,4 +34,3 @@ class Leaf(models.Model):
             if(model == ModelBase):
                 return self
             return model.objects.get(id=self.id)
-    
