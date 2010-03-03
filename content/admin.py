@@ -6,17 +6,20 @@ from django.contrib import admin
 
 # our own app imports
 from publisher.admin import PublisherAdmin
+class ModelBaseAdmin(PublisherAdmin):
+    pass
 
-class ContentBaseAdmin(PublisherAdmin):
+class ContentBaseAdmin(ModelBaseAdmin):
     list_display = ('title', 'owner', 'created', 'modified', 'admin_thumbnail') + PublisherAdmin.list_display
     list_filter = ('created', 'modified',) + PublisherAdmin.list_filter
     search_fields = ('title', 'description')
    
-    fieldsets = list(deepcopy(PublisherAdmin.fieldsets))
+    fieldsets = list(deepcopy(ModelBaseAdmin.fieldsets))
     fieldsets.insert(0, 
         (None, {
             'fields': ('title', 'description', 'tags')
         }))
+
     fieldsets += ( 
         ('Meta', {
             'fields': ('created', 'owner', 'rating',),
