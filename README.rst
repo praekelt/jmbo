@@ -4,3 +4,6 @@ Django Content:
 
 Installation:
 -------------
+#. Install or add django-content to your python path
+#. Install django-publisher.
+#. Add *content* to your INSTALLED_APPS.
