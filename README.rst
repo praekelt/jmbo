@@ -14,7 +14,7 @@ Installation:
 
 #. Add *tagging_autocomplete* to your INSTALLED_APPS.
 
-#. Add tagging autocomplete urls project's urls.py file::
+#. Add tagging autocomplete urls to your project's urls.py file::
 
     (r'^tagging_autocomplete/', include('tagging_autocomplete.urls')),
 
