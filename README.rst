@@ -9,6 +9,7 @@ Utility Methods:
 set_slug:
 ~~~~~~~~~
 set_slug(obj[, text=None])
+
 Sets a slug on provided object based on text and tail number. A URL friendly slug is generated using django.template.defaultfilters' slugify. Numbers are added to the end of slugs for uniqueness.
 
 *Required arguments*
