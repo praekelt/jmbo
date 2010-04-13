@@ -1,21 +1,24 @@
 Django Content:
-================
+===============
 **Django CMS base content app.**
 
-Installation:
--------------
-#. Install or add django-content to your python path.
 
-#. Install django-publisher.
+Utility Methods:
+----------------
 
-#. Add *content* to your INSTALLED_APPS.
+set_slug:
+~~~~~~~~~
+set_slug(obj[, text=None, tail_number=0])
+Sets a slug on provided object based on text and tail number. A URL friendly slug is generated using django.template.defaultfilters' slugify. Numbers are added to the end of slugs for uniqueness.
 
-#. Add *tagging* to your INSTALLED_APPS.
+*Required arguments*
 
-#. Add *tagging_autocomplete* to your INSTALLED_APPS.
+obj
+    An object on which to set the slug. The object must provide a django.db.models.SlugField called **slug**.
 
-#. Add tagging autocomplete urls to your project's urls.py file::
+*Optional arguments*
 
-    (r'^tagging_autocomplete/', include('tagging_autocomplete.urls')),
-
-#. Sync your database.
+text
+    text from which to generate slug. If no text is provided the object's id is used.
+tail_number
+    used internally to create unique slugs.

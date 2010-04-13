@@ -4,9 +4,9 @@ from django.template.defaultfilters import slugify
 
 from content.models import ModelBase
 
-class ModelBaseTestCase(unittest.TestCase):
+class UtilsTestCase(unittest.TestCase):
 
-    def test_save_slug(self):
+    def test_set_slug(self):
         # on save a slug should be set
         obj = ModelBase()
         obj.save()
