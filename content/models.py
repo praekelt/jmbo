@@ -18,7 +18,9 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
-        help_text="Set the item state. The 'Published' state makes the item visible to the public, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users."
+        help_text="Set the item state. The 'Published' state makes the item visible to the public, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users.",
+        blank=True,
+        null=True,
     )
     slug = models.SlugField(
         editable=False,
@@ -28,7 +30,6 @@ class ModelBase(ImageModel):
     )
     title = models.CharField(
         max_length='256', help_text='A short descriptive title.',
-        blank=True,
         null=True,
     )
     description = models.TextField(
@@ -49,6 +50,7 @@ class ModelBase(ImageModel):
     owner = models.ForeignKey(
         User, 
         blank=True,
+        null=True,
     )
     content_type = models.ForeignKey(
         ContentType, 
@@ -68,6 +70,9 @@ class ModelBase(ImageModel):
     )
     tags = tagging.fields.TagField()
    
+    class Meta:
+        ordering = ('-created',)
+    
     def as_leaf_class(self):
         """
         Returns the leaf class no matter where the calling instance is in the inheritance hierarchy.
