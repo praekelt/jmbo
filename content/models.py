@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+import tagging
 from content.utils import set_slug
 from photologue.models import ImageModel
 
@@ -17,7 +18,7 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
-        help_text="Set the item state. The 'Published' state makes the item visible to the epublic, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users."
+        help_text="Set the item state. The 'Published' state makes the item visible to the public, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users."
     )
     slug = models.SlugField(
         editable=False,
@@ -48,7 +49,6 @@ class ModelBase(ImageModel):
     owner = models.ForeignKey(
         User, 
         blank=True,
-        #null=True,
     )
     content_type = models.ForeignKey(
         ContentType, 
@@ -60,9 +60,17 @@ class ModelBase(ImageModel):
         editable=False, 
         null=True
     )
+    categories = models.ManyToManyField(
+        'category.Category',
+        blank=True,
+        null=True,
+        help_text='Categorizing this item.'
+    )
+    tags = tagging.fields.TagField()
    
     def as_leaf_class(self):
         """
+        Returns the leaf class no matter where the calling instance is in the inheritance hierarchy.
         Inspired by http://www.djangosnippets.org/snippets/1031/
         """
         try:
