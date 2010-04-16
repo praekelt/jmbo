@@ -3,11 +3,22 @@ from datetime import datetime
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from content.utils import set_slug
 from photologue.models import ImageModel
 
 class ModelBase(ImageModel):
+    state = models.CharField(
+        max_length=32,
+        choices=(
+            ('unpublished', 'Unpublished'),
+            ('published', 'Published'),
+            ('staging', 'Staging'),
+        ),
+        default='unpublished',
+        help_text="Set the item state. The 'Published' state makes the item visible to the epublic, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users."
+    )
     slug = models.SlugField(
         editable=False,
         max_length='512',
@@ -39,6 +50,29 @@ class ModelBase(ImageModel):
         blank=True,
         #null=True,
     )
+    content_type = models.ForeignKey(
+        ContentType, 
+        editable=False, 
+        null=True
+    )
+    class_name = models.CharField(
+        max_length=32, 
+        editable=False, 
+        null=True
+    )
+   
+    def as_leaf_class(self):
+        """
+        Inspired by http://www.djangosnippets.org/snippets/1031/
+        """
+        try:
+            return self.__getattribute__(self.classname.lower())
+        except AttributeError:
+            content_type = self.content_type
+            model = content_type.model_class()
+            if(model == ModelBase):
+                return self
+            return model.objects.get(id=self.id)
         
     def save(self, *args, **kwargs):
         # set created time to now on initial save.
@@ -46,6 +80,14 @@ class ModelBase(ImageModel):
             self.created = datetime.now()
         # set modified to now on each save 
         self.modified = datetime.now()
+       
+        # set leaf class content type
+        if not self.content_type:
+            self.content_type = ContentType.objects.get_for_model(self.__class__)
+        
+        # set leaf class class name
+        if not self.class_name:
+            self.class_name = self.__class__.__name__
         
         super(ModelBase, self).save(*args, **kwargs)
         set_slug(self, self.title)

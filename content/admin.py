@@ -13,11 +13,6 @@ class ModelBaseAdmin(admin.ModelAdmin):
       
         obj.save()
             
-        """    
-        if not obj.owner:
-            obj.owner = request.user
-            obj.save()
-        """
         return super(ModelBaseAdmin, self).save_model(request, obj, form, change)
 
 admin.site.register(ModelBase, ModelBaseAdmin)
