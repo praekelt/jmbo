@@ -4,6 +4,7 @@ from datetime import datetime
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify
 
@@ -129,11 +130,27 @@ class ModelBaseAdminTestCase(unittest.TestCase):
 
 class PermittedManagerTestCase(unittest.TestCase):
     def test_get_query_set(self):
+        # create website site item and set as current site
+        web_site = Site(domain="web.address.com")
+        web_site.save()
+        settings.SITE_ID = web_site.id
+
+        # create unpublished item
         unpublished_obj = ModelBase(state='unpublished')
         unpublished_obj.save()
+        unpublished_obj.sites.add(web_site)
+        unpublished_obj.save()
+        
+        # create published item
         published_obj = ModelBase(state='published')
         published_obj.save()
+        published_obj.sites.add(web_site)
+        published_obj.save()
+        
+        # create staging item
         staging_obj = ModelBase(state='staging')
+        staging_obj.save()
+        staging_obj.sites.add(web_site)
         staging_obj.save()
         
         # unpublished objects should not be available in queryset
@@ -148,3 +165,21 @@ class PermittedManagerTestCase(unittest.TestCase):
         settings.STAGING = True
         queryset = ModelBase.permitted.all()
         self.failIf(staging_obj in queryset)
+        
+        # queryset should only contain items for the current site
+        published_obj_web = ModelBase(state='published')
+        published_obj_web.save()
+        published_obj_web.sites.add(web_site)
+        published_obj_web.save()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(published_obj_web in queryset)
+        
+        # queryset should not contain items for other sites
+        mobile_site = Site(domain="mobi.address.com")
+        mobile_site.save()
+        published_obj_mobile = ModelBase(state='published')
+        published_obj_mobile.save()
+        published_obj_mobile.sites.add(mobile_site)
+        published_obj_mobile.save()
+        queryset = ModelBase.permitted.all()
+        self.failIf(published_obj_mobile in queryset)
