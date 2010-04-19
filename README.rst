@@ -38,6 +38,10 @@ categories
     Categories are used to broadly categorize items in order to determine where they appear a site.
 tags
     Keyword tagging.
+sites
+    Makes item eligible to be published to selected sites.
+publishers
+    Makes item eligible to be published to selected platform.
 
 METHODS
 *******
@@ -65,4 +69,4 @@ MANAGERS
 ********
 permitted::
     ModelBase.permitted
-Creates a queryset that only contains objects with the state field set to 'published'. In case settings.STAGING = True, the queryset will also include objects with the state field set to 'staging'.
+Creates a queryset that only contains objects for the current site with the state field set to 'published'. In case settings.STAGING = True, the queryset will also include objects with the state field set to 'staging'.
