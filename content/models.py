@@ -77,13 +77,13 @@ class ModelBase(ImageModel):
         'sites.Site',
         blank=True,
         null=True,
-        help_text='Makes item eligible to be published to selected sites.',
+        help_text='Makes item eligible to be published on selected sites.',
     )
     publishers = models.ManyToManyField(
         'publisher.Publisher',
         blank=True,
         null=True,
-        help_text='Makes item eligible to be published to selected platform.',
+        help_text='Makes item eligible to be published on selected platform.',
     )
    
     class Meta:

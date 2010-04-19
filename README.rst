@@ -39,9 +39,9 @@ categories
 tags
     Keyword tagging.
 sites
-    Makes item eligible to be published to selected sites.
+    Makes item eligible to be published on selected sites.
 publishers
-    Makes item eligible to be published to selected platform.
+    Makes item eligible to be published on selected platform.
 
 METHODS
 *******
