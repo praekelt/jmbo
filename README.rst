@@ -60,3 +60,9 @@ obj
 
 text
     text from which to generate slug. If no text is provided the object's id is used.
+
+MANAGERS
+********
+permitted::
+    ModelBase.permitted
+Creates a queryset that only contains objects with the state field set to 'published'. In case settings.STAGING = True, the queryset will also include objects with the state field set to 'staging'.
