@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime
 
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify
@@ -124,3 +125,26 @@ class ModelBaseAdminTestCase(unittest.TestCase):
         obj.save()
        
         # TODO: if a different user is specified as owner set that user as owner
+
+
+class PermittedManagerTestCase(unittest.TestCase):
+    def test_get_query_set(self):
+        unpublished_obj = ModelBase(state='unpublished')
+        unpublished_obj.save()
+        published_obj = ModelBase(state='published')
+        published_obj.save()
+        staging_obj = ModelBase(state='staging')
+        staging_obj.save()
+        
+        # unpublished objects should not be available in queryset
+        queryset = ModelBase.permitted.all()
+        self.failIf(unpublished_obj in queryset)
+
+        # published objects should always be available in queryset
+        self.failUnless(published_obj in queryset)
+        
+        # staging objects should only be available on instances that define settings.STAGING = True
+        self.failUnless(staging_obj in queryset)
+        settings.STAGING = True
+        queryset = ModelBase.permitted.all()
+        self.failIf(staging_obj in queryset)
