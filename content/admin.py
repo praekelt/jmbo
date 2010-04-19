@@ -1,14 +1,37 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 
 from content.models import ModelBase
+from publisher.models import Publisher
+
+class ModelBaseAdminForm(forms.ModelForm):
+    sites = forms.ModelMultipleChoiceField(
+        queryset=Site.objects.all(), 
+        help_text='Makes item eligible to be published to selected sites.',
+        required=False, 
+        widget=forms.CheckboxSelectMultiple()
+    )
+    publishers = forms.ModelMultipleChoiceField(
+        queryset=Publisher.objects.all(), 
+        help_text='Makes item eligible to be published to selected platform.',
+        required=False, 
+        widget=forms.CheckboxSelectMultiple())
+    class Meta:
+        model = ModelBase
 
 class ModelBaseAdmin(admin.ModelAdmin):
+    form = ModelBaseAdminForm
+
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('state', 'title', 'description', )}),
+        (None, {'fields': ('title', 'description', )}),
+        ('Publishing', {'fields': ('state', 'sites', 'publishers'),
+                    'classes': ('collapse',),
+        }),
         ('Meta', {'fields': ('categories', 'tags', 'created', 'owner'),
                     'classes': ('collapse',),
         }),
