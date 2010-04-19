@@ -6,10 +6,14 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 import tagging
+from content.managers import PermittedManager
 from content.utils import set_slug
 from photologue.models import ImageModel
 
 class ModelBase(ImageModel):
+    objects = models.Manager()
+    permitted = PermittedManager()
+    
     state = models.CharField(
         max_length=32,
         choices=(
