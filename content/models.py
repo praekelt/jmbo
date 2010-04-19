@@ -73,6 +73,18 @@ class ModelBase(ImageModel):
         help_text='Categorizing this item.'
     )
     tags = tagging.fields.TagField()
+    sites = models.ManyToManyField(
+        'sites.Site',
+        blank=True,
+        null=True,
+        help_text='Makes item eligible to be published to selected sites.',
+    )
+    publishers = models.ManyToManyField(
+        'publisher.Publisher',
+        blank=True,
+        null=True,
+        help_text='Makes item eligible to be published to selected platform.',
+    )
    
     class Meta:
         ordering = ('-created',)
