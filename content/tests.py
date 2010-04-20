@@ -1,13 +1,14 @@
 import unittest
 from datetime import datetime
 
+from django import template
 from django.db import models
-
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
+from django.template import Template
 from django.template.defaultfilters import slugify
 
 from content.admin import ModelBaseAdmin
@@ -36,6 +37,9 @@ models.register_models('content', BranchModel)
 class LeafModel(BranchModel):
     pass
 models.register_models('content', LeafModel)
+class TestModel(ModelBase):
+    pass
+models.register_models('content', TestModel)
 
 class UtilsTestCase(unittest.TestCase):
     def test_generate_slug(self):
@@ -146,28 +150,29 @@ class ModelBaseAdminTestCase(unittest.TestCase):
 
 
 class PermittedManagerTestCase(unittest.TestCase):
-    def test_get_query_set(self):
+    def setUp(self):
         # create website site item and set as current site
-        web_site = Site(domain="web.address.com")
-        web_site.save()
-        settings.SITE_ID = web_site.id
+        self.web_site = Site(domain="web.address.com")
+        self.web_site.save()
+        settings.SITE_ID = self.web_site.id
 
+    def test_get_query_set(self):
         # create unpublished item
         unpublished_obj = ModelBase(title='title', state='unpublished')
         unpublished_obj.save()
-        unpublished_obj.sites.add(web_site)
+        unpublished_obj.sites.add(self.web_site)
         unpublished_obj.save()
         
         # create published item
         published_obj = ModelBase(title='title', state='published')
         published_obj.save()
-        published_obj.sites.add(web_site)
+        published_obj.sites.add(self.web_site)
         published_obj.save()
         
         # create staging item
         staging_obj = ModelBase(title='title', state='staging')
         staging_obj.save()
-        staging_obj.sites.add(web_site)
+        staging_obj.sites.add(self.web_site)
         staging_obj.save()
         
         # unpublished objects should not be available in queryset
@@ -186,7 +191,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         # queryset should only contain items for the current site
         published_obj_web = ModelBase(state='published')
         published_obj_web.save()
-        published_obj_web.sites.add(web_site)
+        published_obj_web.sites.add(self.web_site)
         published_obj_web.save()
         queryset = ModelBase.permitted.all()
         self.failUnless(published_obj_web in queryset)
@@ -200,3 +205,43 @@ class PermittedManagerTestCase(unittest.TestCase):
         published_obj_mobile.save()
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
+
+    def test_content_type(self):
+        obj = BranchModel(title='title', state='published')
+        obj.save()
+        obj.sites.add(self.web_site)
+        obj.save()
+
+        # queryset should return objects of the same type as the queried model
+        queryset = BranchModel.permitted.all()
+        self.failUnless(obj in queryset)
+        queryset = ModelBase.permitted.all()
+        self.failIf(obj in queryset)
+
+
+class InlcusionTagsTestCase(unittest.TestCase):
+    def setUp(self):
+        obj = TestModel(title='title', state='published')
+        obj.save()
+        self.context = template.Context({'object': obj})
+
+    def test_render_tag(self):
+        # load correct template for provided object and type
+        t = Template("{% load content_inclusion_tags %}{% render_object object block %}")
+        result = t.render(self.context)
+        expected_result = u'Test string for testing purposes\n'
+        self.failUnlessEqual(result, expected_result)
+
+        # if template is not available for object, fall back to default content template
+        obj = BranchModel(title='title', state='published')
+        obj.save()
+        self.context = template.Context({'object': obj})
+        t = Template("{% load content_inclusion_tags %}{% render_object object block %}")
+        result = t.render(self.context)
+        self.failUnless(result)
+
+        # return the empty string if no template can be found for the given type for either obj or content.
+        t = Template("{% load content_inclusion_tags %}{% render_object object foobar %}")
+        result = t.render(self.context)
+        expected_result = u''
+        self.failUnlessEqual(result, expected_result)
