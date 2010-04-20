@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 
 import tagging
 from content.managers import PermittedManager
-from content.utils import set_slug
+from content.utils import generate_slug
 from photologue.models import ImageModel
 
 class ModelBase(ImageModel):
@@ -28,13 +28,12 @@ class ModelBase(ImageModel):
     )
     slug = models.SlugField(
         editable=False,
-        max_length='512',
+        max_length=255,
         db_index=True,
         unique=True,
     )
     title = models.CharField(
-        max_length='256', help_text='A short descriptive title.',
-        null=True,
+        max_length=200, help_text='A short descriptive title.',
     )
     description = models.TextField(
         help_text='A short description. More verbose than the title but limited to one or two sentences.',
@@ -117,6 +116,7 @@ class ModelBase(ImageModel):
         # set leaf class class name
         if not self.class_name:
             self.class_name = self.__class__.__name__
-        
+
+        # set title as slug uniquely
+        self.slug = generate_slug(self, self.title)
         super(ModelBase, self).save(*args, **kwargs)
-        set_slug(self, self.title)
