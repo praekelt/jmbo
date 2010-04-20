@@ -2,7 +2,9 @@ import unittest
 from datetime import datetime
 
 from django.db import models
+
 from django.conf import settings
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
@@ -11,9 +13,19 @@ from django.template.defaultfilters import slugify
 from content.admin import ModelBaseAdmin
 from content.models import ModelBase
 from content.utils.tests import RequestFactory
-        
-class DummyModel(ModelBase):
+       
+class DummyRelationalModel1(models.Model):
     pass
+models.register_models('content', DummyRelationalModel1)
+class DummyRelationalModel2(models.Model):
+    pass
+models.register_models('content', DummyRelationalModel2)
+class DummyModel(ModelBase):
+    test_editable_field = models.CharField(max_length=32)
+    test_non_editable_field = models.CharField(max_length=32, editable=False)
+    test_foreign_field = models.ForeignKey('DummyRelationalModel1', blank=True, null=True,)
+    test_many_field = models.ManyToManyField('DummyRelationalModel2')
+    test_member = True
 models.register_models('content', DummyModel)
 class TrunkModel(ModelBase):
     pass
@@ -26,25 +38,19 @@ class LeafModel(BranchModel):
 models.register_models('content', LeafModel)
 
 class UtilsTestCase(unittest.TestCase):
-    def setUp(self):
-        self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
-
-    def test_set_slug(self):
+    def test_generate_slug(self):
         # on save a slug should be set
-        obj = ModelBase(owner=self.user)
+        obj = ModelBase(title='utils test case title')
         obj.save()
         self.failIf(obj.slug=='')
 
-        # in case no title is provided slug should fallback to id
-        self.failUnless(obj.slug==str(obj.id))
-
-        # in case title is probvided, slug should become sluggified version of title
-        obj = ModelBase(title='title 1', owner=self.user)
+        # slug should become sluggified version of title
+        obj = ModelBase(title='utils test case title 1')
         obj.save()
         self.failUnless(obj.slug==slugify(obj.title))
 
         # no two items should have the same slug
-        obj = ModelBase(title='title 1', owner=self.user)
+        obj = ModelBase(title='utils test case title 1')
         obj.save()
 
         # in case an object title is updated, the slug should also be updated
@@ -57,14 +63,11 @@ class UtilsTestCase(unittest.TestCase):
         self.failIf(obj.slug=='')
 
 class ModelBaseTestCase(unittest.TestCase):
-    def setUp(self):
-        self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
-        
     def test_save(self):
         before_save = datetime.now()
 
         # created field should be set on save
-        obj = ModelBase(owner=self.user)
+        obj = ModelBase(title='title')
         obj.save()
         
         # created field should be set to current datetime on save
@@ -73,19 +76,19 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # if a user supplies a created date use that instead of the current datetime
         test_datetime = datetime(2008, 10, 10, 12, 12)
-        obj = ModelBase(created=test_datetime, owner=self.user)
+        obj = ModelBase(title='title', created=test_datetime)
         obj.save()
         self.failIf(obj.created != test_datetime)
 
         # modified should be set to current datetime on each save
         before_save = datetime.now()
-        obj = ModelBase(owner=self.user)
+        obj = ModelBase(title='title')
         obj.save()
         after_save = datetime.now()
         self.failIf(obj.modified > after_save or obj.modified < before_save)
 
         # leaf class content type should be set on save
-        obj = DummyModel(owner=self.user)
+        obj = DummyModel(title='title')
         obj.save()
         self.failUnless(obj.content_type == ContentType.objects.get_for_model(DummyModel))
         
@@ -101,7 +104,7 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failUnless(base.class_name == DummyModel.__name__)
 
     def test_as_leaf_class(self):
-        obj = LeafModel(owner=self.user)
+        obj = LeafModel(title='title')
         obj.save()
 
         # always return the leaf class, no matter where we are in the hierarchy
@@ -112,7 +115,21 @@ class ModelBaseTestCase(unittest.TestCase):
 class ModelBaseAdminTestCase(unittest.TestCase):
     def setUp(self):
         self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
-    
+   
+    def test_field_hookup(self):
+        model_admin = ModelBaseAdmin(DummyModel, AdminSite())
+        
+        # field additions should be added to first fieldsets' fields
+        self.failIf('test_editable_field' not in model_admin.fieldsets[0][1]['fields'])
+        self.failIf('test_foreign_field' not in model_admin.fieldsets[0][1]['fields'])
+        self.failIf('test_many_field' not in model_admin.fieldsets[0][1]['fields'])
+        
+        # non editable field additions should not be added to fieldsets
+        self.failIf('test_non_editable_field' in model_admin.fieldsets[0][1]['fields'])
+
+        # non field class members should not be added to fieldsets
+        self.failIf('test_member' in model_admin.fieldsets[0][1]['fields'])
+
     def test_save_model(self):
         # setup mock objects
         admin_obj = ModelBaseAdmin(ModelBase, 1)
@@ -136,19 +153,19 @@ class PermittedManagerTestCase(unittest.TestCase):
         settings.SITE_ID = web_site.id
 
         # create unpublished item
-        unpublished_obj = ModelBase(state='unpublished')
+        unpublished_obj = ModelBase(title='title', state='unpublished')
         unpublished_obj.save()
         unpublished_obj.sites.add(web_site)
         unpublished_obj.save()
         
         # create published item
-        published_obj = ModelBase(state='published')
+        published_obj = ModelBase(title='title', state='published')
         published_obj.save()
         published_obj.sites.add(web_site)
         published_obj.save()
         
         # create staging item
-        staging_obj = ModelBase(state='staging')
+        staging_obj = ModelBase(title='title', state='staging')
         staging_obj.save()
         staging_obj.sites.add(web_site)
         staging_obj.save()
