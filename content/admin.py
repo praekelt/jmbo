@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+from django.db.models.fields import FieldDoesNotExist
 from django import forms
 from django.contrib import admin
 from django.contrib.sites.models import Site
@@ -22,8 +25,7 @@ class ModelBaseAdminForm(forms.ModelForm):
         model = ModelBase
 
 class ModelBaseAdmin(admin.ModelAdmin):
-    #form = ModelBaseAdminForm
-
+    form = ModelBaseAdminForm
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
@@ -39,6 +41,31 @@ class ModelBaseAdmin(admin.ModelAdmin):
                     'classes': ('collapse',),
         }),
     )
+    
+    def __init__(self, model, admin_site):
+        super(ModelBaseAdmin, self).__init__(model, admin_site)
+        fieldsets = deepcopy(ModelBaseAdmin.fieldsets)
+
+        set_fields = []
+        for fieldset in self.fieldsets:
+            set_fields += fieldset[1]['fields']
+
+        new_fields = []
+        for name in model._meta.get_all_field_names():
+            try:
+                field = model._meta.get_field(name)
+            except FieldDoesNotExist:
+                continue 
+            if field.editable and field.formfield():
+                if name not in set_fields and name not in ['id',]:
+                    new_fields += [name,]
+                    
+        for fieldset in fieldsets:
+            if fieldset[0] == None:
+                fieldset[1]['fields'] += tuple(new_fields)
+
+        self.fieldsets = fieldsets
+
     
     def save_model(self, request, obj, form, change):
         if not obj.owner:
