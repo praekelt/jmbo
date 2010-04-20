@@ -3,6 +3,9 @@ Django Content:
 **Django CMS base content app.**
 
 
+Models:
+=======
+
 ModelBase:
 ----------
 class models.ModelBase
@@ -68,3 +71,19 @@ MANAGERS
 permitted::
     ModelBase.permitted
 Creates a queryset that only contains objects for the current site with the state field set to 'published'. In case settings.STAGING = True, the queryset will also include objects with the state field set to 'staging'.
+
+
+Tag Reference:
+==============
+
+Enable in your template with the {% load content_inclusion_tags %} tag.
+
+render_object:
+--------------
+Polymorphically outputs varying simple object templates based on provided object and type.
+The template used is determined as follows: <app_label>/inclusion_tags/<model_name>_<type>.html. If a template of that name is not found content/inclusion_tags/modelbase_<type>.html is used by default.
+
+Argument: object to render, type of template to render 
+
+For example:
+    {% render_object object type %}
