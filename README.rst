@@ -50,9 +50,9 @@ as_leaf_class::
     ModelBase.as_leaf_class()
 Returns the leaf class no matter where the calling instance is in the inheritance hierarchy.
 
-set_slug::
+generate_slug::
 
-    set_slug(obj[, text=None])
+    utils.generate_slug(obj, text)
 Sets a slug on provided object based on text and tail number. A URL friendly slug is generated using django.template.defaultfilters' slugify. Numbers are added to the end of slugs for uniqueness.
 
 *Required arguments*
@@ -60,10 +60,8 @@ Sets a slug on provided object based on text and tail number. A URL friendly slu
 obj
     An object on which to set the slug. The object must provide a django.db.models.SlugField called **slug**.
 
-*Optional arguments*
-
 text
-    text from which to generate slug. If no text is provided the object's id is used.
+    text from which to generate slug.
 
 MANAGERS
 ********
