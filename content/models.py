@@ -1,9 +1,10 @@
 import time
 from datetime import datetime
 
-from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db import models
+from django.db.models import signals
 
 import tagging
 from content.managers import PermittedManager
@@ -120,3 +121,14 @@ class ModelBase(ImageModel):
         # set title as slug uniquely
         self.slug = generate_slug(self, self.title)
         super(ModelBase, self).save(*args, **kwargs)
+
+def set_managers(sender, **kwargs):
+    """
+    Make sure all classes have the appropriate managers 
+    """
+    cls = sender
+
+    if issubclass(cls, ModelBase):
+        cls.add_to_class('permitted', PermittedManager())
+
+signals.class_prepared.connect(set_managers)
