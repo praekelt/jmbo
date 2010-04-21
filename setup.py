@@ -15,6 +15,7 @@ setup(
         'PIL>=1.1.6',
         'django-photologue>=2.3',
         'django-tagging>=0.3.1',
+        'django-voting',
     ],
     include_package_data=True,
 )
