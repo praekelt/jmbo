@@ -1,9 +1,14 @@
 from django.template import loader
 from django.views.generic import list_detail
 
+from content.filters import ContentFilter
+
 class GenericObjectList(object):
+    def get_filterset(self, request, queryset):
+        return ContentFilter(request.GET, queryset=queryset)
+
     def get_queryset(self):
-        raise NotImplementedError('%s should impliment get_queryset.' % self.__class__)
+        raise NotImplementedError('%s should implement get_queryset.' % self.__class__)
 
     def get_paginate_by(self):
         return None
@@ -20,8 +25,11 @@ class GenericObjectList(object):
     def get_template_loader(self):
         return loader
 
-    def get_extra_context(self):
-        return None
+    def get_extra_context(self, *args, **kwargs):
+        if kwargs.keys():
+            return kwargs
+        else:
+            return None
         
     def get_context_processors(self):
         return None
@@ -37,15 +45,16 @@ class GenericObjectList(object):
             setattr(self, key, value)
 
     def __call__(self, request, *args, **kwargs):
+        filterset=self.get_filterset(request, kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset())))
         return list_detail.object_list(
             request, 
-            queryset=kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset())),
+            queryset=filterset.qs,
             paginate_by=kwargs.get('paginate_by', getattr(self, 'paginate_by', self.get_paginate_by())),
             page=kwargs.get('page', getattr(self, 'page', self.get_page())),
             allow_empty=kwargs.get('allow_empty', getattr(self, 'allow_empty', self.get_allow_empty())),
             template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
             template_loader=kwargs.get('template_loader', getattr(self, 'template_loader', self.get_template_loader())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context())),
+            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(filterset=filterset))),
             context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
             template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
