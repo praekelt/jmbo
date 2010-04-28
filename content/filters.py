@@ -8,7 +8,7 @@ import django_filters
 
 class IntervalFilter(django_filters.DateRangeFilter):
     """
-    Filters based on week (in reality the last 7 days) and month.
+    Filters queryset on week (in reality the last 7 days) or month.
     """
     options = {
         'week': (_('This Week'), lambda qs, name: qs.filter(**{
@@ -29,11 +29,11 @@ class IntervalFilter(django_filters.DateRangeFilter):
 class OrderFilter(django_filters.ChoiceFilter):
     """
     Ordering filter ordering queryset items by most-recent(by created)
-    and vote score(with score being calculated by positive votes).
+    or most-liked(with score being calculated by positive votes).
     """
     options = {
         'most-recent': (_('Most Recent'), lambda qs, name: qs.order_by('-%s' % name)),
-        'most-liked': (_('Most Recent'), lambda qs, name: qs.extra(
+        'most-liked': (_('Most Liked'), lambda qs, name: qs.extra(
             select={
                 'score': 'SELECT COUNT(*) FROM votes WHERE votes.object_id = content_modelbase.id AND votes.vote = 1'
             },
@@ -46,6 +46,10 @@ class OrderFilter(django_filters.ChoiceFilter):
             return qs
 
 class IntervalOrderFilterSet(django_filters.FilterSet):
+    """
+    Filters queryset through an IntervalFilter('interval').
+    Orders queryset through an OrderFilter('order').
+    """
     interval = IntervalFilter(
         name="created",
         label="Filter By",
