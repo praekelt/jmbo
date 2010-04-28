@@ -1,3 +1,4 @@
+import random
 import unittest
 from datetime import datetime, timedelta
 
@@ -12,9 +13,11 @@ from django.template import Template
 from django.template.defaultfilters import slugify
 
 from content.admin import ModelBaseAdmin
-from content.filters import IntervalFilter
+from content.filters import IntervalFilter, OrderFilter
 from content.models import ModelBase
 from content.utils.tests import RequestFactory
+        
+from voting.models import Vote
         
        
 class DummyRelationalModel1(models.Model):
@@ -289,5 +292,62 @@ class IntervalFilterTestCase(unittest.TestCase):
             self.failIf(obj.created.date() < month_cutoff.date())
 
         # return original queryset in case of bogus value
+        qs = ModelBase.objects.all()
+        interval_filter = IntervalFilter(name="created")
         filtered_qs = interval_filter.filter(qs, 'bogus')
+        self.failUnlessEqual(qs, filtered_qs)
+
+class OrderFilterTestCase(unittest.TestCase):
+    def setUp(self):
+        # generate some content, with each object created on a different date
+        # and with different vote counts
+        count = 100
+        created = datetime.now() - timedelta(days=count/2)
+        voters = []
+        # create voting user
+        for i in range(0, count):
+            voters.append(User.objects.get_or_create(username='voter%s' % i, email='voter%s@dress.com' % i)[0])
+
+        for i in range(0,count):
+            # create object
+            obj = ModelBase(title="ModelBase %s Title" % i, created=created)
+            obj.save()
+
+            # vote for a sample of voters
+            for voter in random.sample(voters, random.randint(0, count)):
+                Vote.objects.record_vote(obj, voter, 1)
+                
+            created += timedelta(days=1)
+            
+    def test_filter(self):
+        # order by most recent
+        qs = ModelBase.objects.all()
+        order_filter = OrderFilter(name="created")
+        filtered_qs = order_filter.filter(qs, 'most-recent')
+        
+        # the filtered qs should contain some objects
+        self.failUnless(filtered_qs.count())
+
+        # we are ordering by most recent so the queryset should be ordered by created, descending
+        prev_obj = filtered_qs[0]
+        for obj in filtered_qs:
+            self.failIf(obj.created > prev_obj.created)
+        
+        # order by most liked
+        qs = ModelBase.objects.all()
+        order_filter = OrderFilter(name="created")
+        filtered_qs = order_filter.filter(qs, 'most-liked')
+        
+        # the filtered qs should contain some objects
+        self.failUnless(filtered_qs.count())
+        
+        # we are ordering by most liked so the queryset should be ordered by vote score, descending
+        prev_obj = filtered_qs[0]
+        for obj in filtered_qs:
+            self.failIf(Vote.objects.get_score(obj)['score'] > Vote.objects.get_score(prev_obj)['score'])
+        
+        # return original queryset in case of bogus value
+        qs = ModelBase.objects.all()
+        order_filter = OrderFilter(name="created")
+        filtered_qs = order_filter.filter(qs, 'bogus')
         self.failUnlessEqual(qs, filtered_qs)
