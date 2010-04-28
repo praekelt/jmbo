@@ -73,20 +73,50 @@ permitted::
 Creates a queryset that only contains objects for the current site with the state field set to 'published'. In case settings.STAGING = True, the queryset will also include objects with the state field set to 'staging'.
 
 
-Tag Reference:
-==============
+Tag Reference
+=============
 
-Enable in your template with the {% load content_inclusion_tags %} tag.
-
-render_object:
+Inclusion Tags
 --------------
+
+Enable in your templates with the {% load content_inclusion_tags %} tag.
+
+render_object
+~~~~~~~~~~~~~
 Polymorphically outputs varying simple object templates based on provided object and type.
 The template used is determined as follows: <app_label>/inclusion_tags/<model_name>_<type>.html. If a template of that name is not found content/inclusion_tags/modelbase_<type>.html is used by default.
 
-Argument: object to render, type of template to render 
+Arguments: object to render, type of template to render 
 
-For example:
+Sample usage:
     {% render_object object type %}
+
+Template Tags
+-------------
+
+Enable in your templates with the {% load content_template_tags %} tag.
+
+filter_menu
+~~~~~~~~~~~
+Output django-filter filterset menu
+
+Arguments: filterset to render
+
+Sample usage:
+    {% filter_menu filterset %}
+    
+smart_query_string
+~~~~~~~~~~~~~~~~~~
+Outputs current GET query string with additions appended. 
+
+Arguments: additions to append, in pairs. Multiple additions can be provided.
+
+Sample usage:
+    {% smart_query_string param1 value1 param2 value2 %}
+Results in
+    <path>?param1=value1&param2=value2 
+If the current request already contains GET values, those are included. For instance if we have a GET value for paging of 2, the result for the example above would be
+    <path>?paging=2&param1=value1&param2=value2
 
 
 Filtering
