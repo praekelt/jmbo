@@ -1,11 +1,10 @@
 from django.template import loader
 from django.views.generic import list_detail
 
-from content.filters import ContentFilter
 
 class GenericObjectList(object):
     def get_filterset(self, request, queryset):
-        return ContentFilter(request.GET, queryset=queryset)
+        raise NotImplementedError('%s should implement get_filterset.' % self.__class__)
 
     def get_queryset(self):
         raise NotImplementedError('%s should implement get_queryset.' % self.__class__)
