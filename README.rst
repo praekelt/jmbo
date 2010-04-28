@@ -87,3 +87,27 @@ Argument: object to render, type of template to render
 
 For example:
     {% render_object object type %}
+
+
+Filtering
+=========
+Custom filters and filtersets adding custom functionality to the 3rd party django-filter app.
+
+Filters
+-------
+
+IntervalFilter
+~~~~~~~~~~~~~~
+Filters queryset on week (in reality the last 7 days) or month.
+
+    
+OrderFilter
+~~~~~~~~~~~
+Ordering filter ordering queryset items by most-recent(by created) or most-liked(with score being calculated by positive votes).
+
+FilterSets
+----------
+
+IntervalOrderFilterSet
+~~~~~~~~~~~~~~~~~~~~~~
+Filters queryset through an IntervalFilter('interval'). Orders queryset through an OrderFilter('order').
