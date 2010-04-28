@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django import template
 from django.db import models
@@ -12,8 +12,10 @@ from django.template import Template
 from django.template.defaultfilters import slugify
 
 from content.admin import ModelBaseAdmin
+from content.filters import IntervalFilter
 from content.models import ModelBase
 from content.utils.tests import RequestFactory
+        
        
 class DummyRelationalModel1(models.Model):
     pass
@@ -219,7 +221,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         self.failIf(obj in queryset)
 
 
-class InlcusionTagsTestCase(unittest.TestCase):
+class InclusionTagsTestCase(unittest.TestCase):
     def setUp(self):
         obj = TestModel(title='title', state='published')
         obj.save()
@@ -245,3 +247,47 @@ class InlcusionTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         expected_result = u''
         self.failUnlessEqual(result, expected_result)
+
+class IntervalFilterTestCase(unittest.TestCase):
+    def setUp(self):
+        # generate some content, with each object created on a different date
+        count = 100
+        created = datetime.now() - timedelta(days=count/2)
+        for i in range(0,count):
+            ModelBase(title="ModelBase %s Title" % i, created=created).save()
+            created += timedelta(days=1)
+
+    def test_filter(self):
+        # filter on week
+        qs = ModelBase.objects.all()
+        interval_filter = IntervalFilter(name="created")
+        filtered_qs = interval_filter.filter(qs, 'week')
+        
+        # the filtered qs should contain some objects
+        self.failUnless(filtered_qs.count())
+
+
+        # we are filtering on week so the queryset should contain no 
+        # items created prior to the last 7 days
+        week_cutoff = datetime.now() - timedelta(days=7)
+        for obj in filtered_qs:
+            self.failIf(obj.created.date() < week_cutoff.date())
+        
+        # filter on month
+        qs = ModelBase.objects.all()
+        interval_filter = IntervalFilter(name="created")
+        filtered_qs = interval_filter.filter(qs, 'month')
+        
+        # the filtered qs should contain some objects
+        self.failUnless(filtered_qs.count())
+
+        # we are filtering on month so the queryset should contain no 
+        # items created in a prior month
+        month_cutoff = datetime.today()
+        month_cutoff = datetime(month_cutoff.year, month_cutoff.month, 1)
+        for obj in filtered_qs:
+            self.failIf(obj.created.date() < month_cutoff.date())
+
+        # return original queryset in case of bogus value
+        filtered_qs = interval_filter.filter(qs, 'bogus')
+        self.failUnlessEqual(qs, filtered_qs)
