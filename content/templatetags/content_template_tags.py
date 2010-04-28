@@ -1,9 +1,37 @@
 from django import template
+from django.template.loader import render_to_string
 
 register = template.Library()
 
 @register.tag
+def filter_menu(parser, token):
+    """
+    Output filter menu.
+    """
+    try:
+        tag_name, filterset = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError('filter_menu tag requires 1 argument (filterset), %s given' % (len(token.split_contents()) - 1))
+    return FilterMenuNode(filterset)
+
+class FilterMenuNode(template.Node):
+    def __init__(self, filterset):
+        self.filterset = template.Variable(filterset)
+    
+    def render(self, context):
+        filterset = self.filterset.resolve(context)
+        context = {
+            'request': context['request'],
+            'filterset': filterset,
+        }
+        return render_to_string('content/template_tags/filter_menu.html', context)
+
+@register.tag
 def smart_query_string(parser, token):
+    """
+    Outputs current GET query string with additions appended.
+    Additions are provided in token pairs. 
+    """
     args = token.split_contents()
     additions = args[1:]
    
@@ -13,7 +41,6 @@ def smart_query_string(parser, token):
         additions = additions[2:]
 
     return SmartQueryStringNode(addition_pairs)
-
 
 class SmartQueryStringNode(template.Node):
     def __init__(self, addition_pairs):
