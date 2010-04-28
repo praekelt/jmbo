@@ -45,6 +45,10 @@ class OrderFilter(django_filters.ChoiceFilter):
         except KeyError:
             return qs
 
+    def __init__(self, *args, **kwargs):
+        kwargs['choices'] = [(key, value[0]) for key, value in self.options.iteritems()]
+        super(OrderFilter, self).__init__(*args, **kwargs)
+
 class IntervalOrderFilterSet(django_filters.FilterSet):
     """
     Filters queryset through an IntervalFilter('interval').
@@ -60,4 +64,4 @@ class IntervalOrderFilterSet(django_filters.FilterSet):
     )
     class Meta:
         model = ModelBase
-        fields = ['interval', 'order']
+        fields = ['order', 'interval']
