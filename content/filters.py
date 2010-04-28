@@ -6,7 +6,10 @@ from content.models import ModelBase
 
 import django_filters
 
-class DateRangeFilter(django_filters.DateRangeFilter):
+class IntervalFilter(django_filters.DateRangeFilter):
+    """
+    Filters based on week (in reality the last 7 days) and month.
+    """
     options = {
         'week': (_('This Week'), lambda qs, name: qs.filter(**{
             '%s__gte' % name: (datetime.today() - timedelta(days=7)).strftime('%Y-%m-%d'),
@@ -19,10 +22,12 @@ class DateRangeFilter(django_filters.DateRangeFilter):
     }
     def filter(self, qs, value):
         try:
-            value = int(value)
             return self.options[value][1](qs, self.name)
-        except (ValueError, TypeError):
-            return qs.all()
+        except KeyError:
+            return qs
+
+class OrderFilter(ChoiceFilter):
+    pass
 
 def order_action(qs, value):
     if value == '' or 'most-recent':
@@ -30,7 +35,6 @@ def order_action(qs, value):
 
 class ContentFilter(django_filters.FilterSet):
     order_choices = ('most-recent', 'most-liked')
-
     order = django_filters.ChoiceFilter(
         name='classname', 
         label='Order By',
@@ -40,10 +44,10 @@ class ContentFilter(django_filters.FilterSet):
             ('most-liked', 'Most Liked'),
         )
     )
-    range = DateRangeFilter(
+    interval = IntervalFilter(
         name="created",
         label="Filter By",
     )
     class Meta:
         model = ModelBase
-        fields = ['order', 'range']
+        fields = ['order', 'interval']
