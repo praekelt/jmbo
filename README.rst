@@ -89,6 +89,7 @@ The template used is determined as follows: <app_label>/inclusion_tags/<model_na
 Arguments: object to render, type of template to render 
 
 Sample usage:
+
     {% render_object object type %}
 
 Template Tags
@@ -103,7 +104,18 @@ Output django-filter filterset menu
 Arguments: filterset to render
 
 Sample usage:
+
     {% filter_menu filterset %}
+    
+pager
+~~~~~
+Outputs pagination links.
+
+Arguments: page object.
+
+Sample usage:
+
+    {% pager page_obj %}
     
 smart_query_string
 ~~~~~~~~~~~~~~~~~~
@@ -112,10 +124,15 @@ Outputs current GET query string with additions appended.
 Arguments: additions to append, in pairs. Multiple additions can be provided.
 
 Sample usage:
+
     {% smart_query_string param1 value1 param2 value2 %}
-Results in
+
+Results in:
+
     <path>?param1=value1&param2=value2 
-If the current request already contains GET values, those are included. For instance if we have a GET value for paging of 2, the result for the example above would be
+
+If the current request already contains GET values, those are included. For instance if we have a GET value for paging of 2, the result for the example above would be:
+
     <path>?paging=2&param1=value1&param2=value2
 
 
