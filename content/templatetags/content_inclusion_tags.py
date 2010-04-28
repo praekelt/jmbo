@@ -10,7 +10,7 @@ def render_object(parser, token):
     try:
         tag_name, obj, type = token.split_contents()
     except ValueError:
-        raise template.TemplateSyntaxError(('%s tag requires 2 arguments (obj, type), %s given' % (tag_name, len(token) - 1)))
+        raise template.TemplateSyntaxError('render_object tag requires 2 arguments (obj, type), %s given' % (len(token.split_contents()) - 1))
     return RenderObjectNode(obj, type)
 
 class RenderObjectNode(template.Node):
