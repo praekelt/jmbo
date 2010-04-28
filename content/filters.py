@@ -26,28 +26,34 @@ class IntervalFilter(django_filters.DateRangeFilter):
         except KeyError:
             return qs
 
-class OrderFilter(ChoiceFilter):
-    pass
+class OrderFilter(django_filters.ChoiceFilter):
+    """
+    Ordering filter ordering queryset items by most-recent(by created)
+    and vote score(with score being calculated by positive votes).
+    """
+    options = {
+        'most-recent': (_('Most Recent'), lambda qs, name: qs.order_by('-%s' % name)),
+        'most-liked': (_('Most Recent'), lambda qs, name: qs.extra(
+            select={
+                'score': 'SELECT COUNT(*) FROM votes WHERE votes.object_id = content_modelbase.id AND votes.vote = 1'
+            },
+        ).order_by('-score')),
+    }
+    def filter(self, qs, value):
+        try:
+            return self.options[value][1](qs, self.name)
+        except KeyError:
+            return qs
 
-def order_action(qs, value):
-    if value == '' or 'most-recent':
-        return qs.order_by('-created')
-
-class ContentFilter(django_filters.FilterSet):
-    order_choices = ('most-recent', 'most-liked')
-    order = django_filters.ChoiceFilter(
-        name='classname', 
-        label='Order By',
-        action=order_action,
-        choices=(
-            ('most-recent', 'Most Recent'),
-            ('most-liked', 'Most Liked'),
-        )
-    )
+class IntervalOrderFilterSet(django_filters.FilterSet):
     interval = IntervalFilter(
         name="created",
         label="Filter By",
     )
+    order = OrderFilter(
+        name="created",
+        label="Order By",
+    )
     class Meta:
         model = ModelBase
-        fields = ['order', 'interval']
+        fields = ['interval', 'order']
