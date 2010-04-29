@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import signals
 
 import tagging
+import secretballot
 from content.managers import PermittedManager
 from content.utils import generate_slug
 from photologue.models import ImageModel
@@ -122,13 +123,24 @@ class ModelBase(ImageModel):
         self.slug = generate_slug(self, self.title)
         super(ModelBase, self).save(*args, **kwargs)
 
+    @property
+    def vote_total(self):
+        """
+        Calculates vote total as total_upvotes - total_downvotes. We are adding a method here instead of relying on django-secretballot's addition since that doesn't work for subclasses.
+        """
+        return self.votes.filter(vote=+1).count() - self.votes.filter(vote=-1).count() 
+
 def set_managers(sender, **kwargs):
     """
     Make sure all classes have the appropriate managers 
     """
     cls = sender
-
+   
     if issubclass(cls, ModelBase):
         cls.add_to_class('permitted', PermittedManager())
 
 signals.class_prepared.connect(set_managers)
+
+# enable voting for ModelBase, but specify a diffirent total name 
+# so ModelBase's vote_total method is not overwritten
+secretballot.enable_voting_on(ModelBase, total_name="secretballot_added_vote_total")
