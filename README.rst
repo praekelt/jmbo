@@ -1,5 +1,5 @@
-Django Content:
-===============
+Django Content
+==============
 **Django CMS base content app.**
 
 
