@@ -5,6 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 from content.models import ModelBase
 
 import django_filters
+    
+from secretballot.models import Vote
+from django.contrib.contenttypes.models import ContentType
 
 class IntervalFilter(django_filters.DateRangeFilter):
     """
@@ -35,9 +38,7 @@ class OrderFilter(django_filters.ChoiceFilter):
         'most-recent': (_('Most Recent'), lambda qs, name: qs.order_by('-%s' % name)),
         'most-liked': (_('Most Liked'), lambda qs, name: qs.extra(
             select={
-                'score': 'SELECT COUNT(*) FROM votes WHERE votes.object_id = content_modelbase.id AND votes.vote = 1'
-            },
-        ).order_by('-score')),
+                'vote_score': '(SELECT COUNT(*) from %s WHERE vote=1 AND object_id=%s.%s AND content_type_id=%s) - (SELECT COUNT(*) from %s WHERE vote=-1 AND object_id=%s.%s AND content_type_id=%s)' % (Vote._meta.db_table, qs.model._meta.db_table, qs.model._meta.pk.attname, ContentType.objects.get_for_model(qs.model).id, Vote._meta.db_table, qs.model._meta.db_table, qs.model._meta.pk.attname, ContentType.objects.get_for_model(qs.model).id)}).order_by('-vote_score')),
     }
     def filter(self, qs, value):
         try:
