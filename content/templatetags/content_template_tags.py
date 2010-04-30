@@ -1,53 +1,6 @@
 from django import template
-from django.template.loader import render_to_string
 
 register = template.Library()
-
-@register.tag
-def filter_menu(parser, token):
-    """
-    Output filter menu.
-    """
-    try:
-        tag_name, filterset = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError('filter_menu tag requires 1 argument (filterset), %s given' % (len(token.split_contents()) - 1))
-    return FilterMenuNode(filterset)
-
-class FilterMenuNode(template.Node):
-    def __init__(self, filterset):
-        self.filterset = template.Variable(filterset)
-    
-    def render(self, context):
-        filterset = self.filterset.resolve(context)
-        context = {
-            'request': context['request'],
-            'filterset': filterset,
-        }
-        return render_to_string('content/template_tags/filter_menu.html', context)
-
-@register.tag
-def pager(parser, token):
-    """
-    Output pagination links.
-    """
-    try:
-        tag_name, page_obj = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError('pager tag requires 1 argument (page_obj), %s given' % (len(token.split_contents()) - 1))
-    return PagerNode(page_obj)
-
-class PagerNode(template.Node):
-    def __init__(self, page_obj):
-        self.page_obj = template.Variable(page_obj)
-    
-    def render(self, context):
-        page_obj = self.page_obj.resolve(context)
-        context = {
-            'request': context['request'],
-            'page_obj': page_obj,
-        }
-        return render_to_string('content/template_tags/pager.html', context)
 
 @register.tag
 def smart_query_string(parser, token):
