@@ -6,6 +6,60 @@ from django.template.loader import render_to_string
 register = template.Library()
 
 @register.tag
+def filter_menu(parser, token):
+    """
+    Output filter menu.
+    """
+    try:
+        tag_name, filterset = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError('filter_menu tag requires 1 argument (filterset), %s given' % (len(token.split_contents()) - 1))
+    return FilterMenuNode(filterset)
+
+class FilterMenuNode(template.Node):
+    def __init__(self, filterset):
+        self.filterset = template.Variable(filterset)
+    
+    def render(self, context):
+        filterset = self.filterset.resolve(context)
+        context = {
+            'request': context['request'],
+            'filterset': filterset,
+        }
+        return render_to_string('content/inclusion_tags/filter_menu.html', context)
+
+@register.inclusion_tag('content/inclusion_tags/object_comments.html')
+def object_comments(obj):
+    return {'object': obj}
+
+@register.inclusion_tag('content/inclusion_tags/object_header.html')
+def object_header(obj):
+    return {'object': obj}
+
+@register.tag
+def pager(parser, token):
+    """
+    Output pagination links.
+    """
+    try:
+        tag_name, page_obj = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError('pager tag requires 1 argument (page_obj), %s given' % (len(token.split_contents()) - 1))
+    return PagerNode(page_obj)
+
+class PagerNode(template.Node):
+    def __init__(self, page_obj):
+        self.page_obj = template.Variable(page_obj)
+    
+    def render(self, context):
+        page_obj = self.page_obj.resolve(context)
+        context = {
+            'request': context['request'],
+            'page_obj': page_obj,
+        }
+        return render_to_string('content/inclusion_tags/pager.html', context)
+
+@register.tag
 def render_object(parser, token):
     try:
         tag_name, obj, type = token.split_contents()
