@@ -53,6 +53,11 @@ as_leaf_class::
     ModelBase.as_leaf_class()
 Returns the leaf class no matter where the calling instance is in the inheritance hierarchy.
 
+vote_total::
+
+    ModelBase.vote_total
+Calculates vote total as total_upvotes - total_downvotes. We are defining a property here instead of relying on django-secretballot's addition since that doesn't work for subclasses.
+
 generate_slug::
 
     utils.generate_slug(obj, text)
