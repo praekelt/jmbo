@@ -1,0 +1,13 @@
+{% load content_template_tags %} 
+
+<div class="menu">
+    <ul>
+        {% for field in filterset.form %}
+            {% for choice in field.field.choices %}
+    		    <li{% if choice.0 in request.GET.values %} class="on"{% endif %}>
+                    <span></span><a href="{{ filterset.action_url}}{% smart_query_string field.name choice.0%}">{{ choice.1 }}</a><span></span>
+                </li>
+            {% endfor %}
+        {% endfor %}
+	</ul>
+</div><!--/menu-->
