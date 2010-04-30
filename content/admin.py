@@ -40,6 +40,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
                     'classes': ('collapse',),
         }),
+        ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', 'comments_closed'),
+                    'classes': ('collapse',),
+        }),
+        ('Liking', {'fields': ('likes_enabled', 'anonymous_likes', 'likes_closed'),
+                    'classes': ('collapse',),
+        }),
     )
     
     def __init__(self, model, admin_site):
