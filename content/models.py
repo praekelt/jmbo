@@ -86,6 +86,30 @@ class ModelBase(ImageModel):
         null=True,
         help_text='Makes item eligible to be published on selected platform.',
     )
+    comments_enabled = models.BooleanField(
+        verbose_name="Commenting Enabled",
+        help_text="Enable commenting for this item. Comments will not display when disabled."
+    )
+    anonymous_comments = models.BooleanField(
+        verbose_name="Anonymous Commenting Enabled",
+        help_text="Enable anonymous commenting for this item."
+    )
+    comments_closed = models.BooleanField(
+        verbose_name="Commenting Closed",
+        help_text="Close commenting for this item. Comments will still display, but users won't be able to add new comments."
+    )
+    likes_enabled = models.BooleanField(
+        verbose_name="Liking Enabled",
+        help_text="Enable liking for this item. Likes will not display when disabled."
+    )
+    anonymous_likes = models.BooleanField(
+        verbose_name="Anonymous Liking Enabled",
+        help_text="Enable anonymous liking for this item."
+    )
+    likes_closed = models.BooleanField(
+        verbose_name="Liking Closed",
+        help_text="Close liking for this item. Likes will still display, but users won't be able to the item anymore."
+    )
    
     class Meta:
         ordering = ('-created',)
