@@ -63,6 +63,11 @@ class IntervalOrderFilterSet(django_filters.FilterSet):
         name="created",
         label="Order By",
     )
+
+    def __init__(self, data=None, queryset=None, prefix=None, action_url=''):
+        self.action_url = action_url 
+        super(IntervalOrderFilterSet, self).__init__(data, queryset, prefix)
+        
     class Meta:
         model = ModelBase
         fields = ['order', 'interval']
