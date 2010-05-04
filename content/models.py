@@ -10,7 +10,7 @@ import tagging
 import secretballot
 from content.managers import PermittedManager
 from content.utils import generate_slug
-from photologue.models import ImageModel
+from photologue.models import ImageModel, PhotoSize
 
 class ModelBase(ImageModel):
     objects = models.Manager()
@@ -145,7 +145,38 @@ class ModelBase(ImageModel):
 
         # set title as slug uniquely
         self.slug = generate_slug(self, self.title)
+
+        # set a dummy filename for image if no image is provided
+        # TODO: fully investigate implications
+        if not self.image:
+            self.image = 'dummy/filename/for/requirement'
+
         super(ModelBase, self).save(*args, **kwargs)
+
+    def _get_poly_size(self, size):
+        """
+        Polymorphically returns a photosize name for size.
+        Use to traverse up the base chain untill a class size is found. 
+        Returned size string takes the form <app-label>_<model-name>_<size>
+        """
+        cls = self.__class__
+        size_prefix = self._meta.db_table
+        poly_size = "_".join((size_prefix, size)) 
+        if cls == ModelBase:
+            return poly_size
+       
+        try:
+            photosize = PhotoSize.objects.get(name=poly_size)
+            return poly_size
+        except PhotoSize.DoesNotExist:
+            base_chain = self._meta.get_base_chain(ModelBase)
+            closest_base_cls = base_chain[0]
+            closest_base = getattr(self, self._meta.get_ancestor_link(closest_base_cls).name)
+            return closest_base._get_poly_size(size)
+    
+    def _get_SIZE_url(self, size):
+        poly_size = self._get_poly_size(size)
+        return super(ModelBase, self)._get_SIZE_url(poly_size)
 
     @property
     def vote_total(self):
