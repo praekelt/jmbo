@@ -17,6 +17,7 @@ from content.filters import IntervalFilter, OrderFilter
 from content.models import ModelBase
 from content.utils.tests import RequestFactory
         
+from photologue.models import PhotoSize
 from secretballot.models import Vote
         
        
@@ -135,6 +136,29 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # vote total is calculated as total_upvotes - total_downvotes
         self.failUnlessEqual(result, 1)
+       
+    def test_get_poly_size(self):
+        # if we have a ModelBase object, the size for content modelbase should be returned
+        obj = ModelBase(title='title')
+        obj.save()
+        poly_size = obj._get_poly_size('test')
+        self.failUnlessEqual(poly_size, 'content_modelbase_test')
+
+        # if we have a BranchModel object without a size defined for it, the size for content modelbase should be returned
+        obj = BranchModel(title='title', image='test')
+        obj.save()
+        poly_size = obj._get_poly_size('test')
+        self.failUnlessEqual(poly_size, 'content_modelbase_test')
+        
+        # if we have a BranchModel object without a size defined for it, but a size has been defined for its base model TrunkModel, the size for content trunkmodel should be returned
+        PhotoSize(name='content_trunkmodel_test').save()
+        poly_size = obj._get_poly_size('test')
+        self.failUnlessEqual(poly_size, 'content_trunkmodel_test')
+        
+        # if we have a BranchModel object with a size defined for it, the size for content branchmodel should be returned
+        PhotoSize(name='content_branchmodel_test').save()
+        poly_size = obj._get_poly_size('test')
+        self.failUnlessEqual(poly_size, 'content_branchmodel_test')
         
 
 class ModelBaseAdminTestCase(unittest.TestCase):
