@@ -3,14 +3,18 @@ import unittest
 from datetime import datetime, timedelta
 
 from django import template
-from django.db import models
 from django.conf import settings
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ViewDoesNotExist
+from django.core.urlresolvers import reverse
+from django.db import models
 from django.template import Template
 from django.template.defaultfilters import slugify
+from django.test import TestCase
+from django.test.client import Client
 
 from content.admin import ModelBaseAdmin
 from content.filters import IntervalFilter, OrderFilter
@@ -169,7 +173,6 @@ class ModelBaseAdminTestCase(unittest.TestCase):
        
         # TODO: if a different user is specified as owner set that user as owner
 
-
 class PermittedManagerTestCase(unittest.TestCase):
     def setUp(self):
         # create website site item and set as current site
@@ -239,7 +242,6 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(obj in queryset)
 
-
 class InclusionTagsTestCase(unittest.TestCase):
     def setUp(self):
         obj = TestModel(title='title', state='published')
@@ -266,6 +268,21 @@ class InclusionTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         expected_result = u''
         self.failUnlessEqual(result, expected_result)
+
+class TemplateTagsTestCase(unittest.TestCase):
+    def setUp(self):
+        def url_callable(obj):
+            return 'Test URL method using object %s' % obj
+
+        obj = TestModel(title='title', state='published')
+        obj.save()
+        self.context = template.Context({'object': obj, 'url_callable': url_callable})
+
+    def test_smart_url(self):
+        # return method call with result based on object provided
+        t = Template("{% load content_template_tags %}{% smart_url url_callable object %}")
+        result = t.render(self.context)
+        self.failUnlessEqual(result, 'Test URL method using object TestModel object') 
 
 class IntervalFilterTestCase(unittest.TestCase):
     def setUp(self):
