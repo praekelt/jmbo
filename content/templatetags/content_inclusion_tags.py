@@ -5,6 +5,11 @@ from django.template.loader import render_to_string
 
 register = template.Library()
 
+@register.inclusion_tag('content/inclusion_tags/modelbase_list.html', takes_context=True)
+def modelbase_listing(context, object_list):
+    context.update({'object_list': object_list})
+    return context
+
 @register.tag
 def filter_menu(parser, token):
     """
@@ -79,13 +84,12 @@ class RenderObjectNode(template.Node):
         # generate template name from obj app label, model and type
         obj_type = ContentType.objects.get_for_model(obj)
         template_name = "%s/inclusion_tags/%s_%s.html" % (obj_type.app_label, obj_type.model, type)
-
         # create response from template. if template is not found for obj type use default content template.
         # if default content template is not found for type return empty response
         try:
             response = render_to_string(template_name, context)
         except TemplateDoesNotExist:
-            template_name = "content/inclusion_tags/content_%s.html" % type
+            template_name = "content/inclusion_tags/modelbase_%s.html" % type
             try:
                 response = render_to_string(template_name, context)
             except TemplateDoesNotExist:
