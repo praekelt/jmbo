@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load content_inclusion_tags gallery_inclusion_tags %} 
+
+{% block content %}
+    <div class="page section_news">
+	    <div class="title">
+		    <h1>{{ title }}</h1>
+		</div><!--/title-->
+            
+        {% filter_menu filterset %}
+
+        {% object_header object %}
+      
+        {% with object.as_leaf_class as object %}
+            {% render_object object.as_leaf_class detail %}
+        {% endwith %}
+
+        {% object_comments object %}
+
+	</div><!--/page-->
+{% endblock %}

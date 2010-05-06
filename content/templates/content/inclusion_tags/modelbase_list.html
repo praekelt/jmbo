@@ -1,0 +1,5 @@
+{% load content_inclusion_tags %}
+
+{% for object in object_list %}
+    {% render_object object list_wide %}
+{% endfor %}

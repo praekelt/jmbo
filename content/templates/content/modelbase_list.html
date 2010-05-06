@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load content_inclusion_tags %} 
+
+{% block content %}
+    <div class="page section_news">
+	    <div class="title">
+		    <h1>{{ title }}</h1>
+		</div><!--/title-->
+
+        {% filter_menu filterset %}
+
+        {% modelbase_listing object_list %}
+
+        {% pager page_obj %}
+
+	</div><!--/page-->
+{% endblock %}

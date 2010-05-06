@@ -1,0 +1,14 @@
+{% load comments content_template_tags %}
+
+{% get_comment_count for object as comment_count %}
+
+<div class="intro">
+    <a href="{% smart_url url_callable object %}" class="intro_pic">
+        <img src="{{ object.get_modelbase_list_wide_url }}" width="107" height="60" alt="" /><span></span>
+    </a>
+	<p class="meta">By {{ object.owner }} on {{ object.created|date:"j F Y" }}</p>
+	<h3><a href="{% smart_url url_callable object %}">{{ object.title }}</a></h3>
+	<p class="blurb">{{ object.description|truncatewords:12 }} <a href="{% smart_url url_callable object %}">More</a></p>
+	<a href="{% smart_url url_callable object %}#contribute" class="intro_comments">{{ comment_count }} Comments</a>
+	<span class="intro_likes">{{ object.vote_total }} Likes</span>
+</div><!--/intro-->
