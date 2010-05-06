@@ -81,7 +81,7 @@ class GenericObjectList(object):
 
 class GenericObjectDetail(object):
     def get_filterset(self, request, queryset):
-        raise NotImplementedError('%s should implement get_filterset.' % self.__class__)
+        return None
 
     def get_queryset(self):
         raise NotImplementedError('%s should impliment get_queryset.' % self.__class__)
