@@ -1,10 +1,10 @@
 <div class="heading">
-    <p class="likes">24<span>Likes</span></p>
-	<h1>Lorem ipsum dolor sit amet, consectetur elit, sed do eiusmod tempor ut labore et!</h1>
-	<p class="meta">By <a href="/dj-blog.html">Jack Johnson</a> on 20 February 2009</p>
+    <p class="likes">{{ object.vote_total }}<span>Likes</span></p>
+	<h1>{{ object.title }}</h1>
+	<p class="meta">By <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> on {{ object.created|date:"j F Y" }}</p>
 	<p class="social">
 	    <a href="javascript: void(0);" class="social_share">Share</a>
-		<a href="/dj-blog-detail.html#contribute" class="social_comments">Comments</a>
+		<a href="#contribute" class="social_comments">Comments</a>
 		<a href="javascript: void(0);" class="social_like">I Like</a>
 	</p>
 	<p class="social_pop">
