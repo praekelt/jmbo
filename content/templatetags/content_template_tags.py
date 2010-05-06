@@ -2,6 +2,10 @@ from django import template
 
 register = template.Library()
 
+@register.simple_tag
+def smart_url(url_callable, obj):
+    return url_callable(obj)
+
 @register.tag
 def smart_query_string(parser, token):
     """
