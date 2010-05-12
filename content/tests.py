@@ -140,7 +140,59 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # vote total is calculated as total_upvotes - total_downvotes
         self.failUnlessEqual(result, 1)
-       
+
+    def test_is_permitted(self):
+        # create website site item and set as current site
+        web_site = Site(domain="web.address.com")
+        web_site.save()
+        settings.SITE_ID = web_site.id
+
+        # create unpublished item
+        unpublished_obj = ModelBase(title='title', state='unpublished')
+        unpublished_obj.save()
+        unpublished_obj.sites.add(web_site)
+        unpublished_obj.save()
+        
+        # create published item
+        published_obj = ModelBase(title='title', state='published')
+        published_obj.save()
+        published_obj.sites.add(web_site)
+        published_obj.save()
+        
+        # create staging item
+        staging_obj = ModelBase(title='title', state='staging')
+        staging_obj.save()
+        staging_obj.sites.add(web_site)
+        staging_obj.save()
+        
+        # is_permitted should be False for unpublished objects
+        self.failIf(unpublished_obj.is_permitted)
+
+        # is_permitted should be True for published objects
+        self.failUnless(published_obj.is_permitted)
+        
+        # is_permitted should be True for otherwise published objects in the staging state for instances that define settings.STAGING = True
+        settings.STAGING = False
+        self.failIf(staging_obj.is_permitted)
+        settings.STAGING = True
+        self.failUnless(staging_obj.is_permitted)
+        
+        # is_permitted should be True only if the object is published for the current site
+        published_obj_web = ModelBase(state='published')
+        published_obj_web.save()
+        published_obj_web.sites.add(web_site)
+        published_obj_web.save()
+        self.failUnless(published_obj_web.is_permitted)
+        
+        # is_permitted should be False if the object is not published for the current site
+        mobile_site = Site(domain="mobi.address.com")
+        mobile_site.save()
+        published_obj_mobile = ModelBase(state='published')
+        published_obj_mobile.save()
+        published_obj_mobile.sites.add(mobile_site)
+        published_obj_mobile.save()
+        self.failIf(published_obj_mobile.is_permitted)
+
 class ModelBaseAdminTestCase(unittest.TestCase):
     def setUp(self):
         self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
