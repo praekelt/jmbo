@@ -1,0 +1,7 @@
+{% load content_template_tags %}
+
+<div class="widget_item widget_item_featured">
+    <a href="{% smart_url url_callable object %}"><img src="{{ object.get_content_list_gizmo_featured_url }}" width="145" height="82" alt="" /></a>
+	<h2><a href="{% smart_url url_callable object %}">{{ object.title }}</a></h2>
+	<p>{{ object.description|truncatewords:"8" }}</p>
+</div>

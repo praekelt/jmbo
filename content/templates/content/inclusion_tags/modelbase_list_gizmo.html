@@ -1,0 +1,8 @@
+{% load comments content_template_tags %}
+
+{% get_comment_count for object as comment_count %}
+<div class="widget_item">
+    <a href="{% smart_url url_callable object %}"><img src="{{ object.get_content_list_gizmo_url }}" width="77" height="43" alt="" /></a> <p>
+	<h2><a href="{% smart_url url_callable object %}">{{ object.title }}</a> <span>{{ object.vote_total }} Likes | <a href="{% smart_url url_callable object %}#contribute">{{ comment_count }} Comments</a>{% comment %} | <a href="/pop-peek.html?height=450&amp;width=600" class="thickbox">Peek &raquo;</a>{% endcomment %}</span></h2>
+	<p>{{ object.description|truncatewords:"8" }}</p>
+</div>

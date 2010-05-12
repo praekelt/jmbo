@@ -1,0 +1,9 @@
+{% load content_inclusion_tags %}
+
+{% for object in object_list %}
+    {% if forloop.first %}
+        {% render_object object list_gizmo_featured %}
+    {% else %}
+        {% render_object object list_gizmo %}
+    {% endif %}
+{% endfor %}
