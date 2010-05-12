@@ -1,6 +1,7 @@
 import time
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -147,6 +148,27 @@ class ModelBase(ImageModel):
         self.slug = generate_slug(self, self.title)
 
         super(ModelBase, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.title
+
+    @property
+    def is_permitted(self):
+        def for_site():
+            if self.sites.filter(id__exact=settings.SITE_ID):
+                return True
+            else:
+                return False
+
+        if self.state == 'unpublished':
+            return False
+        elif self.state == 'published':
+            return for_site()
+        elif self.state == 'staging':
+            if getattr(settings, 'STAGING', False):
+                return for_site()
+            
+        return False
 
     @property
     def vote_total(self):
