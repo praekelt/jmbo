@@ -5,6 +5,11 @@ from django.template.loader import render_to_string
 
 register = template.Library()
 
+@register.inclusion_tag('content/inclusion_tags/content_list_gizmo.html', takes_context=True)
+def content_list_gizmo(context, object_list):
+    context.update({'object_list': object_list})
+    return context
+
 @register.inclusion_tag('content/inclusion_tags/modelbase_list.html', takes_context=True)
 def modelbase_listing(context, object_list):
     context.update({'object_list': object_list})
