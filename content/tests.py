@@ -71,6 +71,12 @@ class UtilsTestCase(unittest.TestCase):
         obj.title = "updated title"
         obj.save()
         self.failUnless(obj.slug==slugify(obj.title))
+        
+        # in case an object is updated, without the title being changed, the slug should remain unchanged
+        orig_slug = obj.slug
+        obj.save()
+        import pdb; pdb.set_trace()
+        self.failUnless(obj.slug==orig_slug)
 
         # make sure the slug is actually saved
         obj = ModelBase.objects.get(id=obj.id)
