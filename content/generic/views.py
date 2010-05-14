@@ -9,7 +9,7 @@ class GenericObjectList(object):
     def get_filterset(self, request, queryset):
         raise NotImplementedError('%s should implement get_filterset.' % self.__class__)
 
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         raise NotImplementedError('%s should implement get_queryset.' % self.__class__)
     
     def get_filtered_queryset(self, queryset, filterset):
@@ -57,7 +57,7 @@ class GenericObjectList(object):
 
     def __call__(self, request, *args, **kwargs):
         # get queryset
-        queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset()))
+        queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
         
         # get filterset
         filterset = self.get_filterset(request, queryset)
