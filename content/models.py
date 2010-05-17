@@ -121,7 +121,7 @@ class ModelBase(ImageModel):
         Inspired by http://www.djangosnippets.org/snippets/1031/
         """
         try:
-            return self.__getattribute__(self.classname.lower())
+            return self.__getattribute__(self.class_name.lower())
         except AttributeError:
             content_type = self.content_type
             model = content_type.model_class()
