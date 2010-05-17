@@ -61,11 +61,19 @@ class ModelBaseAdmin(admin.ModelAdmin):
             try:
                 field = model._meta.get_field(name)
             except FieldDoesNotExist:
-                continue 
+                continue
+
+            # don't include through relations
+            try:
+                if field.rel.through:
+                    continue
+            except AttributeError:
+                pass
+
             if field.editable and field.formfield():
                 if name not in set_fields and name not in ['id',]:
                     new_fields += [name,]
-                    
+              
         for fieldset in fieldsets:
             if fieldset[0] == None:
                 fieldset[1]['fields'] += tuple(new_fields)
