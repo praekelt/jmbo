@@ -7,7 +7,7 @@ class PermittedManager(models.Manager):
         queryset = super(PermittedManager, self).get_query_set().exclude(state='unpublished')
 
         # exclude objects in staging state if not in staging mode (settings.STAGING = False)
-        if getattr(settings, 'STAGING', False):
+        if not getattr(settings, 'STAGING', False):
             queryset = queryset.exclude(state='staging')
 
         # filter objects for current site 
