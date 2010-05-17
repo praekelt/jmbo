@@ -265,10 +265,12 @@ class PermittedManagerTestCase(unittest.TestCase):
         self.failUnless(published_obj in queryset)
         
         # staging objects should only be available on instances that define settings.STAGING = True
-        self.failUnless(staging_obj in queryset)
-        settings.STAGING = True
+        settings.STAGING = False
         queryset = ModelBase.permitted.all()
         self.failIf(staging_obj in queryset)
+        settings.STAGING = True
+        queryset = ModelBase.permitted.all()
+        self.failUnless(staging_obj in queryset)
         
         # queryset should only contain items for the current site
         published_obj_web = ModelBase(state='published')
