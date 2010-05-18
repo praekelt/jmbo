@@ -1,3 +1,5 @@
+from copy import copy
+
 from django import template
 from django.template import TemplateDoesNotExist
 from django.contrib.contenttypes.models import ContentType
@@ -85,6 +87,10 @@ class RenderObjectNode(template.Node):
     def render(self, context):
         obj = self.obj.resolve(context)
         type = self.type
+
+        # update context
+        context = copy(context)
+        context['object'] = obj
 
         # generate template name from obj app label, model and type
         obj_type = ContentType.objects.get_for_model(obj)
