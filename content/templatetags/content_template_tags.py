@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django import template
 
 register = template.Library()
@@ -40,3 +42,56 @@ class SmartQueryStringNode(template.Node):
                     q.pop(key, None)
             qs = '&amp;'.join(['%s=%s' % (k, v) for k, v in q.items()])
         return '?' + qs if len(q) else ''
+
+@register.tag
+def humanize_time_diff(parser, token):
+    try:
+        tag_name, date_obj, suffix = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError, "%s requires exactly two argument" % tag_name
+    
+    return HumanizeTimeDifference(date_obj, suffix)
+
+class HumanizeTimeDifference(template.Node):
+    """
+    Adapted from Django Snippet 412
+    
+    Returns a humanized string representing time difference
+    between now() and the input timestamp.
+    
+    The output rounds up to days, hours, minutes, or seconds.
+    4 days 5 hours returns '4 days'
+    0 days 4 hours 3 minutes returns '4 hours', etc...
+    """
+    def __init__(self, date_obj, suffix):
+        self.date_obj = template.Variable(date_obj)
+        self.suffix = template.Variable(suffix)
+
+    def render(self, context):
+        date_obj = self.date_obj.resolve(context)
+        suffix = self.suffix.resolve(context)
+        
+        if date_obj:
+            time_difference = datetime.now() - date_obj
+            days = time_difference.days
+            hours = time_difference.seconds / 3600
+            minutes = time_difference.seconds % 3600 / 60
+            seconds = time_difference.seconds % 3600 % 60
+            
+            if days > 0:
+                if days == 1: return "Yesterday"
+                else: dt_str = "Days"
+                return "%s %s %s" % (days, dt_str, suffix)
+            elif hours > 0:
+                if hours == 1: dt_str = "Hour"
+                else: dt_str = "Hours"
+                return "%s %s %s" % (hours, dt_str, suffix)
+            elif minutes > 0:
+                if minutes == 1: dt_str = "Minute"
+                else: dt_str = "Minutes"
+                return "%s %s %s" % (minutes, dt_str, suffix)
+            elif seconds > 0:
+                if seconds == 1: dt_str = "Second"
+                else: dt_str = "Seconds"
+                return "%s %s %s" % (seconds, dt_str, suffix)
+        return ""
