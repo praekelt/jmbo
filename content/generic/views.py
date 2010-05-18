@@ -6,15 +6,15 @@ class DefaultURL(object):
         return obj.get_absolute_url()
     
 class GenericObjectList(object):
-    def get_filterset(self, request, queryset):
-        raise NotImplementedError('%s should implement get_filterset.' % self.__class__)
+    def get_pagemenu(self, request, queryset):
+        raise NotImplementedError('%s should implement get_pagemenu.' % self.__class__)
 
     def get_queryset(self, *args, **kwargs):
         raise NotImplementedError('%s should implement get_queryset.' % self.__class__)
     
-    def get_filtered_queryset(self, queryset, filterset):
-        if filterset:
-            return filterset.qs
+    def get_pagemenu_altered_queryset(self, queryset, pagemenu):
+        if pagemenu:
+            return pagemenu.queryset
         else:
             return queryset
 
@@ -59,11 +59,11 @@ class GenericObjectList(object):
         # get queryset
         queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
         
-        # get filterset
-        filterset = self.get_filterset(request, queryset)
+        # get pagemenu
+        pagemenu = self.get_pagemenu(request, queryset)
         
-        # filter queryset
-        queryset = self.get_filtered_queryset(queryset, filterset)
+        # pagemenu altered queryset
+        queryset = self.get_pagemenu_altered_queryset(queryset, pagemenu)
 
         return list_detail.object_list(
             request, 
@@ -73,7 +73,7 @@ class GenericObjectList(object):
             allow_empty=kwargs.get('allow_empty', getattr(self, 'allow_empty', self.get_allow_empty())),
             template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
             template_loader=kwargs.get('template_loader', getattr(self, 'template_loader', self.get_template_loader())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(filterset=filterset, url_callable=self.get_url_callable))),
+            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable))),
             context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
             template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
