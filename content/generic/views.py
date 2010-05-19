@@ -2,8 +2,11 @@ from django.template import loader
 from django.views.generic import list_detail
 
 class DefaultURL(object):
-    def __call__(obj):
-        return obj.get_absolute_url()
+    def __call__(self, obj):
+        try:
+            return obj.get_absolute_url()
+        except AttributeError:
+            return ''
     
 class GenericObjectList(object):
     def get_pagemenu(self, request, queryset):
@@ -34,7 +37,7 @@ class GenericObjectList(object):
         return loader
 
     def get_url_callable(self):
-        return DefaultURL
+        return DefaultURL()
 
     def get_extra_context(self, *args, **kwargs):
         if kwargs.keys():
@@ -73,7 +76,7 @@ class GenericObjectList(object):
             allow_empty=kwargs.get('allow_empty', getattr(self, 'allow_empty', self.get_allow_empty())),
             template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
             template_loader=kwargs.get('template_loader', getattr(self, 'template_loader', self.get_template_loader())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable))),
+            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable, *args, **kwargs))),
             context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
             template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
