@@ -16,10 +16,10 @@ class CategoryURL(object):
 class CategoryObjectList(GenericObjectList):
     def get_queryset(self):
         return ModelBase.permitted.filter(categories=self.category)
-    
-    def get_filterset(self, request, queryset):
-        return IntervalOrderFilterSet(request.GET, queryset=queryset)
-    
+   
+    def get_pagemenu(self, request, queryset, *args, **kwargs):
+        return None
+
     def get_paginate_by(self):
         return 7
 
@@ -45,11 +45,11 @@ class CategoryObjectList(GenericObjectList):
 category_object_list = CategoryObjectList()
 
 class CategoryObjectDetail(GenericObjectDetail):
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         return ModelBase.permitted.filter(categories=self.category)
     
-    def get_filterset(self, request, queryset):
-        return IntervalOrderFilterSet(request.GET, queryset=queryset, action_url=reverse('content_category_object_list', kwargs={'category_slug': self.category.slug}))
+    def get_pagemenu(self, request, queryset, *args, **kwargs):
+        return None
     
     def get_extra_context(self, *args, **kwargs):
         extra_context = super(CategoryObjectDetail, self).get_extra_context(*args, **kwargs)
