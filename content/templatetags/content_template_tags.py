@@ -40,7 +40,7 @@ class SmartQueryStringNode(template.Node):
                    q[key] = value
                 else:
                     q.pop(key, None)
-            qs = '&amp;'.join(['%s=%s' % (k, v) for k, v in q.items()])
+            qs = '&'.join(['%s=%s' % (k, v) for k, v in q.items()])
         return '?' + qs if len(q) else ''
 
 @register.tag
