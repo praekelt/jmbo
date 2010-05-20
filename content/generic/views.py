@@ -9,7 +9,7 @@ class DefaultURL(object):
             return ''
     
 class GenericObjectList(object):
-    def get_pagemenu(self, request, queryset):
+    def get_pagemenu(self, request, queryset, *args, **kwargs):
         raise NotImplementedError('%s should implement get_pagemenu.' % self.__class__)
 
     def get_queryset(self, *args, **kwargs):
@@ -63,7 +63,7 @@ class GenericObjectList(object):
         queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
         
         # get pagemenu
-        pagemenu = self.get_pagemenu(request, queryset)
+        pagemenu = self.get_pagemenu(request, queryset, *args, **kwargs)
         
         # pagemenu altered queryset
         queryset = self.get_pagemenu_altered_queryset(queryset, pagemenu)
@@ -83,10 +83,10 @@ class GenericObjectList(object):
         )
 
 class GenericObjectDetail(object):
-    def get_filterset(self, request, queryset):
-        return None
+    def get_pagemenu(self, request, queryset, *args, **kwargs):
+        raise NotImplementedError('%s should implement get_pagemenu.' % self.__class__)
 
-    def get_queryset(self):
+    def get_queryset(self, *args, **kwargs):
         raise NotImplementedError('%s should impliment get_queryset.' % self.__class__)
     
     def get_object_id(self):
@@ -120,16 +120,21 @@ class GenericObjectDetail(object):
         return None
 
     def __call__(self, request, *args, **kwargs):
-        filterset = self.get_filterset(request, self.get_queryset())
+        # get queryset
+        queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
+        
+        # get pagemenu
+        pagemenu = self.get_pagemenu(request, queryset, *args, **kwargs)
+        
         return list_detail.object_detail(
             request,
-            queryset=kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset())),
+            queryset=queryset,
             object_id=kwargs.get('object_id', getattr(self, 'object_id', self.get_object_id())),
             slug=kwargs.get('slug', getattr(self, 'slug', self.get_slug())),
             slug_field=kwargs.get('slug_field', getattr(self, 'slug_field', self.get_slug_field())),
             template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
             template_name_field=kwargs.get('template_name_field', getattr(self, 'template_name_field', self.get_template_name_field())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(filterset=filterset))),
+            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, *args, **kwargs))),
             context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
             template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
