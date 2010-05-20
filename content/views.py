@@ -5,6 +5,7 @@ from category.models import Category
 from content.filters import IntervalOrderFilterSet
 from content.generic.views import GenericObjectDetail, GenericObjectList
 from content.models import ModelBase
+from content.pagemenus import ContentPageMenu
 
 class CategoryURL(object):
     def __init__(self, category):
@@ -18,7 +19,7 @@ class CategoryObjectList(GenericObjectList):
         return ModelBase.permitted.filter(categories=self.category)
    
     def get_pagemenu(self, request, queryset, *args, **kwargs):
-        return None
+        return ContentPageMenu(queryset, request)
 
     def get_paginate_by(self):
         return 7
