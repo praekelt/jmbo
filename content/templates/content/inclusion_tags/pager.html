@@ -4,6 +4,8 @@
     <div class="paged_results">
         {% if page_obj.has_previous %}
             <a href="{% smart_query_string 'page' page_obj.previous_page_number %}" class="paged_prev">Previous</a>
+        {% else %}
+            <a style="float: left; width: 60px; padding: 0 0 0 25px;">&nbsp;</a>
         {% endif %}
 	    <p>
             {% for page_number in page_obj.paginator.page_range %}
