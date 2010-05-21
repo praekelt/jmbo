@@ -63,9 +63,10 @@ class ModelBaseAdmin(admin.ModelAdmin):
             except FieldDoesNotExist:
                 continue
 
-            # don't include through relations
+            # don't include custom through relations
+            # custom if it has more than 3 fields
             try:
-                if field.rel.through:
+                if len(field.rel.through._meta.get_all_field_names()) > 3:
                     continue
             except AttributeError:
                 pass
