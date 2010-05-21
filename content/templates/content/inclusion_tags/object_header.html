@@ -2,6 +2,7 @@
     <p class="likes">{{ object.vote_total }}<span>Likes</span></p>
 	<h1>{{ object.title }}</h1>
 	<p class="meta">By <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> on {{ object.created|date:"j F Y" }}</p>
+    {% comment %}
 	<p class="social">
 	    <a href="javascript: void(0);" class="social_share">Share</a>
 		<a href="#contribute" class="social_comments">Comments</a>
@@ -13,4 +14,5 @@
 		<a href="#" class="social_face"></a>
 		<a href="#" class="social_twit"></a>
 	</p>
+    {% endcomment %}
 </div><!--/heading-->
