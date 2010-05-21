@@ -50,7 +50,7 @@ class CategoryObjectDetail(GenericObjectDetail):
         return ModelBase.permitted.filter(categories=self.category)
     
     def get_pagemenu(self, request, queryset, *args, **kwargs):
-        return None
+        return ContentPageMenu(queryset, request)
     
     def get_extra_context(self, *args, **kwargs):
         extra_context = super(CategoryObjectDetail, self).get_extra_context(*args, **kwargs)
