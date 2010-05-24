@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from category.models import Category
-from content.filters import IntervalOrderFilterSet
 from content.generic.views import GenericObjectDetail, GenericObjectList
 from content.models import ModelBase
 from content.pagemenus import ContentPageMenu
