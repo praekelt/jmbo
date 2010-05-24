@@ -1,5 +1,7 @@
+{% load likes_inclusion_tags %}
+
 <div class="heading">
-    <p class="likes">{{ object.vote_total }}<span><a href="/">I Like</a></span></p>
+    {% likes object %}
 	<h1>{{ object.title }}</h1>
 	<p class="meta">By <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> on {{ object.created|date:"j F Y" }}</p>
     {% comment %}
