@@ -9,7 +9,7 @@ setup(
     url='https://github.com/praekelt/django-content',
     packages = find_packages(),
     dependency_links = [
-        'http://dist.repoze.org/',
+        'http://dist.plone.org/thirdparty/',
     ],
     install_requires = [
         'PIL>=1.1.6',
