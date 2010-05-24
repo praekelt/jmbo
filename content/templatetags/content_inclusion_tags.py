@@ -17,29 +17,6 @@ def modelbase_listing(context, object_list):
     context.update({'object_list': object_list})
     return context
 
-@register.tag
-def filter_menu(parser, token):
-    """
-    Output filter menu.
-    """
-    try:
-        tag_name, filterset = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError('filter_menu tag requires 1 argument (filterset), %s given' % (len(token.split_contents()) - 1))
-    return FilterMenuNode(filterset)
-
-class FilterMenuNode(template.Node):
-    def __init__(self, filterset):
-        self.filterset = template.Variable(filterset)
-    
-    def render(self, context):
-        filterset = self.filterset.resolve(context)
-        context = {
-            'request': context['request'],
-            'filterset': filterset,
-        }
-        return render_to_string('content/inclusion_tags/filter_menu.html', context)
-
 @register.inclusion_tag('content/inclusion_tags/object_comments.html')
 def object_comments(obj):
     return {'object': obj}
