@@ -204,6 +204,6 @@ def set_managers(sender, **kwargs):
 
 signals.class_prepared.connect(set_managers)
 
-# enable voting for ModelBase, but specify a diffirent total name 
+# enable voting for ModelBase, but specify a different total name 
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(ModelBase, total_name="secretballot_added_vote_total")
