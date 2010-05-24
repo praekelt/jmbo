@@ -197,6 +197,43 @@ class ModelBaseTestCase(unittest.TestCase):
         published_obj_mobile.save()
         self.failIf(published_obj_mobile.is_permitted)
 
+    def test_can_vote(self):
+        # create dummy request object
+        request = type('Request', (object,), {})
+        class User():
+            def is_authenticated(self):
+                return False
+        request.user = User()
+        request.secretballot_token = 'test_token'
+
+        #request.urlconf = 'banner.tests'
+        #request.path = '/some/path'
+        
+        # return false when liking is closed
+        obj = ModelBase(likes_enabled=True, likes_closed=True, anonymous_likes=True)
+        obj.save()
+        self.failIf(obj.can_vote(request))
+
+        # return false when liking is disabled
+        obj = ModelBase(likes_enabled=False, likes_closed=False, anonymous_likes=True)
+        obj.save()
+        self.failIf(obj.can_vote(request))
+        
+        # return false if anonymous and anonymous liking is disabled
+        obj = ModelBase(likes_enabled=True, likes_closed=False, anonymous_likes=False)
+        obj.save()
+        self.failIf(obj.can_vote(request))
+        
+        # return true if anonymous and anonymous liking is enabled
+        obj = ModelBase(likes_enabled=True, likes_closed=False, anonymous_likes=True)
+        obj.save()
+        self.failUnless(obj.can_vote(request))
+
+        # return false if vote already exist
+        content_type = ContentType.objects.get(app_label="content", model="modelbase")
+        Vote.objects.create(object_id=obj.id, token='test_token', content_type=content_type, vote=1)
+        self.failIf(obj.can_vote(request))
+         
 class ModelBaseAdminTestCase(unittest.TestCase):
     def setUp(self):
         self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
