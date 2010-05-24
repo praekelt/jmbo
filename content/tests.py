@@ -17,7 +17,6 @@ from django.test import TestCase
 from django.test.client import Client
 
 from content.admin import ModelBaseAdmin
-from content.filters import IntervalFilter, OrderFilter
 from content.models import ModelBase
 from content.utils.tests import RequestFactory
         
@@ -75,7 +74,6 @@ class UtilsTestCase(unittest.TestCase):
         # in case an object is updated, without the title being changed, the slug should remain unchanged
         orig_slug = obj.slug
         obj.save()
-        import pdb; pdb.set_trace()
         self.failUnless(obj.slug==orig_slug)
 
         # make sure the slug is actually saved
@@ -332,7 +330,7 @@ class InclusionTagsTestCase(unittest.TestCase):
 class TemplateTagsTestCase(unittest.TestCase):
     def setUp(self):
         def url_callable(obj):
-            return 'Test URL method using object %s' % obj
+            return 'Test URL method using object %s' % obj.__class__.__name__
 
         obj = TestModel(title='title', state='published')
         obj.save()
@@ -342,109 +340,4 @@ class TemplateTagsTestCase(unittest.TestCase):
         # return method call with result based on object provided
         t = Template("{% load content_template_tags %}{% smart_url url_callable object %}")
         result = t.render(self.context)
-        self.failUnlessEqual(result, 'Test URL method using object TestModel object') 
-
-class IntervalFilterTestCase(unittest.TestCase):
-    def setUp(self):
-        # generate some content, with each object created on a different date
-        count = 100
-        created = datetime.now() - timedelta(days=count/2)
-        for i in range(0,count):
-            ModelBase(title="ModelBase %s Title" % i, created=created).save()
-            created += timedelta(days=1)
-
-    def test_filter(self):
-        # filter on week
-        qs = ModelBase.objects.all()
-        interval_filter = IntervalFilter(name="created")
-        filtered_qs = interval_filter.filter(qs, 'week')
-        
-        # the filtered qs should contain some objects
-        self.failUnless(filtered_qs.count())
-
-
-        # we are filtering on week so the queryset should contain no 
-        # items created prior to the last 7 days
-        week_cutoff = datetime.now() - timedelta(days=7)
-        for obj in filtered_qs:
-            self.failIf(obj.created.date() < week_cutoff.date())
-        
-        # filter on month
-        qs = ModelBase.objects.all()
-        interval_filter = IntervalFilter(name="created")
-        filtered_qs = interval_filter.filter(qs, 'month')
-        
-        # the filtered qs should contain some objects
-        self.failUnless(filtered_qs.count())
-
-        # we are filtering on month so the queryset should contain no 
-        # items created in a prior month
-        month_cutoff = datetime.today()
-        month_cutoff = datetime(month_cutoff.year, month_cutoff.month, 1)
-        for obj in filtered_qs:
-            self.failIf(obj.created.date() < month_cutoff.date())
-
-        # return original queryset in case of bogus value
-        qs = ModelBase.objects.all()
-        interval_filter = IntervalFilter(name="created")
-        filtered_qs = interval_filter.filter(qs, 'bogus')
-        self.failUnlessEqual(qs, filtered_qs)
-
-class OrderFilterTestCase(unittest.TestCase):
-    def setUp(self):
-        # generate some content, with each object created on a different date
-        # and with different vote counts
-        content_count = 60
-        voter_count = 10
-        created = datetime.now() - timedelta(days=content_count/2)
-        voters = []
-        # create voting user
-        for i in range(0, voter_count):
-            voters.append(User.objects.get_or_create(username='voter%s' % i, email='voter%s@dress.com' % i)[0])
-
-        for i in range(0,content_count):
-            # create object
-            obj = ModelBase(title="ModelBase %s Title" % i, created=created)
-            obj.save()
-
-        # vote for a sample of voters
-        for obj in ModelBase.objects.all():
-            for voter in random.sample(voters, random.randint(0, voter_count)):
-                obj.add_vote(voter.username, +1)
-                #Vote.objects.record_vote(obj, voter, 1)
-                
-            created += timedelta(days=1)
-            
-    def test_filter(self):
-        # order by most recent
-        qs = ModelBase.objects.all()
-        order_filter = OrderFilter(name="created")
-        filtered_qs = order_filter.filter(qs, 'most-recent')
-        
-        # the filtered qs should contain some objects
-        self.failUnless(filtered_qs.count())
-
-        # we are ordering by most recent so the queryset should be ordered by created, descending
-        prev_obj = filtered_qs[0]
-        for obj in filtered_qs:
-            self.failIf(obj.created > prev_obj.created)
-        
-        # order by most liked
-        qs = ModelBase.objects.all()
-        order_filter = OrderFilter(name="created")
-        filtered_qs = order_filter.filter(qs, 'most-liked')
-        
-        # the filtered qs should contain some objects
-        self.failUnless(filtered_qs.count())
-        
-        # we are ordering by most liked so the queryset should be ordered by vote score, descending
-        prev_obj = filtered_qs[0]
-        for obj in filtered_qs:
-            self.failIf(obj.vote_total > prev_obj.vote_total)
-            prev_obj = obj
-        
-        # return original queryset in case of bogus value
-        qs = ModelBase.objects.all()
-        order_filter = OrderFilter(name="created")
-        filtered_qs = order_filter.filter(qs, 'bogus')
-        self.failUnlessEqual(qs, filtered_qs)
+        self.failUnlessEqual(result, 'Test URL method using object TestModel') 
