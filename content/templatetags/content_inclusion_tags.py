@@ -21,9 +21,10 @@ def modelbase_listing(context, object_list):
 def object_comments(obj):
     return {'object': obj}
 
-@register.inclusion_tag('content/inclusion_tags/object_header.html')
-def object_header(obj):
-    return {'object': obj}
+@register.inclusion_tag('content/inclusion_tags/object_header.html', takes_context=True)
+def object_header(context, obj):
+    context.update({'object': obj})
+    return context
 
 @register.tag
 def pager(parser, token):
