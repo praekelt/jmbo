@@ -11,7 +11,9 @@ import tagging
 import secretballot
 from content.managers import PermittedManager
 from content.utils import generate_slug
+
 from photologue.models import ImageModel, PhotoSize
+from secretballot.models import Vote
 
 class ModelBase(ImageModel):
     objects = models.Manager()
@@ -187,11 +189,38 @@ class ModelBase(ImageModel):
         return False
 
     @property
+    def modelbase_obj(self):
+        if self.__class__ == ModelBase:
+            return self
+        else:
+            return self.modelbase_ptr
+       
+    def can_vote(self, request):
+        modelbase_obj = self.modelbase_obj
+        vote_allowed = False
+
+        # can't vote if liking is closed
+        if modelbase_obj.likes_closed:
+            return False
+        
+        # can't vote if liking is disabled
+        if not modelbase_obj.likes_enabled:
+            return False
+
+        # anonymous users can't vote if anonymous likes are disabled
+        if not request.user.is_authenticated() and not modelbase_obj.anonymous_likes:
+            return False
+          
+        # return false if existing votes are found
+        return Vote.objects.filter(object_id=modelbase_obj.id, token=request.secretballot_token).count() == 0
+            
+    @property
     def vote_total(self):
         """
         Calculates vote total as total_upvotes - total_downvotes. We are adding a method here instead of relying on django-secretballot's addition since that doesn't work for subclasses.
         """
-        return self.votes.filter(vote=+1).count() - self.votes.filter(vote=-1).count() 
+        modelbase_obj = self.modelbase_obj
+        return modelbase_obj.votes.filter(vote=+1).count() - modelbase_obj.votes.filter(vote=-1).count() 
 
 def set_managers(sender, **kwargs):
     """
