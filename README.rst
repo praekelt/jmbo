@@ -86,16 +86,6 @@ Inclusion Tags
 
 Enable in your templates with the {% load content_inclusion_tags %} tag.
 
-filter_menu
-~~~~~~~~~~~
-Output django-filter filterset menu
-
-Arguments: filterset to render
-
-Sample usage:
-
-    {% filter_menu filterset %}
-    
 pager
 ~~~~~
 Outputs pagination links.
@@ -140,27 +130,3 @@ Results in:
 If the current request already contains GET values, those are included. For instance if we have a GET value for paging of 2, the result for the example above would be:
 
     <path>?paging=2&param1=value1&param2=value2
-
-
-Filtering
-=========
-Custom filters and filtersets adding custom functionality to the 3rd party django-filter app.
-
-Filters
--------
-
-IntervalFilter
-~~~~~~~~~~~~~~
-Filters queryset on week (in reality the last 7 days) or month.
-
-    
-OrderFilter
-~~~~~~~~~~~
-Ordering filter ordering queryset items by most-recent(by created) or most-liked(with score being calculated by positive votes).
-
-FilterSets
-----------
-
-IntervalOrderFilterSet
-~~~~~~~~~~~~~~~~~~~~~~
-Filters queryset through an IntervalFilter('interval'). Orders queryset through an OrderFilter('order').
