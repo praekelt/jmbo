@@ -31,7 +31,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'description', )}),
-        ('Publishing', {'fields': ('state', 'sites', 'publishers'),
+        ('Publishing', {'fields': ('state', 'publish_on', 'retract_on', 'sites', 'publishers'),
                     'classes': ('collapse',),
         }),
         ('Meta', {'fields': ('categories', 'tags', 'created', 'owner'),

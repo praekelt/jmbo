@@ -29,6 +29,16 @@ class ModelBase(ImageModel):
         blank=True,
         null=True,
     )
+    publish_on = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Date and time on which to publish this item (state will change to 'published').",
+    )
+    retract_on = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Date and time on which to retract this item (state will change to 'unpublished').",
+    )
     slug = models.SlugField(
         editable=False,
         max_length=255,
@@ -89,27 +99,33 @@ class ModelBase(ImageModel):
     )
     comments_enabled = models.BooleanField(
         verbose_name="Commenting Enabled",
-        help_text="Enable commenting for this item. Comments will not display when disabled."
+        help_text="Enable commenting for this item. Comments will not display when disabled.",
+        default=True,
     )
     anonymous_comments = models.BooleanField(
         verbose_name="Anonymous Commenting Enabled",
-        help_text="Enable anonymous commenting for this item."
+        help_text="Enable anonymous commenting for this item.",
+        default=True,
     )
     comments_closed = models.BooleanField(
         verbose_name="Commenting Closed",
-        help_text="Close commenting for this item. Comments will still display, but users won't be able to add new comments."
+        help_text="Close commenting for this item. Comments will still display, but users won't be able to add new comments.",
+        default=False,
     )
     likes_enabled = models.BooleanField(
         verbose_name="Liking Enabled",
-        help_text="Enable liking for this item. Likes will not display when disabled."
+        help_text="Enable liking for this item. Likes will not display when disabled.",
+        default=True,
     )
     anonymous_likes = models.BooleanField(
         verbose_name="Anonymous Liking Enabled",
-        help_text="Enable anonymous liking for this item."
+        help_text="Enable anonymous liking for this item.",
+        default=True,
     )
     likes_closed = models.BooleanField(
         verbose_name="Liking Closed",
-        help_text="Close liking for this item. Likes will still display, but users won't be able to the item anymore."
+        help_text="Close liking for this item. Likes will still display, but users won't be able to the item anymore.",
+        default=False,
     )
    
     class Meta:
