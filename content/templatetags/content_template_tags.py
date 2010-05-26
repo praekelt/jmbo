@@ -77,7 +77,7 @@ class HumanizeTimeDifference(template.Node):
             hours = time_difference.seconds / 3600
             minutes = time_difference.seconds % 3600 / 60
             seconds = time_difference.seconds % 3600 % 60
-            
+           
             if days > 0:
                 if days == 1: return "Yesterday"
                 else: dt_str = "Days"
@@ -94,4 +94,6 @@ class HumanizeTimeDifference(template.Node):
                 if seconds == 1: dt_str = "Second"
                 else: dt_str = "Seconds"
                 return "%s %s %s" % (seconds, dt_str, suffix)
+            elif seconds == 0:
+                return "Just Now"
         return ""
