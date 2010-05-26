@@ -12,7 +12,7 @@ import secretballot
 from content.managers import PermittedManager
 from content.utils import generate_slug
 
-from photologue.models import ImageModel, PhotoSize
+from photologue.models import ImageModel
 from secretballot.models import Vote
 
 class ModelBase(ImageModel):
