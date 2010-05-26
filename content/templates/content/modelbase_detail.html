@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load pagemenu_inclusion_tags content_inclusion_tags gallery_inclusion_tags %} 
+{% load comments pagemenu_inclusion_tags content_inclusion_tags gallery_inclusion_tags %} 
 
 {% block content %}
     <div class="page section_news">
@@ -15,7 +15,9 @@
             {% render_object object.as_leaf_class detail %}
         {% endwith %}
 
-        {% object_comments object %}
+        {% render_comment_list for object %}
+
+        {% render_comment_form for object %}
 
 	</div><!--/page-->
 {% endblock %}
