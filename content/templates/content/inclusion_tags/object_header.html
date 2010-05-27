@@ -1,7 +1,7 @@
 {% load likes_inclusion_tags %}
 
 <div class="heading">
-    {% likes object %}
+    {% likes object.modelbase_obj %}
 	<h1>{{ object.title }}</h1>
 	<p class="meta">By <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> on {{ object.created|date:"j F Y" }}</p>
     {% comment %}
