@@ -17,6 +17,11 @@ def modelbase_listing(context, object_list):
     context.update({'object_list': object_list})
     return context
 
+@register.inclusion_tag('content/inclusion_tags/object_comments.html', takes_context=True)
+def object_comments(context, obj):
+    context.update({'object': obj.modelbase_obj})
+    return context
+
 @register.inclusion_tag('content/inclusion_tags/object_header.html', takes_context=True)
 def object_header(context, obj):
     context.update({'object': obj})
