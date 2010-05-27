@@ -206,9 +206,6 @@ class ModelBaseTestCase(unittest.TestCase):
         request.user = User()
         request.secretballot_token = 'test_token'
 
-        #request.urlconf = 'banner.tests'
-        #request.path = '/some/path'
-        
         # return false when liking is closed
         obj = ModelBase(likes_enabled=True, likes_closed=True, anonymous_likes=True)
         obj.save()
@@ -233,7 +230,37 @@ class ModelBaseTestCase(unittest.TestCase):
         content_type = ContentType.objects.get(app_label="content", model="modelbase")
         Vote.objects.create(object_id=obj.id, token='test_token', content_type=content_type, vote=1)
         self.failIf(obj.can_vote(request))
-         
+    
+    def test_can_comment(self):
+        # create dummy request object
+        request = type('Request', (object,), {})
+        class User():
+            def is_authenticated(self):
+                return False
+        request.user = User()
+        request.secretballot_token = 'test_token'
+
+        # return false when commenting is closed
+        obj = ModelBase(comments_enabled=True, comments_closed=True, anonymous_comments=True)
+        obj.save()
+        self.failIf(obj.can_comment(request))
+        
+        # return false when commenting is disabled
+        obj = ModelBase(comments_enabled=False, comments_closed=False, anonymous_comments=True)
+        obj.save()
+        self.failIf(obj.can_comment(request))
+        
+        
+        # return false if anonymous and anonymous commenting is disabled
+        obj = ModelBase(comments_enabled=True, comments_closed=False, anonymous_comments=False)
+        obj.save()
+        self.failIf(obj.can_comment(request))
+        
+        # return true if anonymous and anonymous commenting is enabled
+        obj = ModelBase(comments_enabled=True, comments_closed=False, anonymous_comments=True)
+        obj.save()
+        self.failUnless(obj.can_comment(request))
+
 class ModelBaseAdminTestCase(unittest.TestCase):
     def setUp(self):
         self.user, self.created = User.objects.get_or_create(username='test', email='test@test.com')
