@@ -1,11 +1,13 @@
 import time
 from datetime import datetime
 
+from django import template
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import signals
+from django.template import Template
 
 import tagging
 import secretballot
@@ -197,7 +199,6 @@ class ModelBase(ImageModel):
        
     def can_vote(self, request):
         modelbase_obj = self.modelbase_obj
-        vote_allowed = False
 
         # can't vote if liking is closed
         if modelbase_obj.likes_closed:
@@ -213,6 +214,24 @@ class ModelBase(ImageModel):
           
         # return false if existing votes are found
         return Vote.objects.filter(object_id=modelbase_obj.id, token=request.secretballot_token).count() == 0
+    
+    def can_comment(self, request):
+        modelbase_obj = self.modelbase_obj
+       
+        # can't comment if commenting is closed
+        if modelbase_obj.comments_closed:
+            return False
+
+        
+        # can't comment if commenting is disabled
+        if not modelbase_obj.comments_enabled:
+            return False
+        
+        # anonymous users can't comment if anonymous comments are disabled
+        if not request.user.is_authenticated() and not modelbase_obj.anonymous_comments:
+            return False
+        
+        return True
             
     @property
     def vote_total(self):
@@ -221,6 +240,15 @@ class ModelBase(ImageModel):
         """
         modelbase_obj = self.modelbase_obj
         return modelbase_obj.votes.filter(vote=+1).count() - modelbase_obj.votes.filter(vote=-1).count() 
+    
+    @property
+    def comment_count(self):
+        """
+        Counts total number of comments on ModelBase object.
+        """
+        modelbase_obj = self.modelbase_obj
+        t = Template("{% load comments %}{% get_comment_count for object as count %}{{ count }}")
+        return int(t.render(template.Context({'object': modelbase_obj})))
 
 def set_managers(sender, **kwargs):
     """
