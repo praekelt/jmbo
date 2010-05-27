@@ -1,0 +1,8 @@
+{% load comments %}
+
+{% if object.comments_enabled %}
+    {% render_comment_list for object %}
+    {% if not object.comments_closed %}
+        {% render_comment_form for object %}
+    {% endif %}
+{% endif %}
