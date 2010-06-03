@@ -153,6 +153,7 @@ class ModelBase(ImageModel):
         # set created time to now on initial save.
         if not self.id and not self.created:
             self.created = datetime.now()
+
         # set modified to now on each save 
         self.modified = datetime.now()
        
