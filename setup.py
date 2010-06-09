@@ -1,12 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='django-content',
+    name='panya',
     version='dev',
-    description='Django CMS base content app.',
+    description='Panya Base CMS App.',
     author='Praekelt Consulting',
     author_email='dev@praekelt.com',
-    url='https://github.com/praekelt/django-content',
+    url='https://github.com/praekelt/panya',
     packages = find_packages(),
     dependency_links = [
         'http://dist.plone.org/thirdparty/',
