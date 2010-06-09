@@ -11,8 +11,8 @@ from django.template import Template
 
 import tagging
 import secretballot
-from content.managers import PermittedManager
-from content.utils import generate_slug
+from panya.managers import PermittedManager
+from panya.utils import generate_slug
 
 from photologue.models import ImageModel
 from secretballot.models import Vote

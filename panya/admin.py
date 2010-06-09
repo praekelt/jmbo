@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 
-from content.models import ModelBase
+from panya.models import ModelBase
 from publisher.models import Publisher
 
 class ModelBaseAdminForm(forms.ModelForm):
