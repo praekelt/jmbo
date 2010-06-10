@@ -16,9 +16,9 @@ from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.test.client import Client
 
-from content.admin import ModelBaseAdmin
-from content.models import ModelBase
-from content.utils.tests import RequestFactory
+from panya.admin import ModelBaseAdmin
+from panya.models import ModelBase
+from panya.utils.tests import RequestFactory
         
 from photologue.models import PhotoSize
 from secretballot.models import Vote
