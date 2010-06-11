@@ -43,19 +43,30 @@ class GenericObjectList(object):
     def get_url_callable(self):
         return DefaultURL()
 
-    def build_extra_context(self, *args, **kwargs):
+    def _build_extra_context(self, *args, **kwargs):
+        """
+        Combine extra context from various sources into one.
+        """
         if kwargs.keys():
             extra_context = kwargs
-        
-        added_context = self.get_extra_context(*args, **kwargs)
-
-        if added_context:
-            extra_context.update(
-                added_context,
-            )
         else:
-            extra_context = added_context
+            extra_context = {}
+
+        # get extra context from original argsuments
+        extra_context.update(
+            kwargs.get('extra_context', {})
+        )
+
+        # get extra context from object member
+        extra_context.update(
+            getattr(self, 'extra_context', {})
+        )
         
+        # get extra context from object method
+        extra_context.update(
+            self.get_extra_context(*args, **kwargs)
+        )
+
         return extra_context
 
     def get_extra_context(self, *args, **kwargs):
@@ -81,7 +92,7 @@ class GenericObjectList(object):
         
         # get pagemenu
         pagemenu = self.get_pagemenu(request, *args, **kwargs)
-        
+
         # pagemenu altered queryset
         queryset = self.get_pagemenu_altered_queryset(queryset, pagemenu)
 
@@ -93,7 +104,7 @@ class GenericObjectList(object):
             allow_empty=kwargs.get('allow_empty', getattr(self, 'allow_empty', self.get_allow_empty())),
             template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
             template_loader=kwargs.get('template_loader', getattr(self, 'template_loader', self.get_template_loader())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable, *args, **kwargs))),
+            extra_context=self._build_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable, *args, **kwargs),
             context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
             template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
