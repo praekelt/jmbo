@@ -2,9 +2,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from category.models import Category
-from content.generic.views import GenericObjectDetail, GenericObjectList
-from content.models import ModelBase
-from content.pagemenus import ContentPageMenu
+from panya.generic.views import GenericObjectDetail, GenericObjectList
+from panya.models import ModelBase
+from panya.pagemenus import ContentPageMenu
 
 class CategoryURL(object):
     def __init__(self, category):
