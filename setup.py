@@ -1,12 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='django-content',
-    version='dev',
-    description='Django CMS base content app.',
-    author='Praekelt Consulting',
+    name='panya',
+    version='0.0.1',
+    description='Panya base app.',
+    long_description = open('README.rst', 'r').read(),
+    author='Praekelt Foundation',
     author_email='dev@praekelt.com',
-    url='https://github.com/praekelt/django-content',
+    license='BSD',
+    url='http://github.com/praekelt/panya',
     packages = find_packages(),
     dependency_links = [
         'http://dist.repoze.org/',
@@ -18,4 +20,13 @@ setup(
         'django-tagging-autocomplete==0.3.1',
     ],
     include_package_data=True,
+    classifiers = [
+        "Programming Language :: Python",
+        "License :: OSI Approved :: BSD License",
+        "Development Status :: 4 - Beta",
+        "Operating System :: OS Independent",
+        "Framework :: Django",
+        "Intended Audience :: Developers",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    ],
 )
