@@ -12,11 +12,13 @@ setup(
     packages = find_packages(),
     dependency_links = [
         'http://dist.plone.org/thirdparty/',
+        'https://github.com/praekelt/django-category/tarball/master#egg=django-category',
     ],
     install_requires = [
-        'PIL>=1.1.6',
-        'django-tagging>=0.3.1',
-        'django-secretballot>=0.2.3',
+        'PIL',
+        'django-category',
+        'django-tagging',
+        'django-secretballot',
     ],
     include_package_data=True,
     classifiers = [
