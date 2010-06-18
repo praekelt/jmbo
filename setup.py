@@ -14,6 +14,7 @@ setup(
         'http://dist.plone.org/thirdparty/',
         'https://github.com/praekelt/django-category/tarball/master#egg=django-category',
         'https://github.com/praekelt/django-photologue/tarball/master#egg=django-photologue',
+        'https://github.com/praekelt/django-publisher/tarball/master#egg=django-publisher',
     ],
     install_requires = [
         'PIL',
