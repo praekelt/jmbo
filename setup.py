@@ -21,6 +21,7 @@ setup(
         'django-category',
         'django-tagging',
         'django-photologue',
+        'django-publisher',
         'django-secretballot',
     ],
     include_package_data=True,
