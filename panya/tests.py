@@ -26,29 +26,29 @@ from secretballot.models import Vote
        
 class DummyRelationalModel1(models.Model):
     pass
-models.register_models('content', DummyRelationalModel1)
+models.register_models('panya', DummyRelationalModel1)
 class DummyRelationalModel2(models.Model):
     pass
-models.register_models('content', DummyRelationalModel2)
+models.register_models('panya', DummyRelationalModel2)
 class DummyModel(ModelBase):
     test_editable_field = models.CharField(max_length=32)
     test_non_editable_field = models.CharField(max_length=32, editable=False)
     test_foreign_field = models.ForeignKey('DummyRelationalModel1', blank=True, null=True,)
     test_many_field = models.ManyToManyField('DummyRelationalModel2')
     test_member = True
-models.register_models('content', DummyModel)
+models.register_models('panya', DummyModel)
 class TrunkModel(ModelBase):
     pass
-models.register_models('content', TrunkModel)
+models.register_models('panya', TrunkModel)
 class BranchModel(TrunkModel):
     pass
-models.register_models('content', BranchModel)
+models.register_models('panya', BranchModel)
 class LeafModel(BranchModel):
     pass
-models.register_models('content', LeafModel)
+models.register_models('panya', LeafModel)
 class TestModel(ModelBase):
     pass
-models.register_models('content', TestModel)
+models.register_models('panya', TestModel)
 
 class UtilsTestCase(unittest.TestCase):
     def test_generate_slug(self):
@@ -227,7 +227,7 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failUnless(obj.can_vote(request))
 
         # return false if vote already exist
-        content_type = ContentType.objects.get(app_label="content", model="modelbase")
+        content_type = ContentType.objects.get(app_label="panya", model="modelbase")
         Vote.objects.create(object_id=obj.id, token='test_token', content_type=content_type, vote=1)
         self.failIf(obj.can_vote(request))
     
@@ -372,7 +372,7 @@ class InclusionTagsTestCase(unittest.TestCase):
 
     def test_render_tag(self):
         # load correct template for provided object and type
-        t = Template("{% load content_inclusion_tags %}{% render_object object block %}")
+        t = Template("{% load panya_inclusion_tags %}{% render_object object 'block' %}")
         result = t.render(self.context)
         expected_result = u'Test string for testing purposes\n'
         self.failUnlessEqual(result, expected_result)
@@ -381,12 +381,12 @@ class InclusionTagsTestCase(unittest.TestCase):
         obj = BranchModel(title='title', state='published')
         obj.save()
         self.context = template.Context({'object': obj})
-        t = Template("{% load content_inclusion_tags %}{% render_object object block %}")
+        t = Template("{% load panya_inclusion_tags %}{% render_object object 'block' %}")
         result = t.render(self.context)
         self.failUnless(result)
 
         # return the empty string if no template can be found for the given type for either obj or content.
-        t = Template("{% load content_inclusion_tags %}{% render_object object foobar %}")
+        t = Template("{% load panya_inclusion_tags %}{% render_object object 'foobar' %}")
         result = t.render(self.context)
         expected_result = u''
         self.failUnlessEqual(result, expected_result)
@@ -402,6 +402,6 @@ class TemplateTagsTestCase(unittest.TestCase):
 
     def test_smart_url(self):
         # return method call with result based on object provided
-        t = Template("{% load content_template_tags %}{% smart_url url_callable object %}")
+        t = Template("{% load panya_template_tags %}{% smart_url url_callable object %}")
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel') 
