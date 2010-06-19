@@ -172,16 +172,16 @@ class GenericObjectDetail(object):
 
 class GenericForm(object):
     def get_pagemenu(self, request, *args, **kwargs):
-        raise NotImplementedError('%s should implement get_pagemenu.' % self.__class__)
+        return None
         
     def get_form_class(self, *args, **kwargs):
-        raise NotImplementedError('%s should implement get_form_class.' % self.__class__)
+        return None
     
     def get_form_args(self, *args, **kwargs):
         return {}
 
     def handle_valid(self, *args, **kwargs):
-        raise NotImplementedError('%s should implement handle_valid.' % self.__class__)
+        return None
     
     def get_initial(self, *args, **kwargs):
         return None
@@ -196,27 +196,36 @@ class GenericForm(object):
         return None
 
     def redirect(self, request, *args, **kwargs):
-        raise NotImplementedError('%s should implement redirect.' % self.__class__)
+        form = self.form_class(initial=self.get_initial(*args, **kwargs), **self.form_args)
+        c = RequestContext(request, {
+            'form': form,
+            'success_message': self.success_message,
+            'pagemenu': self.pagemenu,
+        })
+        return render_to_response(self.template_name, c)
+        
+    def get_success_message(self, *args, **kwargs):
+        return None
     
     def __call__(self, request, *args, **kwargs):
-        form_class = kwargs.get('form_class', getattr(self, 'form_class', self.get_form_class()))
-        form_args = kwargs.get('form_args', getattr(self, 'form_args', self.get_form_args(*args, **kwargs)))
-        template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name()))
-        pagemenu = kwargs.get('pagemenu', getattr(self, 'pagemenu', self.get_pagemenu(request, *args, **kwargs)))
-        success_message = kwargs.get('success_message', getattr(self, 'success_message', self.get_success_message(*args, **kwargs)))
+        self.form_class = kwargs.get('form_class', getattr(self, 'form_class', self.get_form_class()))
+        self.form_args = kwargs.get('form_args', getattr(self, 'form_args', self.get_form_args(*args, **kwargs)))
+        self.template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name()))
+        self.pagemenu = kwargs.get('pagemenu', getattr(self, 'pagemenu', self.get_pagemenu(request, *args, **kwargs)))
+        self.success_message = kwargs.get('success_message', getattr(self, 'success_message', self.get_success_message(*args, **kwargs)))
 
         if request.method == 'POST':
-            form = form_class(data=request.POST, files=request.FILES, **form_args)
+            form = self.form_class(data=request.POST, files=request.FILES, **self.form_args)
             if form.is_valid():
                 self.handle_valid(form=form, *args, **kwargs)
-                msg = ugettext(success_message)
+                msg = ugettext(self.success_message)
                 messages.success(request, msg, fail_silently=True)
                 return self.redirect(request, *args, **kwargs)
         else:
-            form = form_class(initial=self.get_initial(*args, **kwargs), **form_args)
+            form = self.form_class(initial=self.get_initial(*args, **kwargs), **self.form_args)
        
         c = RequestContext(request, {
             'form': form,
-            'pagemenu': pagemenu,
+            'pagemenu': self.pagemenu,
         })
-        return render_to_response(template_name, c)
+        return render_to_response(self.template_name, c)
