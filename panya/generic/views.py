@@ -170,6 +170,8 @@ class GenericObjectDetail(object):
             mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
         )
 
+generic_object_detail = GenericObjectDetail()
+
 class GenericForm(object):
     def get_pagemenu(self, request, *args, **kwargs):
         return None
@@ -180,8 +182,13 @@ class GenericForm(object):
     def get_form_args(self, *args, **kwargs):
         return {}
 
-    def handle_valid(self, *args, **kwargs):
-        return None
+    def handle_valid(self, form=None, *args, **kwargs):
+        try:
+            # In the absence of an over-ridden method, 
+            # we take a chance and try save a subclass of a ModelForm.
+            form.save()
+        except:
+            pass
     
     def get_initial(self, *args, **kwargs):
         return None
@@ -229,3 +236,5 @@ class GenericForm(object):
             'pagemenu': self.pagemenu,
         })
         return render_to_response(self.template_name, c)
+
+generic_form_view = GenericForm()
