@@ -1,0 +1,2 @@
+class ContentViewModifier:
+    pass
