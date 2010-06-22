@@ -10,8 +10,8 @@ ModelBase:
 ----------
 class models.ModelBase
     
-Base Model delivering common CMS type functiopnality through inheritance.
-Child classes should provide model fields specific to their requirements.  
+Base Model delivering common CMS type functionality through inheritance.
+Child classes should provide model fields specific to their requirements.
 
 
 API Reference:
