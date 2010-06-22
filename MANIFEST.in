@@ -6,3 +6,4 @@ recursive-include panya/generic *
 recursive-include panya/templates *
 recursive-include panya/templatetags *
 recursive-include panya/utils *
+recursive-include panya/view_modifiers *
