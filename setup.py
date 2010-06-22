@@ -13,14 +13,14 @@ setup(
     dependency_links = [
         'http://dist.plone.org/thirdparty/',
         'https://github.com/praekelt/django-category/tarball/master#egg=django-category',
-        'https://github.com/praekelt/django-photologue/tarball/master#egg=django-photologue',
+        'https://github.com/praekelt/django-photologue/tarball/master#egg=django-photologue-2.3.praekelt',
         'https://github.com/praekelt/django-publisher/tarball/master#egg=django-publisher',
     ],
     install_requires = [
         'PIL',
         'django-category',
         'django-tagging',
-        'django-photologue',
+        'django-photologue==2.3.praekelt',
         'django-publisher',
         'django-secretballot',
     ],
