@@ -1,3 +1,5 @@
+import copy
+
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import loader
@@ -5,6 +7,47 @@ from django.template import RequestContext
 from django.utils.translation import ugettext
 from django.views.generic import list_detail
 
+class GenericBase(object):
+    def __init__(self, *args, **kwargs):
+        self.params=kwargs
+
+    def __call__(self, request, *args, **kwargs):
+        view = copy.copy(self)
+        
+        # setup view params
+        view._resolve_view_params(request, view.defaults, *args, **kwargs)
+       
+        # push the view through view modifier
+        if view.params.has_key('view_modifier'):
+            view = view.params['view_modifier'].action(view)
+
+        return view
+
+    def _resolve_view_params(self, request, defaults, *args, **kwargs):
+        params = copy.copy(defaults)
+        params.update(kwargs)
+        extra_context = {}
+        for key in params:
+            # grab from class method
+            value = getattr(self, 'get_%s' % key)(*args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
+            
+            # otherwise grab from existing params
+            if value == None:
+                value = self.params[key] if self.params.has_key(key) else None
+            
+            # otherwise grab from provided params
+            if value == None:
+                value = params[key]
+
+            if key in defaults:
+                self.params[key] = value
+            else:
+                extra_context[key] = value
+        
+        if extra_context:
+            self.params['extra_context'] = extra_context
+        
+    
 class DefaultURL(object):
     def __call__(self, obj):
         try:
@@ -12,34 +55,20 @@ class DefaultURL(object):
         except AttributeError:
             return ''
     
-class GenericObjectList(object):
-    def get_pagemenu(self, request, queryset, *args, **kwargs):
-        return None
-
-    def get_queryset(self, *args, **kwargs):
-        return None
+class GenericObjectList(GenericBase):
+    defaults = {
+        'queryset': None,
+        'paginate_by': None, 
+        'page':None,
+        'allow_empty':True, 
+        'template_name':None, 
+        'template_loader':loader,
+        'extra_context':None, 
+        'context_processors':None, 
+        'template_object_name':'object',
+        'mimetype':None
+    }
     
-    def get_pagemenu_altered_queryset(self, queryset, pagemenu):
-        if pagemenu:
-            return pagemenu.queryset
-        else:
-            return queryset
-
-    def get_paginate_by(self):
-        return None
-    
-    def get_page(self):
-        return None
-    
-    def get_allow_empty(self):
-        return True
-
-    def get_template_name(self):
-        return None
-
-    def get_template_loader(self):
-        return loader
-
     def get_url_callable(self):
         return DefaultURL()
 
@@ -69,47 +98,17 @@ class GenericObjectList(object):
 
         return extra_context
 
-    def get_extra_context(self, *args, **kwargs):
-        return None
-        
-    def get_context_processors(self):
-        return None
-        
-    def get_template_object_name(self):
-        return 'object'
-
-    def get_mimetype(self):
-        return None
-
-    def __init__(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
     def __call__(self, request, *args, **kwargs):
-        # get queryset
-        queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
-        kwargs['queryset'] = queryset 
+        # generate our view via genericbase
+        view = super(GenericObjectList, self).__call__(request, *args, **kwargs)
         
-        # get pagemenu
-        pagemenu = self.get_pagemenu(request, *args, **kwargs)
-
-        # pagemenu altered queryset
-        queryset = self.get_pagemenu_altered_queryset(queryset, pagemenu)
-
-        return list_detail.object_list(
-            request, 
-            queryset=queryset,
-            paginate_by=kwargs.get('paginate_by', getattr(self, 'paginate_by', self.get_paginate_by())),
-            page=kwargs.get('page', getattr(self, 'page', self.get_page())),
-            allow_empty=kwargs.get('allow_empty', getattr(self, 'allow_empty', self.get_allow_empty())),
-            template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
-            template_loader=kwargs.get('template_loader', getattr(self, 'template_loader', self.get_template_loader())),
-            extra_context=self._build_extra_context(pagemenu=pagemenu, url_callable=self.get_url_callable, *args, **kwargs),
-            context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
-            template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
-            mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
-        )
-
+        # setup object_list params
+        queryset=view.params['queryset']
+        del view.params['queryset'] 
+        
+        # return object list generic view
+        return list_detail.object_list(request, queryset=queryset, **view.params)
+        
 generic_object_list = GenericObjectList()
 
 class GenericObjectDetail(object):
