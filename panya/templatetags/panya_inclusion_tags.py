@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 
 register = template.Library()
 
-@register.inclusion_tag('content/inclusion_tags/content_list_gizmo.html', takes_context=True)
+@register.inclusion_tag('panya/inclusion_tags/content_list_gizmo.html', takes_context=True)
 def content_list_gizmo(context, object_list):
     context.update({'object_list': object_list})
     return context
@@ -20,12 +20,12 @@ def modelbase_listing(context, object_list, type):
     })
     return context
 
-@register.inclusion_tag('content/inclusion_tags/object_comments.html', takes_context=True)
+@register.inclusion_tag('panya/inclusion_tags/object_comments.html', takes_context=True)
 def object_comments(context, obj):
     context.update({'object': obj.modelbase_obj})
     return context
 
-@register.inclusion_tag('content/inclusion_tags/object_header.html', takes_context=True)
+@register.inclusion_tag('panya/inclusion_tags/object_header.html', takes_context=True)
 def object_header(context, obj):
     context.update({'object': obj})
     return context
