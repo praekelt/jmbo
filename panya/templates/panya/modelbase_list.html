@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load pagemenu_inclusion_tags panya_inclusion_tags %} 
+{% load panya_inclusion_tags %} 
 
 {% block content %}
     <div class="page section_news">
@@ -7,9 +7,9 @@
 		    <h1>{{ title }}</h1>
 		</div><!--/title-->
 
-        {% pagemenu pagemenu %}
+        {% view_modifier view_modifier %}
 
-        {% modelbase_listing object_list type %}
+        {% modelbase_listing object_list "list_wide" %}
 
         {% pager page_obj %}
 
