@@ -9,10 +9,11 @@ from secretballot.models import Vote
 
 # Base Item Class
 class Item(object):
-    def __init__(self, request, title, default):
+    def __init__(self, request, title, default, group=None, *args, **kwargs):
         self.request=request
         self.title=title
         self.default=default
+        self.group=group 
 
 class GetItem(Item):
     def __init__(self, request, title, get, field_name='', base_url=None, default=False, *args, **kwargs):
@@ -28,6 +29,13 @@ class GetItem(Item):
                 return request.GET[self.get['name']] == self.get['value']
 
         return False
+    
+    def modify(self, view):
+        """
+        adds the get item as extra context
+        """
+        view.params['extra_context'][self.get['name']] = self.get['value']
+        return view
     
     def get_absolute_url(self):
         addition_pairs = [(self.get['name'], self.get['value']),]
@@ -137,6 +145,14 @@ class MostLikedItem(GetItem):
         queryset = view.params['queryset']
         view.params['queryset'] = queryset.extra(select={
                 'vote_score': '(SELECT COUNT(*) from %s WHERE vote=1 AND object_id=%s.%s AND content_type_id=%s) - (SELECT COUNT(*) from %s WHERE vote=-1 AND object_id=%s.%s AND content_type_id=%s)' % (Vote._meta.db_table, queryset.model._meta.db_table, queryset.model._meta.pk.attname, ContentType.objects.get_for_model(queryset.model).id, Vote._meta.db_table, queryset.model._meta.db_table, queryset.model._meta.pk.attname, ContentType.objects.get_for_model(queryset.model).id)}).order_by('-vote_score')
+        return view
+
+class PagingCountItem(GetItem):
+    def modify(self, view):
+        try:
+            view.params['paginate_by'] = int(self.get['value'])
+        except ValueError:
+            pass
         return view
 
 class ThisMonthItem(GetItem):
