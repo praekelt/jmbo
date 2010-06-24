@@ -1,0 +1,11 @@
+{% load panya_template_tags %} 
+
+<div class="menu">
+    <ul>
+        {% for item in view_modifier.items %}
+    		<li{% if item in view_modifier.active_items %} class="on"{% endif %}>
+                <span></span><a href="{{ item.get_absolute_url }}">{{ item.title }}</a><span></span>
+            </li>
+        {% endfor %}
+	</ul>
+</div><!--/menu-->
