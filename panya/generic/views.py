@@ -7,29 +7,52 @@ from django.template import RequestContext
 from django.utils.translation import ugettext
 from django.views.generic import list_detail
 
+class DefaultURL(object):
+    def __call__(self, obj=None):
+        if obj:
+            try:
+                return obj.get_absolute_url()
+            except AttributeError:
+                return ''
+        else:
+            return self
+    
 class GenericBase(object):
     def __init__(self, *args, **kwargs):
         self.params=kwargs
+        self.params['view_modifier'] = None
+        self.params['url_callable'] = None
 
     def __call__(self, request, *args, **kwargs):
         view = copy.copy(self)
         
         # setup view params
-        view._resolve_view_params(request, view.defaults, *args, **kwargs)
+        view.params = view._resolve_view_params(request, view.defaults, *args, **kwargs)
        
         # push the view through view modifier
-        if view.params.has_key('view_modifier'):
-            view = view.params['view_modifier'].action(view)
+        if view.params['extra_context'].has_key('view_modifier'):
+            view_modifier = view.params['extra_context']['view_modifier']
+            if view_modifier:
+                view = view_modifier.modify(view)
 
         return view
 
+    def get_extra_context(self, *args, **kwargs):
+        return {}
+    
+    def get_url_callable(self, *args, **kwargs):
+        return DefaultURL()
+
     def _resolve_view_params(self, request, defaults, *args, **kwargs):
         params = copy.copy(defaults)
+        params.update(self.params)
         params.update(kwargs)
         extra_context = {}
+
+        resolved_params = {}
         for key in params:
             # grab from class method
-            value = getattr(self, 'get_%s' % key)(*args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
+            value = getattr(self, 'get_%s' % key)(request, *args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
             
             # otherwise grab from existing params
             if value == None:
@@ -40,21 +63,18 @@ class GenericBase(object):
                 value = params[key]
 
             if key in defaults:
-                self.params[key] = value
+                resolved_params[key] = value
             else:
                 extra_context[key] = value
         
+        extra_context.update(
+            self.get_extra_context(*args, **kwargs)
+        )
         if extra_context:
-            self.params['extra_context'] = extra_context
+            resolved_params['extra_context'] = extra_context
+
+        return resolved_params
         
-    
-class DefaultURL(object):
-    def __call__(self, obj):
-        try:
-            return obj.get_absolute_url()
-        except AttributeError:
-            return ''
-    
 class GenericObjectList(GenericBase):
     defaults = {
         'queryset': None,
@@ -66,109 +86,48 @@ class GenericObjectList(GenericBase):
         'extra_context':None, 
         'context_processors':None, 
         'template_object_name':'object',
-        'mimetype':None
+        'mimetype':None,
     }
     
-    def get_url_callable(self):
-        return DefaultURL()
-
-    def _build_extra_context(self, *args, **kwargs):
-        """
-        Combine extra context from various sources into one.
-        """
-        if kwargs.keys():
-            extra_context = kwargs
-        else:
-            extra_context = {}
-
-        # get extra context from original argsuments
-        extra_context.update(
-            kwargs.get('extra_context', {})
-        )
-
-        # get extra context from object member
-        extra_context.update(
-            getattr(self, 'extra_context', {})
-        )
-        
-        # get extra context from object method
-        extra_context.update(
-            self.get_extra_context(*args, **kwargs)
-        )
-
-        return extra_context
-
     def __call__(self, request, *args, **kwargs):
         # generate our view via genericbase
         view = super(GenericObjectList, self).__call__(request, *args, **kwargs)
         
         # setup object_list params
         queryset=view.params['queryset']
-        del view.params['queryset'] 
-        
+        del view.params['queryset']
+
         # return object list generic view
         return list_detail.object_list(request, queryset=queryset, **view.params)
         
 generic_object_list = GenericObjectList()
 
-class GenericObjectDetail(object):
-    def get_pagemenu(self, request, queryset, *args, **kwargs):
-        raise NotImplementedError('%s should implement get_pagemenu.' % self.__class__)
-
-    def get_queryset(self, *args, **kwargs):
-        raise NotImplementedError('%s should impliment get_queryset.' % self.__class__)
+class GenericObjectDetail(GenericBase):
+    defaults = {
+        'queryset': None,
+        'object_id': None, 
+        'slug': None,
+        'slug_field':'slug', 
+        'template_name_field':None,
+        'template_name':None, 
+        'template_loader':loader,
+        'extra_context':None, 
+        'context_processors':None, 
+        'template_object_name':'object',
+        'mimetype':None,
+    }
     
-    def get_object_id(self):
-        return None
-    
-    def get_slug(self):
-        return None
-    
-    def get_slug_field(self):
-        return 'slug'
-    
-    def get_template_name(self):
-        return None
-    
-    def get_template_name_field(self):
-        return None
-    
-    def get_extra_context(self, *args, **kwargs):
-        if kwargs.keys():
-            return kwargs
-        else:
-            return None
-        
-    def get_context_processors(self):
-        return None
-        
-    def get_template_object_name(self):
-        return 'object'
-
-    def get_mimetype(self):
-        return None
-
     def __call__(self, request, *args, **kwargs):
-        # get queryset
-        queryset = kwargs.get('queryset', getattr(self, 'queryset', self.get_queryset(*args, **kwargs)))
+        # generate our view via genericbase
+        view = super(GenericObjectDetail, self).__call__(request, *args, **kwargs)
         
-        # get pagemenu
-        pagemenu = self.get_pagemenu(request, queryset, *args, **kwargs)
-        
-        return list_detail.object_detail(
-            request,
-            queryset=queryset,
-            object_id=kwargs.get('object_id', getattr(self, 'object_id', self.get_object_id())),
-            slug=kwargs.get('slug', getattr(self, 'slug', self.get_slug())),
-            slug_field=kwargs.get('slug_field', getattr(self, 'slug_field', self.get_slug_field())),
-            template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name())),
-            template_name_field=kwargs.get('template_name_field', getattr(self, 'template_name_field', self.get_template_name_field())),
-            extra_context=kwargs.get('extra_context', getattr(self, 'extra_context', self.get_extra_context(pagemenu=pagemenu, *args, **kwargs))),
-            context_processors=kwargs.get('context_processors', getattr(self, 'context_processors', self.get_context_processors())),
-            template_object_name=kwargs.get('template_object_name', getattr(self, 'template_object_name', self.get_template_object_name())),
-            mimetype=kwargs.get('mimetype', getattr(self, 'mimetype', self.get_mimetype())),
-        )
+        # setup object_list params
+        queryset=view.params['queryset']
+        del view.params['queryset']
 
+        # return object list generic view
+        return list_detail.object_detail(request, queryset=queryset, **view.params)
+        
 generic_object_detail = GenericObjectDetail()
 
 class GenericForm(object):
