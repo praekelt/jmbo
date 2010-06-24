@@ -4,19 +4,41 @@ class ViewModifier(object):
     def __init__(self, request, ignore_defaults=False, *args, **kwargs):
         self.request = request
         self.ignore_defaults = ignore_defaults
-        self.active_items = self.get_active_items()
 
+        self.groups = {}
+        for item in self.items:
+            group = item.group
+            if group:
+                if self.groups.has_key(group):
+                    self.groups[group].append(item)
+                else:
+                    self.groups[group] = [item,]
+
+        self.active_items = self.get_active_items()
 
     def get_active_items(self):
         active_items = []
+        active_groups = []
         for item in self.items:
             if item.is_active(self.request):
                 active_items.append(item)
-       
-        # without active items fall back to defaults but only if they are not to be ignored
+                if item.group:
+                    active_groups.append(item.group)
+
+        # for each group without an active item fall back to defaults,
+        # but only if defaults are not ignored(ignore_defaults=False)
+        if not self.ignore_defaults:
+            if item.group:
+                for item in self.items:
+                    if item.default and item.group not in active_groups:
+                        active_items.append(item)
+                        active_groups.append(item.group)
+        
+        # if we still don't have any active items fall back to defaults that don't have groups,
+        # but only if defaults are not ignored(ignore_defaults=False)
         if not active_items and not self.ignore_defaults:
             for item in self.items:
-                if item.default:
+                if not item.group and item.default:
                     active_items.append(item)
 
         return active_items
