@@ -47,13 +47,18 @@ class GenericBase(object):
         params = copy.copy(defaults)
         params.update(self.params)
         params.update(kwargs)
-        extra_context = {}
-
         resolved_params = {}
+        
+        # Check is view has extra_context, else default to blank.
+        if kwargs.has_key('extra_context'):
+            extra_context = kwargs['extra_context']
+        else:
+            extra_context = {}
+        
         for key in params:
             # grab from class method
             value = getattr(self, 'get_%s' % key)(request, *args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
-            
+
             # otherwise grab from existing params
             if value == None:
                 value = self.params[key] if self.params.has_key(key) else None
