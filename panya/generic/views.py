@@ -1,5 +1,8 @@
 import copy
+import traceback
 
+from django.db.models import Q
+from django.db.models.fields import related 
 from django.contrib import messages
 from django.shortcuts import render_to_response
 from django.template import loader
@@ -49,7 +52,7 @@ class GenericBase(object):
         params.update(kwargs)
         resolved_params = {}
         
-        # Check is view has extra_context, else default to blank.
+        # Check if view has extra_context, else default to blank.
         if kwargs.has_key('extra_context'):
             extra_context = kwargs['extra_context']
         else:
@@ -106,6 +109,26 @@ class GenericObjectList(GenericBase):
         return list_detail.object_list(request, queryset=queryset, **view.params)
         
 generic_object_list = GenericObjectList()
+        
+class GenericObjectFilterList(GenericObjectList):
+    
+    def __call__(self, request, *args, **kwargs):
+        # generate our view via genericbase
+        view = super(GenericObjectList, self).__call__(request, *args, **kwargs)
+
+        # setup object_list params
+        queryset=view.params['queryset']
+        del view.params['queryset']
+        
+        # Filter
+        for field in queryset.model._meta.fields:
+            if field.name in view.params['extra_context'].keys():
+                queryset = queryset.filter(Q(**{"%s__exact" % field.name : view.params['extra_context'][field.name]}))
+        
+        # return object list generic view
+        return list_detail.object_list(request, queryset=queryset, **view.params)
+        
+generic_object_filter_list = GenericObjectFilterList()
 
 class GenericObjectDetail(GenericBase):
     defaults = {
