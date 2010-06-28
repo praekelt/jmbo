@@ -40,9 +40,6 @@ class GenericBase(object):
 
         return view
 
-    def get_extra_context(self, *args, **kwargs):
-        return {}
-    
     def get_url_callable(self, *args, **kwargs):
         return DefaultURL()
 
@@ -52,12 +49,7 @@ class GenericBase(object):
         params.update(kwargs)
         resolved_params = {}
         
-        # Check if view has extra_context, else default to blank.
-        if kwargs.has_key('extra_context'):
-            extra_context = kwargs['extra_context']
-        else:
-            extra_context = {}
-        
+        extra_context = {}
         for key in params:
             # grab from class method
             value = getattr(self, 'get_%s' % key)(request, *args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
@@ -75,11 +67,11 @@ class GenericBase(object):
             else:
                 extra_context[key] = value
         
-        extra_context.update(
-            self.get_extra_context(*args, **kwargs)
-        )
         if extra_context:
-            resolved_params['extra_context'] = extra_context
+            try:
+                resolved_params['extra_context'].update(extra_context)
+            except AttributeError:
+                resolved_params['extra_context'] = extra_context
 
         return resolved_params
         
