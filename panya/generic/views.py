@@ -173,6 +173,7 @@ class GenericForm(object):
         return None
     
     def __call__(self, request, *args, **kwargs):
+        self.request = request
         self.form_class = kwargs.get('form_class', getattr(self, 'form_class', self.get_form_class()))
         self.form_args = kwargs.get('form_args', getattr(self, 'form_args', self.get_form_args(*args, **kwargs)))
         self.template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name()))
@@ -183,16 +184,18 @@ class GenericForm(object):
             form = self.form_class(data=request.POST, files=request.FILES, **self.form_args)
             if form.is_valid():
                 self.handle_valid(form=form, *args, **kwargs)
-                msg = ugettext(self.success_message)
-                messages.success(request, msg, fail_silently=True)
+                if self.success_message:
+                    msg = ugettext(self.success_message)
+                    messages.success(request, msg, fail_silently=True)
                 return self.redirect(request, *args, **kwargs)
         else:
             form = self.form_class(initial=self.get_initial(*args, **kwargs), **self.form_args)
-       
-        c = RequestContext(request, {
+      
+        context = RequestContext(request, {})
+        context.update({
             'form': form,
             'pagemenu': self.pagemenu,
         })
-        return render_to_response(self.template_name, c)
+        return render_to_response(self.template_name, context)
 
 generic_form_view = GenericForm()
