@@ -162,10 +162,9 @@ class GenericForm(object):
 
     def handle_valid(self, form=None, *args, **kwargs):
         try:
-            # In the absence of an over-ridden method, 
             # we take a chance and try save a subclass of a ModelForm.
-            form.save()
-        except:
+            form.save(*args, **kwargs)
+        except AttributeError:
             pass
     
     def get_initial(self, *args, **kwargs):
@@ -181,7 +180,7 @@ class GenericForm(object):
         return None
 
     def redirect(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.get_initial(*args, **kwargs), **self.form_args)
+        form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
         c = RequestContext(request, {
             'form': form,
             'success_message': self.success_message,
@@ -203,13 +202,13 @@ class GenericForm(object):
         if request.method == 'POST':
             form = self.form_class(data=request.POST, files=request.FILES, **self.form_args)
             if form.is_valid():
-                self.handle_valid(form=form, *args, **kwargs)
+                self.handle_valid(form=form, request=request, *args, **kwargs)
                 if self.success_message:
                     msg = ugettext(self.success_message)
                     messages.success(request, msg, fail_silently=True)
                 return self.redirect(request, *args, **kwargs)
         else:
-            form = self.form_class(initial=self.get_initial(*args, **kwargs), **self.form_args)
+            form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
       
         context = RequestContext(request, {})
         context.update({
