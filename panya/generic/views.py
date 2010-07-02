@@ -161,12 +161,10 @@ class GenericForm(object):
         return {}
 
     def handle_valid(self, form=None, *args, **kwargs):
-        try:
-            # we take a chance and try save a subclass of a ModelForm.
+        # we take a chance and try save a subclass of a ModelForm.
+        if hasattr(form, 'save'):
             form.save(*args, **kwargs)
-        except AttributeError:
-            pass
-    
+   
     def get_initial(self, *args, **kwargs):
         return None
 
