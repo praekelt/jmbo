@@ -199,22 +199,30 @@ class ModelBase(ImageModel):
             return self.modelbase_ptr
        
     def can_vote(self, request):
+        """
+        Determnines whether or not the current user can vote.
+        Returns a bool as well as a string indicating the current vote status,
+        with vote status being one of: 'closed', 'disabled', 'auth_required', 'can_vote', 'voted' 
+        """
         modelbase_obj = self.modelbase_obj
 
         # can't vote if liking is closed
         if modelbase_obj.likes_closed:
-            return False
+            return False, 'closed'
         
         # can't vote if liking is disabled
         if not modelbase_obj.likes_enabled:
-            return False
+            return False, 'disabled'
 
         # anonymous users can't vote if anonymous likes are disabled
         if not request.user.is_authenticated() and not modelbase_obj.anonymous_likes:
-            return False
+            return False, 'auth_required'
           
         # return false if existing votes are found
-        return Vote.objects.filter(object_id=modelbase_obj.id, token=request.secretballot_token).count() == 0
+        if Vote.objects.filter(object_id=modelbase_obj.id, token=request.secretballot_token).count() == 0:
+            return True, 'can_vote'
+        else:
+            return False, 'voted'
     
     def can_comment(self, request):
         modelbase_obj = self.modelbase_obj
