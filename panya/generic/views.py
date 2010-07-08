@@ -44,6 +44,11 @@ class GenericBase(object):
         return DefaultURL()
 
     def _resolve_view_params(self, request, defaults, *args, **kwargs):
+        """
+        Resolves view params with least ammount of resistance.
+        Firstly check for params on urls passed args, then on class init args or members, 
+        and lastly on class get methods .
+        """
         params = copy.copy(defaults)
         params.update(self.params)
         params.update(kwargs)
@@ -51,16 +56,16 @@ class GenericBase(object):
         
         extra_context = {}
         for key in params:
-            # grab from class method
-            value = getattr(self, 'get_%s' % key)(request, *args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
-
+            # grab from provided params. 
+            value = params[key]
+            
             # otherwise grab from existing params
             if value == None:
                 value = self.params[key] if self.params.has_key(key) else None
             
-            # otherwise grab from provided params
+            # otherwise grab from class method
             if value == None:
-                value = params[key]
+                value = getattr(self, 'get_%s' % key)(request, *args, **kwargs) if getattr(self, 'get_%s' % key, None) else None
 
             if key in defaults:
                 resolved_params[key] = value
