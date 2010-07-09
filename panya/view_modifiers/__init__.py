@@ -1,4 +1,4 @@
-from panya.view_modifiers.items import CalEntryUpcomingItem, CalEntryThisWeekendItem, CalEntryNext7DaysItem, CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, MostLikedItem, ThisMonthItem, ThisWeekItem
+from panya.view_modifiers.items import CalEntryUpcomingItem, CalEntryThisWeekendItem, CalEntryNext7DaysItem, CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, MostLikedItem, TagItem, ThisMonthItem, ThisWeekItem
 
 class ViewModifier(object):
     def __init__(self, request, ignore_defaults=False, *args, **kwargs):
@@ -142,29 +142,21 @@ class IntegerFieldRangeViewModifier(ViewModifier):
 
         super(IntegerFieldRangeViewModifier, self).__init__(request, *args, **kwargs)
 
-class TagViewModifier(ViewModifier):
-    def __init__(self, view, request, *args, **kwargs):
-        queryset = views.params['queryset']
-        ids = [obj.id for obj in queryset]
+class CategoryTagViewModifier(ViewModifier):
+    def __init__(self, request, category, *args, **kwargs):
+        from category.models import Tag
+        
+        self.items = []
+        tags = Tag.objects.filter(categories=category)
 
-        import pdb; pdb.set_trace()
-
-        #self.items = []
-
-        #ranges = range(0, count, interval)
-        #i = 0
-        #for range_start in ranges:
-        #    range_end = range_start + interval
-        #    range_start = range_start + 1
-        #    self.items.append(IntegerFieldRangeItem(
-        #        request=request,
-        #        title="%s-%s" % (range_start, range_end),
-        #        get={'name': 'range', 'value': range_start},
-        #        field_name=field_name,
-        #        filter_range=(range_start, range_end),
-        #        default=i==0,
-        #    ))
-        #    i += 1
-
-        #super(IntegerFieldRangeViewModifier, self).__init__(request, *args, **kwargs)
-    #pass
+        for tag in tags:
+            self.items.append(TagItem(
+                request=request,
+                title=tag.title,
+                get={'name': 'tag', 'value': tag.slug},
+                field_name='tag',
+                tag=tag,
+                default=False,
+            ))
+            
+        super(CategoryTagViewModifier, self).__init__(request, *args, **kwargs)
