@@ -19,7 +19,6 @@ setup(
     install_requires = [
         'PIL',
         'django-category',
-        'django-tagging',
         'django-photologue==2.3.praekelt',
         'django-publisher',
         'django-secretballot',
