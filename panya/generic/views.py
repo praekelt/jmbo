@@ -37,7 +37,8 @@ class GenericBase(object):
             view_modifier = view.params['extra_context']['view_modifier']
             if view_modifier:
                 if callable(view_modifier):
-                    view_modifier = view_modifier(view=view, request=request, *args, **kwargs)
+                    view_modifier = view_modifier(request=request, *args, **kwargs)
+                    view.params['extra_context']['view_modifier'] = view_modifier
                 view = view_modifier.modify(view)
 
         return view
