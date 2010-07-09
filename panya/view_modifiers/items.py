@@ -170,3 +170,12 @@ class ThisWeekItem(GetItem):
             '%s__lt' % self.field_name: (datetime.today()+timedelta(days=1)).strftime('%Y-%m-%d'),
         })
         return view
+
+class TagItem(GetItem):
+    def __init__(self, request, title, get, field_name, tag, default=False):
+        self.tag = tag
+        super(TagItem, self).__init__(request=request, title=title, get=get, field_name=field_name, default=default)
+
+    def modify(self, view):
+        view.params['queryset'] = view.params['queryset'].filter(tags=self.tag)
+        return view
