@@ -141,3 +141,30 @@ class IntegerFieldRangeViewModifier(ViewModifier):
             i += 1
 
         super(IntegerFieldRangeViewModifier, self).__init__(request, *args, **kwargs)
+
+class TagViewModifier(ViewModifier):
+    def __init__(self, view, request, *args, **kwargs):
+        queryset = views.params['queryset']
+        ids = [obj.id for obj in queryset]
+
+        import pdb; pdb.set_trace()
+
+        #self.items = []
+
+        #ranges = range(0, count, interval)
+        #i = 0
+        #for range_start in ranges:
+        #    range_end = range_start + interval
+        #    range_start = range_start + 1
+        #    self.items.append(IntegerFieldRangeItem(
+        #        request=request,
+        #        title="%s-%s" % (range_start, range_end),
+        #        get={'name': 'range', 'value': range_start},
+        #        field_name=field_name,
+        #        filter_range=(range_start, range_end),
+        #        default=i==0,
+        #    ))
+        #    i += 1
+
+        #super(IntegerFieldRangeViewModifier, self).__init__(request, *args, **kwargs)
+    #pass
