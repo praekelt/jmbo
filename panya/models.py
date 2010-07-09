@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models import signals
 from django.template import Template
 
-import tagging
 import secretballot
 from panya.managers import PermittedManager
 from panya.utils import generate_slug
