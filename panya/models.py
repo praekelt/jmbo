@@ -88,7 +88,12 @@ class ModelBase(ImageModel):
         null=True,
         help_text='Categorizing this item.'
     )
-    tags = tagging.fields.TagField()
+    tags = models.ManyToManyField(
+        'category.Tag',
+        blank=True,
+        null=True,
+        help_text='Tag this item.'
+    )
     sites = models.ManyToManyField(
         'sites.Site',
         blank=True,
