@@ -31,11 +31,13 @@ class GenericBase(object):
         
         # setup view params
         view.params = view._resolve_view_params(request, view.defaults, *args, **kwargs)
-       
+      
         # push the view through view modifier
         if view.params['extra_context'].has_key('view_modifier'):
             view_modifier = view.params['extra_context']['view_modifier']
             if view_modifier:
+                if callable(view_modifier):
+                    view_modifier = view_modifier(view=view, request=request, *args, **kwargs)
                 view = view_modifier.modify(view)
 
         return view
