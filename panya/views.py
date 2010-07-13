@@ -53,3 +53,12 @@ class CategoryObjectDetail(GenericObjectDetail):
         return super(CategoryObjectDetail, self).__call__(request, *args, **kwargs)
 
 category_object_detail = CategoryObjectDetail()
+
+class ObjectPeek(GenericObjectDetail):
+    def get_queryset(self, *args, **kwargs):
+        return ModelBase.permitted
+
+    def get_template_name(self, *args, **kwargs):
+        return 'panya/modelbase_peek.html'
+    
+object_peek = ObjectPeek()
