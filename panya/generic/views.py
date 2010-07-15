@@ -163,17 +163,32 @@ class GenericForm(object):
         return None
         
     def get_form_class(self, *args, **kwargs):
+        """
+        Returns the form class.
+        """
         return None
     
     def get_form_args(self, *args, **kwargs):
+        """
+        Returns a dictionary of arguments required for form instantiation.
+        """
         return {}
 
     def handle_valid(self, form=None, *args, **kwargs):
-        # we take a chance and try save a subclass of a ModelForm.
+        """
+        Called after the form has validated.
+        """
+        # Take a chance and try save a subclass of a ModelForm.
         if hasattr(form, 'save'):
             form.save(*args, **kwargs)
+        # Also try and call handle_valid method of the form itself.
+        if hasattr(form, 'handle_valid'):
+            form.handle_valid(*args, **kwargs)
    
     def get_initial(self, *args, **kwargs):
+        """
+        Returns dictionary of initial form values.
+        """
         return None
 
     def get_extra_context(self, *args, **kwargs):
@@ -183,9 +198,15 @@ class GenericForm(object):
             return None
     
     def get_template_name(self):
+        """
+        Returns the template name to use for this view.
+        """
         return None
 
     def redirect(self, request, *args, **kwargs):
+        """
+        Redirect after successful form submition.
+        """
         form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
         c = RequestContext(request, {
             'form': form,
@@ -195,6 +216,9 @@ class GenericForm(object):
         return render_to_response(self.template_name, c)
         
     def get_success_message(self, *args, **kwargs):
+        """
+        Returns user message to display after successful submition.
+        """
         return None
     
     def __call__(self, request, *args, **kwargs):
@@ -215,7 +239,7 @@ class GenericForm(object):
                 return self.redirect(request, *args, **kwargs)
         else:
             form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
-      
+     
         context = RequestContext(request, {})
         context.update({
             'form': form,
