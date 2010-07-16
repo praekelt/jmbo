@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='panya',
-    version='0.0.4',
+    version='0.0.5',
     description='Panya base app.',
     long_description = open('README.rst', 'r').read(),
     author='Praekelt Foundation',
