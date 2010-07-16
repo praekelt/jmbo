@@ -27,6 +27,7 @@ class GenericBase(object):
         self.params['url_callable'] = None
 
     def __call__(self, request, *args, **kwargs):
+        self.request = request
         view = copy.copy(self)
         
         # setup view params
@@ -158,22 +159,16 @@ class GenericObjectDetail(GenericBase):
         
 generic_object_detail = GenericObjectDetail()
 
-class GenericForm(object):
-    def get_pagemenu(self, request, *args, **kwargs):
-        return None
-        
-    def get_form_class(self, *args, **kwargs):
-        """
-        Returns the form class.
-        """
-        return None
+class GenericForm(GenericBase):
+    defaults = {
+        'form_class': None,
+        'form_args': None,
+        'initial': None,
+        'extra_context': None, 
+        'template_name': None,
+        'success_message': None,
+    }
     
-    def get_form_args(self, *args, **kwargs):
-        """
-        Returns a dictionary of arguments required for form instantiation.
-        """
-        return {}
-
     def handle_valid(self, form=None, *args, **kwargs):
         """
         Called after the form has validated.
@@ -184,28 +179,10 @@ class GenericForm(object):
         # Also try and call handle_valid method of the form itself.
         if hasattr(form, 'handle_valid'):
             form.handle_valid(*args, **kwargs)
-   
-    def get_initial(self, *args, **kwargs):
-        """
-        Returns dictionary of initial form values.
-        """
-        return None
-
-    def get_extra_context(self, *args, **kwargs):
-        if kwargs.keys():
-            return kwargs
-        else:
-            return None
     
-    def get_template_name(self):
-        """
-        Returns the template name to use for this view.
-        """
-        return None
-
     def redirect(self, request, *args, **kwargs):
         """
-        Redirect after successful form submition.
+        Redirect after successful form submission.
         """
         form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
         c = RequestContext(request, {
@@ -214,20 +191,15 @@ class GenericForm(object):
             'pagemenu': self.pagemenu,
         })
         return render_to_response(self.template_name, c)
-        
-    def get_success_message(self, *args, **kwargs):
-        """
-        Returns user message to display after successful submition.
-        """
-        return None
     
     def __call__(self, request, *args, **kwargs):
-        self.request = request
-        self.form_class = kwargs.get('form_class', getattr(self, 'form_class', self.get_form_class()))
-        self.form_args = kwargs.get('form_args', getattr(self, 'form_args', self.get_form_args(*args, **kwargs)))
-        self.template_name=kwargs.get('template_name', getattr(self, 'template_name', self.get_template_name()))
-        self.pagemenu = kwargs.get('pagemenu', getattr(self, 'pagemenu', self.get_pagemenu(request, *args, **kwargs)))
-        self.success_message = kwargs.get('success_message', getattr(self, 'success_message', self.get_success_message(*args, **kwargs)))
+        # generate our view via genericbase
+        view = super(GenericForm, self).__call__(request, *args, **kwargs)
+
+        self.form_class = view.params['form_class']
+        self.form_args = view.params['form_args']
+        self.template_name = view.params['template_name']
+        self.success_message = view.params['success_message']
 
         if request.method == 'POST':
             form = self.form_class(data=request.POST, files=request.FILES, **self.form_args)
@@ -239,12 +211,12 @@ class GenericForm(object):
                 return self.redirect(request, *args, **kwargs)
         else:
             form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
-     
+    
         context = RequestContext(request, {})
         context.update({
             'form': form,
-            'pagemenu': self.pagemenu,
         })
+        context.update(view.params['extra_context'])
         return render_to_response(self.template_name, context)
-
+        
 generic_form_view = GenericForm()
