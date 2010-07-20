@@ -175,7 +175,7 @@ class GenericForm(GenericBase):
         """
         # Take a chance and try save a subclass of a ModelForm.
         if hasattr(form, 'save'):
-            form.save(*args, **kwargs)
+            form.save()
         # Also try and call handle_valid method of the form itself.
         if hasattr(form, 'handle_valid'):
             form.handle_valid(*args, **kwargs)
