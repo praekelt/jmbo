@@ -183,14 +183,9 @@ class GenericForm(GenericBase):
     def redirect(self, request, *args, **kwargs):
         """
         Redirect after successful form submission.
+        Default behaviour is to not redirect and hence return the original view.
         """
-        form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
-        c = RequestContext(request, {
-            'form': form,
-            'success_message': self.success_message,
-            'pagemenu': self.pagemenu,
-        })
-        return render_to_response(self.template_name, c)
+        return None
     
     def __call__(self, request, *args, **kwargs):
         # generate our view via genericbase
@@ -208,7 +203,9 @@ class GenericForm(GenericBase):
                 if self.success_message:
                     msg = ugettext(self.success_message)
                     messages.success(request, msg, fail_silently=True)
-                return self.redirect(request, *args, **kwargs)
+                redirect = self.redirect(request, *args, **kwargs)
+                if redirect:
+                    return redirect
         else:
             form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
     
