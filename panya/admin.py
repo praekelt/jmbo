@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from panya.models import ModelBase
 from publisher.models import Publisher
+from photologue.admin import ImageOverrideInline
 
 class ModelBaseAdminForm(forms.ModelForm):
     sites = forms.ModelMultipleChoiceField(
@@ -26,6 +27,7 @@ class ModelBaseAdminForm(forms.ModelForm):
 
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
+    inlines = [ImageOverrideInline,]
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
