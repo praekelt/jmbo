@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='panya',
-    version='0.0.8',
+    version='0.0.9',
     description='Panya base app.',
     long_description = open('README.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -12,9 +12,7 @@ setup(
     packages = find_packages(),
     dependency_links = [
         'http://dist.plone.org/thirdparty/',
-        'https://github.com/praekelt/django-category/tarball/master#egg=django-category',
         'http://github.com/praekelt/django-photologue/tarball/2.4.praekelt#egg=django-photologue-2.4.praekelt',
-        'https://github.com/praekelt/django-publisher/tarball/master#egg=django-publisher',
     ],
     install_requires = [
         'PIL',
