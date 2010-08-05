@@ -52,7 +52,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
-        fieldsets = deepcopy(ModelBaseAdmin.fieldsets)
+        fieldsets = deepcopy(self.fieldsets)
 
         set_fields = []
         for fieldset in self.fieldsets:
