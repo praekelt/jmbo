@@ -10,23 +10,7 @@ from panya.models import ModelBase
 from publisher.models import Publisher
 from photologue.admin import ImageOverrideInline
 
-class ModelBaseAdminForm(forms.ModelForm):
-    sites = forms.ModelMultipleChoiceField(
-        queryset=Site.objects.all(), 
-        help_text='Makes item eligible to be published on selected sites.',
-        required=False, 
-        widget=forms.CheckboxSelectMultiple()
-    )
-    publishers = forms.ModelMultipleChoiceField(
-        queryset=Publisher.objects.all(), 
-        help_text='Makes item eligible to be published on selected platform.',
-        required=False, 
-        widget=forms.CheckboxSelectMultiple())
-    class Meta:
-        model = ModelBase
-
 class ModelBaseAdmin(admin.ModelAdmin):
-    form = ModelBaseAdminForm
     inlines = [ImageOverrideInline,]
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
     list_filter = ('state', 'created')
