@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 
 setup(
     name='panya',
-    version='0.0.10',
+    version='0.1.0',
     description='Panya base app.',
-    long_description = open('README.rst', 'r').read(),
+    long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
     author_email='dev@praekelt.com',
     license='BSD',
