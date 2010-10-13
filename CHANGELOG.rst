@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.1
+-----
+
+#. Use django-photologue 2.5.praekelt
+
 0.1.0
 -----
 
