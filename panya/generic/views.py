@@ -162,7 +162,7 @@ generic_object_detail = GenericObjectDetail()
 class GenericForm(GenericBase):
     defaults = {
         'form_class': None,
-        'form_args': None,
+        'form_args': {},
         'initial': None,
         'extra_context': None, 
         'template_name': None,
@@ -193,6 +193,7 @@ class GenericForm(GenericBase):
 
         self.form_class = view.params['form_class']
         self.form_args = view.params['form_args']
+        self.initial = view.params['initial']
         self.template_name = view.params['template_name']
         self.success_message = view.params['success_message']
 
@@ -207,7 +208,7 @@ class GenericForm(GenericBase):
                 if redirect:
                     return redirect
         else:
-            form = self.form_class(initial=self.get_initial(request=request, *args, **kwargs), **self.form_args)
+            form = self.form_class(initial=self.initial, **self.form_args)
     
         context = RequestContext(request, {})
         context.update({
