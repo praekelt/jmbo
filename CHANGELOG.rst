@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.3
+-----
+#. Refactored ModelBase.comment_count to resolve comments for leaf class or modelbase content types.
+
 0.1.2
 -----
 #. Generic form issues corrected.
