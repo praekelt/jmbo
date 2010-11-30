@@ -4,10 +4,12 @@ from datetime import datetime
 from django import template
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib import comments
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import signals
 from django.template import Template
+from django.utils.encoding import smart_unicode
 
 import secretballot
 from panya.managers import PermittedManager
@@ -258,10 +260,32 @@ class ModelBase(ImageModel):
     def comment_count(self):
         """
         Counts total number of comments on ModelBase object.
+        Comments should always be recorded on ModelBase objects.
         """
-        modelbase_obj = self.modelbase_obj
-        t = Template("{% load comments %}{% get_comment_count for object as count %}{{ count }}")
-        return int(t.render(template.Context({'object': modelbase_obj})))
+        # Get the comment model.
+        comment_model = comments.get_model()
+
+        modelbase_content_type = ContentType.objects.get(app_label="panya", model="modelbase")
+
+        # Create a qs filtered for the ModelBase or content_type objects.
+        qs = comment_model.objects.filter(
+            content_type__in = [self.content_type, modelbase_content_type],
+            object_pk    = smart_unicode(self.pk),
+            site__pk     = settings.SITE_ID,
+        )
+
+        # The is_public and is_removed fields are implementation details of the
+        # built-in comment model's spam filtering system, so they might not
+        # be present on a custom comment model subclass. If they exist, we
+        # should filter on them.
+        field_names = [f.name for f in comment_model._meta.fields]
+        if 'is_public' in field_names:
+            qs = qs.filter(is_public=True)
+        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and 'is_removed' in field_names:
+            qs = qs.filter(is_removed=False)
+
+        # Return ammount of items in qs.
+        return qs.count()
 
 def set_managers(sender, **kwargs):
     """
