@@ -265,7 +265,8 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failUnless(dummy_obj.comment_count == 2)
         self.failUnless(dummy_obj.modelbase_obj.comment_count == 2)
 
-    
+        # There should now only be 3 comment objects.
+        self.failUnless(comment_model.objects.all().count() == 3)
     
     def test_can_comment(self):
         # create dummy request object
