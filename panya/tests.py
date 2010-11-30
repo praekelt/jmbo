@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.conf import settings
+from django.contrib import comments
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -209,17 +210,17 @@ class ModelBaseTestCase(unittest.TestCase):
         # return false when liking is closed
         obj = ModelBase(likes_enabled=True, likes_closed=True, anonymous_likes=True)
         obj.save()
-        self.failIf(obj.can_vote(request))
+        self.failIf(obj.can_vote(request)[0])
 
         # return false when liking is disabled
         obj = ModelBase(likes_enabled=False, likes_closed=False, anonymous_likes=True)
         obj.save()
-        self.failIf(obj.can_vote(request))
+        self.failIf(obj.can_vote(request)[0])
         
         # return false if anonymous and anonymous liking is disabled
         obj = ModelBase(likes_enabled=True, likes_closed=False, anonymous_likes=False)
         obj.save()
-        self.failIf(obj.can_vote(request))
+        self.failIf(obj.can_vote(request)[0])
         
         # return true if anonymous and anonymous liking is enabled
         obj = ModelBase(likes_enabled=True, likes_closed=False, anonymous_likes=True)
@@ -229,7 +230,42 @@ class ModelBaseTestCase(unittest.TestCase):
         # return false if vote already exist
         content_type = ContentType.objects.get(app_label="panya", model="modelbase")
         Vote.objects.create(object_id=obj.id, token='test_token', content_type=content_type, vote=1)
-        self.failIf(obj.can_vote(request))
+        self.failIf(obj.can_vote(request)[0])
+
+    def test_comment_count(self):
+        comment_model = comments.get_model()
+        
+        # Return 0 if no comments exist.
+        obj = ModelBase()
+        obj.save()
+        self.failUnless(obj.comment_count == 0)
+
+        # Return the number of comments if comments exist. Here it should be 1 since we've created 1 comment.
+        comment_obj = comment_model(content_object=obj, site_id=1)
+        comment_obj.save()
+        self.failUnless(obj.comment_count == 1)
+        
+        # Return 0 if no comments exist.
+        dummy_obj = DummyModel()
+        dummy_obj.save()
+        self.failUnless(dummy_obj.comment_count == 0)
+
+        # Return the number of comments if comments exist on the ModelBase object. 
+        # Here it should be 1 since we've created 1 comment on the ModelBase object.
+        comment_obj = comment_model(content_object=dummy_obj.modelbase_obj, site_id=1)
+        comment_obj.save()
+        self.failUnless(dummy_obj.modelbase_obj.comment_count == 1)
+
+        # If a comment was made on the ModelBase object it should still count for leaf class objects.
+        self.failUnless(dummy_obj.comment_count == 1)
+
+        # Add another comment on dummy object and make sure the count is 2 for both the dummy object and its modelbase object.
+        comment_obj = comment_model(content_object=dummy_obj, site_id=1)
+        comment_obj.save()
+        self.failUnless(dummy_obj.comment_count == 2)
+        self.failUnless(dummy_obj.modelbase_obj.comment_count == 2)
+
+    
     
     def test_can_comment(self):
         # create dummy request object
