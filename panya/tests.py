@@ -80,7 +80,15 @@ class UtilsTestCase(unittest.TestCase):
         # make sure the slug is actually saved
         obj = ModelBase.objects.get(id=obj.id)
         self.failIf(obj.slug=='')
-
+        
+        # Empty slugs might trip up regex query.
+        obj = ModelBase()
+        obj.save()
+        obj = ModelBase()
+        obj.save()
+        obj = ModelBase()
+        obj.save()
+        
 class ModelBaseTestCase(unittest.TestCase):
     def test_save(self):
         before_save = datetime.now()
