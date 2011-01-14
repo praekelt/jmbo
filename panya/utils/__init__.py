@@ -16,10 +16,7 @@ def generate_slug(obj, text, tail_number=0):
     # use django slugify filter to slugify
     slug = slugify(text)
     
-    if slug:
-        existing_slugs = [item.slug for item in ModelBase.objects.filter(slug__regex=r'^%s' % slug).exclude(id=obj.id)]
-    else:
-        existing_slugs = [item.slug for item in ModelBase.objects.filter(slug__regex=r'^(-\d+)?').exclude(id=obj.id)]
+    existing_slugs = [item.slug for item in ModelBase.objects.filter(slug__regex=r'^(-\d+)?').exclude(id=obj.id)]
     
     tail_number = 0
     new_slug = slug
