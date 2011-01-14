@@ -16,17 +16,14 @@ def generate_slug(obj, text, tail_number=0):
     # use django slugify filter to slugify
     slug = slugify(text)
     
-    if slug:
-        existing_slugs = [item.slug for item in ModelBase.objects.filter(slug__regex=r'^%s' % slug).exclude(id=obj.id)]
-    else:
-        existing_slugs = [item.slug for item in ModelBase.objects.filter(slug='').exclude(id=obj.id)]
+    existing_slugs = [item.slug for item in ModelBase.objects.filter(slug__regex=r'^%s(-\d+)?' % slug).exclude(id=obj.id)]
     
     tail_number = 0
     new_slug = slug
     while new_slug in existing_slugs:
         new_slug = slugify("%s-%s" % (slug, tail_number))
         tail_number += 1
-
+    
     return new_slug
 
 def modify_class(original_class, modifier_class, override=True):
