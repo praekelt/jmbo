@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.4
+-----
+#. Generate slug optimization.
+
 0.1.3
 -----
 #. Refactored ModelBase.comment_count to resolve comments for leaf class or modelbase content types.
