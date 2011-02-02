@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.5
+-----
+#. Use photologue 2.6.praekelt
+
 0.1.4
 -----
 #. Generate slug optimization.

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='panya',
-    version='0.1.4',
+    version='0.1.5',
     description='Panya base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -12,12 +12,12 @@ setup(
     packages = find_packages(),
     dependency_links = [
         'http://dist.plone.org/thirdparty/',
-        'http://github.com/praekelt/django-photologue/tarball/2.5.praekelt#egg=django-photologue-2.5.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
     ],
     install_requires = [
         'PIL',
         'django-category',
-        'django-photologue==2.5.praekelt',
+        'django-photologue==2.6.praekelt',
         'django-publisher',
         'django-secretballot',
     ],
