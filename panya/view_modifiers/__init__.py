@@ -28,8 +28,8 @@ class ViewModifier(object):
         # for each group without an active item fall back to defaults,
         # but only if defaults are not ignored(ignore_defaults=False)
         if not self.ignore_defaults:
-            if item.group:
-                for item in self.items:
+            for item in self.items:
+                if item.group:
                     if item.default and item.group not in active_groups:
                         active_items.append(item)
                         active_groups.append(item.group)
