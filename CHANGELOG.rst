@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.6
+-----
+#. Added state admin bulk actions.
+
 0.1.5
 -----
 #. Use photologue 2.6.praekelt
