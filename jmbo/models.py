@@ -12,8 +12,8 @@ from django.template import Template
 from django.utils.encoding import smart_unicode
 
 import secretballot
-from panya.managers import PermittedManager
-from panya.utils import generate_slug
+from jmbo.managers import PermittedManager
+from jmbo.utils import generate_slug
 
 from photologue.models import ImageModel
 from secretballot.models import Vote
@@ -265,7 +265,7 @@ class ModelBase(ImageModel):
         # Get the comment model.
         comment_model = comments.get_model()
 
-        modelbase_content_type = ContentType.objects.get(app_label="panya", model="modelbase")
+        modelbase_content_type = ContentType.objects.get(app_label="jmbo", model="modelbase")
 
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(

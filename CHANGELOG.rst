@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.7 (2011-06-15)
+------------------
+#. Jmbo rename.
+
 0.1.6
 -----
 #. Added state admin bulk actions.

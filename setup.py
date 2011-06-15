@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='panya',
-    version='0.1.6',
-    description='Panya base app.',
+    name='jmbo',
+    version='0.1.7',
+    description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
     author_email='dev@praekelt.com',
     license='BSD',
-    url='http://github.com/praekelt/panya',
+    url='http://www.jmbo.org',
     packages = find_packages(),
     dependency_links = [
         'http://dist.plone.org/thirdparty/',

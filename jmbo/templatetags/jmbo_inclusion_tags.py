@@ -7,12 +7,12 @@ from django.template.loader import render_to_string
 
 register = template.Library()
 
-@register.inclusion_tag('panya/inclusion_tags/content_list_gizmo.html', takes_context=True)
+@register.inclusion_tag('jmbo/inclusion_tags/content_list_gizmo.html', takes_context=True)
 def content_list_gizmo(context, object_list):
     context.update({'object_list': object_list})
     return context
 
-@register.inclusion_tag('panya/inclusion_tags/modelbase_list.html', takes_context=True)
+@register.inclusion_tag('jmbo/inclusion_tags/modelbase_list.html', takes_context=True)
 def modelbase_listing(context, object_list, type):
     context.update({
         'object_list': object_list,
@@ -20,12 +20,12 @@ def modelbase_listing(context, object_list, type):
     })
     return context
 
-@register.inclusion_tag('panya/inclusion_tags/object_comments.html', takes_context=True)
+@register.inclusion_tag('jmbo/inclusion_tags/object_comments.html', takes_context=True)
 def object_comments(context, obj):
     context.update({'object': obj.modelbase_obj})
     return context
 
-@register.inclusion_tag('panya/inclusion_tags/object_header.html', takes_context=True)
+@register.inclusion_tag('jmbo/inclusion_tags/object_header.html', takes_context=True)
 def object_header(context, obj):
     context.update({'object': obj})
     return context
@@ -51,7 +51,7 @@ class PagerNode(template.Node):
             'request': context['request'],
             'page_obj': page_obj,
         }
-        return render_to_string('panya/inclusion_tags/pager.html', context)
+        return render_to_string('jmbo/inclusion_tags/pager.html', context)
 
 @register.tag
 def render_object(parser, token):
@@ -82,7 +82,7 @@ class RenderObjectNode(template.Node):
         try:
             response = render_to_string(template_name, context)
         except TemplateDoesNotExist:
-            template_name = "panya/inclusion_tags/modelbase_%s.html" % type
+            template_name = "jmbo/inclusion_tags/modelbase_%s.html" % type
             try:
                 response = render_to_string(template_name, context)
             except TemplateDoesNotExist:
@@ -111,4 +111,4 @@ class ViewModifierNode(template.Node):
             'request': context['request'],
             'view_modifier': view_modifier,
         }
-        return render_to_string('panya/inclusion_tags/view_modifier.html', context)
+        return render_to_string('jmbo/inclusion_tags/view_modifier.html', context)

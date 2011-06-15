@@ -1,19 +1,17 @@
 {% extends "base.html" %}
-{% load panya_inclusion_tags gallery_inclusion_tags %} 
+{% load jmbo_inclusion_tags %} 
 
 {% block content %}
     <div class="page section_news">
 	    <div class="title">
 		    <h1>{{ title }}</h1>
 		</div><!--/title-->
-            
+
         {% view_modifier view_modifier %}
 
-        {% object_header object %}
-      
-        {% render_object object.as_leaf_class "detail" %}
+        {% modelbase_listing object_list "list_wide" %}
 
-        {% object_comments object %}
+        {% pager page_obj %}
 
 	</div><!--/page-->
 {% endblock %}

@@ -7,7 +7,7 @@ from django.db.utils import IntegrityError
 from django.template.defaultfilters import slugify
 
 def generate_slug(obj, text, tail_number=0):
-    from panya.models import ModelBase
+    from jmbo.models import ModelBase
     """
     Returns a new unique slug. Object must provide a SlugField called slug.
     URL friendly slugs are generated using django.template.defaultfilters' slugify.

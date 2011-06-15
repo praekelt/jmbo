@@ -1,4 +1,4 @@
-from panya.view_modifiers.items import CalEntryUpcomingItem, CalEntryThisWeekendItem, CalEntryNext7DaysItem, CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, MostLikedItem, TagItem, ThisMonthItem, ThisWeekItem
+from jmbo.view_modifiers.items import CalEntryUpcomingItem, CalEntryThisWeekendItem, CalEntryNext7DaysItem, CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, MostLikedItem, TagItem, ThisMonthItem, ThisWeekItem
 
 class ViewModifier(object):
     def __init__(self, request, ignore_defaults=False, *args, **kwargs):

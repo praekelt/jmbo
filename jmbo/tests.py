@@ -17,9 +17,9 @@ from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.test.client import Client
 
-from panya.admin import ModelBaseAdmin
-from panya.models import ModelBase
-from panya.utils.tests import RequestFactory
+from jmbo.admin import ModelBaseAdmin
+from jmbo.models import ModelBase
+from jmbo.utils.tests import RequestFactory
         
 from photologue.models import PhotoSize
 from secretballot.models import Vote
@@ -27,29 +27,29 @@ from secretballot.models import Vote
        
 class DummyRelationalModel1(models.Model):
     pass
-models.register_models('panya', DummyRelationalModel1)
+models.register_models('jmbo', DummyRelationalModel1)
 class DummyRelationalModel2(models.Model):
     pass
-models.register_models('panya', DummyRelationalModel2)
+models.register_models('jmbo', DummyRelationalModel2)
 class DummyModel(ModelBase):
     test_editable_field = models.CharField(max_length=32)
     test_non_editable_field = models.CharField(max_length=32, editable=False)
     test_foreign_field = models.ForeignKey('DummyRelationalModel1', blank=True, null=True,)
     test_many_field = models.ManyToManyField('DummyRelationalModel2')
     test_member = True
-models.register_models('panya', DummyModel)
+models.register_models('jmbo', DummyModel)
 class TrunkModel(ModelBase):
     pass
-models.register_models('panya', TrunkModel)
+models.register_models('jmbo', TrunkModel)
 class BranchModel(TrunkModel):
     pass
-models.register_models('panya', BranchModel)
+models.register_models('jmbo', BranchModel)
 class LeafModel(BranchModel):
     pass
-models.register_models('panya', LeafModel)
+models.register_models('jmbo', LeafModel)
 class TestModel(ModelBase):
     pass
-models.register_models('panya', TestModel)
+models.register_models('jmbo', TestModel)
 
 class UtilsTestCase(unittest.TestCase):
     def test_generate_slug(self):
@@ -236,7 +236,7 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failUnless(obj.can_vote(request))
 
         # return false if vote already exist
-        content_type = ContentType.objects.get(app_label="panya", model="modelbase")
+        content_type = ContentType.objects.get(app_label="jmbo", model="modelbase")
         Vote.objects.create(object_id=obj.id, token='test_token', content_type=content_type, vote=1)
         self.failIf(obj.can_vote(request)[0])
 
@@ -417,7 +417,7 @@ class InclusionTagsTestCase(unittest.TestCase):
 
     def test_render_tag(self):
         # load correct template for provided object and type
-        t = Template("{% load panya_inclusion_tags %}{% render_object object 'block' %}")
+        t = Template("{% load jmbo_inclusion_tags %}{% render_object object 'block' %}")
         result = t.render(self.context)
         expected_result = u'Test string for testing purposes\n'
         self.failUnlessEqual(result, expected_result)
@@ -426,12 +426,12 @@ class InclusionTagsTestCase(unittest.TestCase):
         obj = BranchModel(title='title', state='published')
         obj.save()
         self.context = template.Context({'object': obj})
-        t = Template("{% load panya_inclusion_tags %}{% render_object object 'block' %}")
+        t = Template("{% load jmbo_inclusion_tags %}{% render_object object 'block' %}")
         result = t.render(self.context)
         self.failUnless(result)
 
         # return the empty string if no template can be found for the given type for either obj or content.
-        t = Template("{% load panya_inclusion_tags %}{% render_object object 'foobar' %}")
+        t = Template("{% load jmbo_inclusion_tags %}{% render_object object 'foobar' %}")
         result = t.render(self.context)
         expected_result = u''
         self.failUnlessEqual(result, expected_result)
@@ -447,6 +447,6 @@ class TemplateTagsTestCase(unittest.TestCase):
 
     def test_smart_url(self):
         # return method call with result based on object provided
-        t = Template("{% load panya_template_tags %}{% smart_url url_callable object %}")
+        t = Template("{% load jmbo_template_tags %}{% smart_url url_callable object %}")
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel') 

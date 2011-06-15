@@ -2,9 +2,9 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 
 from category.models import Category
-from panya.generic.views import GenericObjectDetail, GenericObjectList
-from panya.models import ModelBase
-from panya.view_modifiers import DefaultViewModifier
+from jmbo.generic.views import GenericObjectDetail, GenericObjectList
+from jmbo.models import ModelBase
+from jmbo.view_modifiers import DefaultViewModifier
 
 class CategoryURL(object):
     def __init__(self, category):
@@ -59,6 +59,6 @@ class ObjectPeek(GenericObjectDetail):
         return ModelBase.permitted
 
     def get_template_name(self, *args, **kwargs):
-        return 'panya/modelbase_peek.html'
+        return 'jmbo/modelbase_peek.html'
     
 object_peek = ObjectPeek()
