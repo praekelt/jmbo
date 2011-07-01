@@ -18,6 +18,7 @@ setup(
         'PIL',
         'django-category',
         'django-photologue==2.6.praekelt',
+        'django-preferences',
         'django-publisher',
         'django-secretballot',
     ],
