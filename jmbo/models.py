@@ -1,22 +1,22 @@
-import time
 from datetime import datetime
 
-from django import template
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import comments
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import signals
-from django.template import Template
 from django.utils.encoding import smart_unicode
 
+from photologue.models import ImageModel
+from preferences import Preferences
 import secretballot
+from secretballot.models import Vote
 from jmbo.managers import PermittedManager
 from jmbo.utils import generate_slug
 
-from photologue.models import ImageModel
-from secretballot.models import Vote
+class JmboPreferences(Preferences):
+    __module__ = 'preferences.models'
 
 class ModelBase(ImageModel):
     objects = models.Manager()
