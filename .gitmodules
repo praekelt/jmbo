@@ -1,3 +1,6 @@
 [submodule "docs/apps/django-generate"]
 	path = docs/apps/django-generate
 	url = https://github.com/praekelt/django-generate.git
+[submodule "docs/apps/django-object-tools"]
+	path = docs/apps/django-object-tools
+	url = https://github.com/praekelt/django-object-tools.git
