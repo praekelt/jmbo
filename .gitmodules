@@ -7,3 +7,6 @@
 [submodule "docs/apps/django-ckeditor"]
 	path = docs/apps/django-ckeditor
 	url = https://github.com/shaunsephton/django-ckeditor.git
+[submodule "docs/apps/django-snippetscream"]
+	path = docs/apps/django-snippetscream
+	url = https://github.com/shaunsephton/django-snippetscream.git
