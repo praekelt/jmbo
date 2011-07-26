@@ -4,3 +4,6 @@
 [submodule "docs/apps/django-object-tools"]
 	path = docs/apps/django-object-tools
 	url = https://github.com/praekelt/django-object-tools.git
+[submodule "docs/apps/django-ckeditor"]
+	path = docs/apps/django-ckeditor
+	url = https://github.com/shaunsephton/django-ckeditor.git
