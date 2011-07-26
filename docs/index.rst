@@ -6,6 +6,8 @@
 Welcome to Jmbo's documentation!
 ================================
 
+Jmbo is a set of Django applications that aims to make your life even easier than it already is. It adds a content layer on top of Django and then makes working with that content productive. It also adds some useful functionality not provided by Django itself. Jmbo makes rich portal development a breeze.
+
 Contents:
 
 .. toctree::
@@ -17,8 +19,8 @@ Contents:
 
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
+:doc:`django-snippetscream <apps/django-snippetscream/README>`
 
-    
 Indices and tables
 ==================
 
