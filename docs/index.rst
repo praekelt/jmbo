@@ -19,6 +19,8 @@ Contents:
 
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
+:doc:`django-preferences <apps/django-preferences/README>`
+
 :doc:`django-snippetscream <apps/django-snippetscream/README>`
 
 Indices and tables
