@@ -10,3 +10,6 @@
 [submodule "docs/apps/django-snippetscream"]
 	path = docs/apps/django-snippetscream
 	url = https://github.com/shaunsephton/django-snippetscream.git
+[submodule "docs/apps/django-preferences"]
+	path = docs/apps/django-preferences
+	url = https://github.com/praekelt/django-preferences.git
