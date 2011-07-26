@@ -5,3 +5,5 @@ project/
 ve/
 build/
 dist/
+*.swo
+/docs/_build

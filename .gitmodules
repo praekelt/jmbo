@@ -1,0 +1,3 @@
+[submodule "docs/apps/django-generate"]
+	path = docs/apps/django-generate
+	url = https://github.com/praekelt/django-generate.git
