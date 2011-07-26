@@ -11,9 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+:doc:`django-ckeditor <apps/django-ckeditor/README>`
+
 :doc:`django-generate <apps/django-generate/README>`
 
 :doc:`django-object-tools <apps/django-object-tools/README>`
+
     
 Indices and tables
 ==================
