@@ -21,9 +21,9 @@ Contents:
 
 :doc:`django-preferences <apps/django-preferences/README>`
 
-:doc:`django-recaptcha <apps/django-recaptcha/README>`
-
 :doc:`django-snippetscream <apps/django-snippetscream/README>`
+
+:doc:`django-recaptcha <apps/django-recaptcha/README>`
 
 Indices and tables
 ==================
