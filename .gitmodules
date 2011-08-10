@@ -13,6 +13,3 @@
 [submodule "docs/apps/django-preferences"]
 	path = docs/apps/django-preferences
 	url = https://github.com/praekelt/django-preferences.git
-[submodule "docs/apps/django-recaptcha"]
-	path = docs/apps/django-recaptcha
-	url = https://github.com/praekelt/django-recaptcha.git
