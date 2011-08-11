@@ -19,3 +19,6 @@
 [submodule "docs/apps/django-gizmo"]
 	path = docs/apps/django-gizmo
 	url = https://github.com/praekelt/django-gizmo.git
+[submodule "docs/apps/django-export"]
+	path = docs/apps/django-export
+	url = https://github.com/praekelt/django-export.git
