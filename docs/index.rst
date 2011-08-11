@@ -15,6 +15,8 @@ Contents:
 
 :doc:`django-ckeditor <apps/django-ckeditor/README>`
 
+:doc:`django-export <apps/django-export/README>`
+
 :doc:`django-generate <apps/django-generate/README>`
 
 :doc:`django-gizmo <apps/django-gizmo/README>`
