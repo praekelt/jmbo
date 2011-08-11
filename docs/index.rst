@@ -17,6 +17,8 @@ Contents:
 
 :doc:`django-generate <apps/django-generate/README>`
 
+:doc:`django-gizmo <apps/django-gizmo/README>`
+
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
 :doc:`django-preferences <apps/django-preferences/README>`
