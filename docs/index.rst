@@ -21,6 +21,8 @@ Contents:
 
 :doc:`django-gizmo <apps/django-gizmo/README>`
 
+:doc:`django-googlesearch <apps/django-googlesearch/README>`
+
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
 :doc:`django-preferences <apps/django-preferences/README>`
