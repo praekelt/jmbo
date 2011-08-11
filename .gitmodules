@@ -16,3 +16,6 @@
 [submodule "docs/apps/django-recaptcha"]
 	path = docs/apps/django-recaptcha
 	url = https://github.com/praekelt/django-recaptcha.git
+[submodule "docs/apps/django-gizmo"]
+	path = docs/apps/django-gizmo
+	url = https://github.com/praekelt/django-gizmo.git
