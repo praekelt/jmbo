@@ -22,3 +22,6 @@
 [submodule "docs/apps/django-export"]
 	path = docs/apps/django-export
 	url = https://github.com/praekelt/django-export.git
+[submodule "docs/apps/django-googlesearch"]
+	path = docs/apps/django-googlesearch
+	url = https://github.com/praekelt/django-googlesearch.git
