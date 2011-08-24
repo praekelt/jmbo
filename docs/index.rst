@@ -13,6 +13,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+:doc:`django-category <apps/django-category/README>`
+
 :doc:`django-ckeditor <apps/django-ckeditor/README>`
 
 :doc:`django-export <apps/django-export/README>`
