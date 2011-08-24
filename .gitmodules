@@ -25,3 +25,6 @@
 [submodule "docs/apps/django-googlesearch"]
 	path = docs/apps/django-googlesearch
 	url = https://github.com/praekelt/django-googlesearch.git
+[submodule "docs/apps/django-category"]
+	path = docs/apps/django-category
+	url = https://github.com/praekelt/django-category.git
