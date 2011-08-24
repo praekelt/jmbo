@@ -28,3 +28,6 @@
 [submodule "docs/apps/django-category"]
 	path = docs/apps/django-category
 	url = https://github.com/praekelt/django-category.git
+[submodule "docs/apps/django-section"]
+	path = docs/apps/django-section
+	url = https://github.com/praekelt/django-section.git
