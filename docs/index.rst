@@ -33,6 +33,8 @@ Contents:
 
 :doc:`django-section <apps/django-section/README>`
 
+:doc:`django-setuptest <apps/django-setuptest/README>`
+
 :doc:`django-snippetscream <apps/django-snippetscream/README>`
 
 Indices and tables
