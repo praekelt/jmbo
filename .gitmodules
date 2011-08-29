@@ -31,3 +31,6 @@
 [submodule "docs/apps/django-section"]
 	path = docs/apps/django-section
 	url = https://github.com/praekelt/django-section.git
+[submodule "docs/apps/django-setuptest"]
+	path = docs/apps/django-setuptest
+	url = https://github.com/praekelt/django-setuptest.git
