@@ -14,6 +14,7 @@ import secretballot
 from secretballot.models import Vote
 from jmbo.managers import PermittedManager
 from jmbo.utils import generate_slug
+import jmbo.signals
 
 class JmboPreferences(Preferences):
     __module__ = 'preferences.models'
