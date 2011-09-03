@@ -156,8 +156,8 @@ class ModelBase(ImageModel):
             return model.objects.get(id=self.id)
         
     def save(self, *args, **kwargs):
-        # set created time to now on initial save.
-        if not self.id and not self.created:
+        # set created time to now if not already set.
+        if not self.created:
             self.created = datetime.now()
 
         # set modified to now on each save 
