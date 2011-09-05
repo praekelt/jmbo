@@ -10,27 +10,32 @@ from jmbo.models import ModelBase
 from publisher.models import Publisher
 from photologue.admin import ImageOverrideInline
 
+
 def make_published(modeladmin, request, queryset):
     queryset.update(state='published')
 make_published.short_description = "Mark selected items as published"
+
 
 def make_staging(modeladmin, request, queryset):
     queryset.update(state='staging')
 make_staging.short_description = "Mark selected items as staging"
 
+
 def make_unpublished(modeladmin, request, queryset):
     queryset.update(state='unpublished')
 make_unpublished.short_description = "Mark selected items as unpublished"
 
+
 class ModelBaseAdmin(admin.ModelAdmin):
     actions = [make_published, make_staging, make_unpublished]
-    inlines = [ImageOverrideInline,]
+    inlines = [ImageOverrideInline, ]
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'description', )}),
-        ('Publishing', {'fields': ('state', 'publish_on', 'retract_on', 'sites', 'publishers'),
+        ('Publishing', {'fields': ('state', 'publish_on', 'retract_on', \
+                'sites', 'publishers'),
                     'classes': ('collapse',),
         }),
         ('Meta', {'fields': ('categories', 'tags', 'created', 'owner'),
@@ -39,14 +44,16 @@ class ModelBaseAdmin(admin.ModelAdmin):
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
                     'classes': ('collapse',),
         }),
-        ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', 'comments_closed'),
+        ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', \
+                'comments_closed'),
                     'classes': ('collapse',),
         }),
-        ('Liking', {'fields': ('likes_enabled', 'anonymous_likes', 'likes_closed'),
+        ('Liking', {'fields': ('likes_enabled', 'anonymous_likes', \
+                'likes_closed'),
                     'classes': ('collapse',),
         }),
     )
-    
+
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
         fieldsets = deepcopy(self.fieldsets)
@@ -71,18 +78,22 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 pass
 
             if field.editable and field.formfield():
-                if name not in set_fields and name not in ['id',]:
-                    new_fields += [name,]
-              
+                if name not in set_fields and name not in ['id', ]:
+                    new_fields += [name, ]
+
         for fieldset in fieldsets:
             if fieldset[0] == None:
                 fieldset[1]['fields'] += tuple(new_fields)
 
         self.fieldsets = fieldsets
 
-    
     def save_model(self, request, obj, form, change):
         if not obj.owner:
             obj.owner = request.user
-      
-        return super(ModelBaseAdmin, self).save_model(request, obj, form, change)
+
+        return super(ModelBaseAdmin, self).save_model(
+            request,
+            obj,
+            form,
+            change
+        )

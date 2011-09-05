@@ -1,7 +1,7 @@
 def modify_classes():
     """
-    Auto-discover INSTALLED_APPS class_modifiers.py modules and fail silently when
-    not present. This forces an import on them to modify any classes they
+    Auto-discover INSTALLED_APPS class_modifiers.py modules and fail silently
+    when not present. This forces an import on them to modify any classes they
     may want.
     """
     import copy

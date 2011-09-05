@@ -16,13 +16,15 @@ from jmbo.managers import PermittedManager
 from jmbo.utils import generate_slug
 import jmbo.signals
 
+
 class JmboPreferences(Preferences):
     __module__ = 'preferences.models'
+
 
 class ModelBase(ImageModel):
     objects = models.Manager()
     permitted = PermittedManager()
-    
+
     state = models.CharField(
         max_length=32,
         choices=(
@@ -31,19 +33,23 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
-        help_text="Set the item state. The 'Published' state makes the item visible to the public, 'Unpublished' retracts it and 'Staging' makes the item visible to staff users.",
+        help_text="Set the item state. The 'Published' state makes the item \
+visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
+item visible to staff users.",
         blank=True,
         null=True,
     )
     publish_on = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Date and time on which to publish this item (state will change to 'published').",
+        help_text="Date and time on which to publish this item (state will \
+change to 'published').",
     )
     retract_on = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Date and time on which to retract this item (state will change to 'unpublished').",
+        help_text="Date and time on which to retract this item (state will \
+change to 'unpublished').",
     )
     slug = models.SlugField(
         editable=False,
@@ -55,33 +61,36 @@ class ModelBase(ImageModel):
         max_length=200, help_text='A short descriptive title.',
     )
     description = models.TextField(
-        help_text='A short description. More verbose than the title but limited to one or two sentences.',
+        help_text='A short description. More verbose than the title but \
+limited to one or two sentences.',
         blank=True,
         null=True,
     )
     created = models.DateTimeField(
-        'Created Date & Time', 
+        'Created Date & Time',
         blank=True,
-        help_text='Date and time on which this item was created. This is automatically set on creation, but can be changed subsequently.'
+        help_text='Date and time on which this item was created. This is \
+automatically set on creation, but can be changed subsequently.'
     )
     modified = models.DateTimeField(
-        'Modified Date & Time', 
+        'Modified Date & Time',
         editable=False,
-        help_text='Date and time on which this item was last modified. This is automatically set each time the item is saved.'
+        help_text='Date and time on which this item was last modified. This \
+is automatically set each time the item is saved.'
     )
     owner = models.ForeignKey(
-        User, 
+        User,
         blank=True,
         null=True,
     )
     content_type = models.ForeignKey(
-        ContentType, 
-        editable=False, 
+        ContentType,
+        editable=False,
         null=True
     )
     class_name = models.CharField(
-        max_length=32, 
-        editable=False, 
+        max_length=32,
+        editable=False,
         null=True
     )
     categories = models.ManyToManyField(
@@ -110,7 +119,8 @@ class ModelBase(ImageModel):
     )
     comments_enabled = models.BooleanField(
         verbose_name="Commenting Enabled",
-        help_text="Enable commenting for this item. Comments will not display when disabled.",
+        help_text="Enable commenting for this item. Comments will not \
+display when disabled.",
         default=True,
     )
     anonymous_comments = models.BooleanField(
@@ -120,12 +130,14 @@ class ModelBase(ImageModel):
     )
     comments_closed = models.BooleanField(
         verbose_name="Commenting Closed",
-        help_text="Close commenting for this item. Comments will still display, but users won't be able to add new comments.",
+        help_text="Close commenting for this item. Comments will still \
+display, but users won't be able to add new comments.",
         default=False,
     )
     likes_enabled = models.BooleanField(
         verbose_name="Liking Enabled",
-        help_text="Enable liking for this item. Likes will not display when disabled.",
+        help_text="Enable liking for this item. Likes will not display \
+when disabled.",
         default=True,
     )
     anonymous_likes = models.BooleanField(
@@ -135,16 +147,18 @@ class ModelBase(ImageModel):
     )
     likes_closed = models.BooleanField(
         verbose_name="Liking Closed",
-        help_text="Close liking for this item. Likes will still display, but users won't be able to the item anymore.",
+        help_text="Close liking for this item. Likes will still display, \
+but users won't be able to the item anymore.",
         default=False,
     )
-   
+
     class Meta:
         ordering = ('-created',)
-    
+
     def as_leaf_class(self):
         """
-        Returns the leaf class no matter where the calling instance is in the inheritance hierarchy.
+        Returns the leaf class no matter where the calling instance is in
+        the inheritance hierarchy.
         Inspired by http://www.djangosnippets.org/snippets/1031/
         """
         try:
@@ -155,19 +169,20 @@ class ModelBase(ImageModel):
             if(model == ModelBase):
                 return self
             return model.objects.get(id=self.id)
-        
+
     def save(self, *args, **kwargs):
-        # set created time to now on initial save.
-        if not self.id and not self.created:
+        # set created time to now if not already set.
+        if not self.created:
             self.created = datetime.now()
 
-        # set modified to now on each save 
+        # set modified to now on each save.
         self.modified = datetime.now()
-       
+
         # set leaf class content type
         if not self.content_type:
-            self.content_type = ContentType.objects.get_for_model(self.__class__)
-        
+            self.content_type = ContentType.objects.get_for_model(\
+                    self.__class__)
+
         # set leaf class class name
         if not self.class_name:
             self.class_name = self.__class__.__name__
@@ -195,7 +210,7 @@ class ModelBase(ImageModel):
         elif self.state == 'staging':
             if getattr(settings, 'STAGING', False):
                 return for_site()
-            
+
         return False
 
     @property
@@ -204,59 +219,67 @@ class ModelBase(ImageModel):
             return self
         else:
             return self.modelbase_ptr
-       
+
     def can_vote(self, request):
         """
         Determnines whether or not the current user can vote.
         Returns a bool as well as a string indicating the current vote status,
-        with vote status being one of: 'closed', 'disabled', 'auth_required', 'can_vote', 'voted' 
+        with vote status being one of: 'closed', 'disabled',
+        'auth_required', 'can_vote', 'voted'
         """
         modelbase_obj = self.modelbase_obj
 
         # can't vote if liking is closed
         if modelbase_obj.likes_closed:
             return False, 'closed'
-        
+
         # can't vote if liking is disabled
         if not modelbase_obj.likes_enabled:
             return False, 'disabled'
 
         # anonymous users can't vote if anonymous likes are disabled
-        if not request.user.is_authenticated() and not modelbase_obj.anonymous_likes:
+        if not request.user.is_authenticated() and not \
+                modelbase_obj.anonymous_likes:
             return False, 'auth_required'
-          
+
         # return false if existing votes are found
-        if Vote.objects.filter(object_id=modelbase_obj.id, token=request.secretballot_token).count() == 0:
+        if Vote.objects.filter(
+            object_id=modelbase_obj.id,
+            token=request.secretballot_token
+        ).count() == 0:
             return True, 'can_vote'
         else:
             return False, 'voted'
-    
+
     def can_comment(self, request):
         modelbase_obj = self.modelbase_obj
-       
+
         # can't comment if commenting is closed
         if modelbase_obj.comments_closed:
             return False
 
-        
         # can't comment if commenting is disabled
         if not modelbase_obj.comments_enabled:
             return False
-        
+
         # anonymous users can't comment if anonymous comments are disabled
-        if not request.user.is_authenticated() and not modelbase_obj.anonymous_comments:
+        if not request.user.is_authenticated() and not \
+                modelbase_obj.anonymous_comments:
             return False
-        
+
         return True
-            
+
     @property
     def vote_total(self):
         """
-        Calculates vote total as total_upvotes - total_downvotes. We are adding a method here instead of relying on django-secretballot's addition since that doesn't work for subclasses.
+        Calculates vote total as total_upvotes - total_downvotes. We are
+        adding a method here instead of relying on django-secretballot's
+        addition since that doesn't work for subclasses.
         """
         modelbase_obj = self.modelbase_obj.as_leaf_class()
-        return modelbase_obj.votes.filter(vote=+1).count() - modelbase_obj.votes.filter(vote=-1).count() 
-    
+        return modelbase_obj.votes.filter(vote=+1).count() - \
+                modelbase_obj.votes.filter(vote=-1).count()
+
     @property
     def comment_count(self):
         """
@@ -266,13 +289,16 @@ class ModelBase(ImageModel):
         # Get the comment model.
         comment_model = comments.get_model()
 
-        modelbase_content_type = ContentType.objects.get(app_label="jmbo", model="modelbase")
+        modelbase_content_type = ContentType.objects.get(
+            app_label="jmbo",
+            model="modelbase"
+        )
 
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(
-            content_type__in = [self.content_type, modelbase_content_type],
-            object_pk    = smart_unicode(self.pk),
-            site__pk     = settings.SITE_ID,
+            content_type__in=[self.content_type, modelbase_content_type],
+            object_pk=smart_unicode(self.pk),
+            site__pk=settings.SITE_ID,
         )
 
         # The is_public and is_removed fields are implementation details of the
@@ -282,23 +308,28 @@ class ModelBase(ImageModel):
         field_names = [f.name for f in comment_model._meta.fields]
         if 'is_public' in field_names:
             qs = qs.filter(is_public=True)
-        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and 'is_removed' in field_names:
+        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and \
+                'is_removed' in field_names:
             qs = qs.filter(is_removed=False)
 
         # Return ammount of items in qs.
         return qs.count()
 
+
 def set_managers(sender, **kwargs):
     """
-    Make sure all classes have the appropriate managers 
+    Make sure all classes have the appropriate managers.
     """
     cls = sender
-   
+
     if issubclass(cls, ModelBase):
         cls.add_to_class('permitted', PermittedManager())
 
 signals.class_prepared.connect(set_managers)
 
-# enable voting for ModelBase, but specify a different total name 
+# enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
-secretballot.enable_voting_on(ModelBase, total_name="secretballot_added_vote_total")
+secretballot.enable_voting_on(
+    ModelBase,
+    total_name="secretballot_added_vote_total"
+)
