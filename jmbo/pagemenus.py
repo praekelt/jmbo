@@ -1,5 +1,7 @@
 from pagemenu.pagemenus import PageMenu
-from pagemenu.items import MostLikedItem, MostRecentItem, ThisWeekItem, ThisMonthItem
+from pagemenu.items import MostLikedItem, MostRecentItem, \
+        ThisWeekItem, ThisMonthItem
+
 
 class ContentPageMenu(PageMenu):
     def __init__(self, queryset, request):

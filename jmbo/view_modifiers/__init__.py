@@ -1,4 +1,8 @@
-from jmbo.view_modifiers.items import CalEntryUpcomingItem, CalEntryThisWeekendItem, CalEntryNext7DaysItem, CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, MostLikedItem, TagItem, ThisMonthItem, ThisWeekItem
+from jmbo.view_modifiers.items import CalEntryUpcomingItem, \
+        CalEntryThisWeekendItem, CalEntryNext7DaysItem, \
+        CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, \
+        MostLikedItem, TagItem, ThisMonthItem, ThisWeekItem
+
 
 class ViewModifier(object):
     def __init__(self, request, ignore_defaults=False, *args, **kwargs):
@@ -9,10 +13,10 @@ class ViewModifier(object):
         for item in self.items:
             group = item.group
             if group:
-                if self.groups.has_key(group):
+                if group in self.groups:
                     self.groups[group].append(item)
                 else:
-                    self.groups[group] = [item,]
+                    self.groups[group] = [item, ]
 
         self.active_items = self.get_active_items()
 
@@ -25,17 +29,18 @@ class ViewModifier(object):
                 if item.group:
                     active_groups.append(item.group)
 
-        # for each group without an active item fall back to defaults,
-        # but only if defaults are not ignored(ignore_defaults=False)
+        # For each group without an active item fall back to defaults,
+        # but only if defaults are not ignored(ignore_defaults=False).
         if not self.ignore_defaults:
             for item in self.items:
                 if item.group:
                     if item.default and item.group not in active_groups:
                         active_items.append(item)
                         active_groups.append(item.group)
-        
-        # if we still don't have any active items fall back to defaults that don't have groups,
-        # but only if defaults are not ignored(ignore_defaults=False)
+
+        # If we still don't have any active items fall back to defaults that
+        # don't have groups, but only if defaults are not
+        # ignored(ignore_defaults=False).
         if not active_items and not self.ignore_defaults:
             for item in self.items:
                 if not item.group and item.default:
@@ -48,7 +53,8 @@ class ViewModifier(object):
             view = item.modify(view)
 
         return view
-    
+
+
 class DateFieldIntervalViewModifier(ViewModifier):
     def __init__(self, request, field_name, base_url=None, *args, **kwargs):
         self.items = [
@@ -59,30 +65,35 @@ class DateFieldIntervalViewModifier(ViewModifier):
                 field_name=field_name,
                 base_url=base_url,
                 default=True,
-            ), 
+            ),
             CalEntryThisWeekendItem(
                 request=request,
                 title="This Weekend",
                 get={'name': 'filter', 'value': 'weekend'},
                 field_name=field_name,
                 base_url=base_url,
-            ), 
+            ),
             CalEntryNext7DaysItem(
                 request=request,
                 title="Next 7 Days",
                 get={'name': 'filter', 'value': 'week'},
                 field_name=field_name,
                 base_url=base_url,
-            ), 
+            ),
             CalEntryThisMonthItem(
                 request=request,
                 title="This Month",
                 get={'name': 'filter', 'value': 'month'},
                 field_name=field_name,
                 base_url=base_url,
-            ), 
+            ),
         ]
-        super(DateFieldIntervalViewModifier, self).__init__(request, *args, **kwargs)
+        super(DateFieldIntervalViewModifier, self).__init__(
+            request,
+            *args,
+            **kwargs
+        )
+
 
 class DefaultViewModifier(ViewModifier):
     def __init__(self, request, base_url=None, *args, **kwargs):
@@ -121,6 +132,7 @@ class DefaultViewModifier(ViewModifier):
         ]
         super(DefaultViewModifier, self).__init__(request, *args, **kwargs)
 
+
 class IntegerFieldRangeViewModifier(ViewModifier):
     def __init__(self, request, field_name, count, interval, *args, **kwargs):
         self.items = []
@@ -136,16 +148,21 @@ class IntegerFieldRangeViewModifier(ViewModifier):
                 get={'name': 'range', 'value': range_start},
                 field_name=field_name,
                 filter_range=(range_start, range_end),
-                default=i==0,
+                default=i == 0,
             ))
             i += 1
 
-        super(IntegerFieldRangeViewModifier, self).__init__(request, *args, **kwargs)
+        super(IntegerFieldRangeViewModifier, self).__init__(
+            request,
+            *args,
+            **kwargs
+        )
+
 
 class CategoryTagViewModifier(ViewModifier):
     def __init__(self, request, category, *args, **kwargs):
         from category.models import Tag
-        
+
         self.items = []
         tags = Tag.objects.filter(categories=category)
 
@@ -158,5 +175,5 @@ class CategoryTagViewModifier(ViewModifier):
                 tag=tag,
                 default=False,
             ))
-            
+
         super(CategoryTagViewModifier, self).__init__(request, *args, **kwargs)
