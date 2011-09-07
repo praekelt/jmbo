@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.template.defaultfilters import slugify
 
+RE_NUMERICAL_SUFFIX = re.compile(r'^[\w-]*-(\d+)+$')
 
 def generate_slug(obj, text, tail_number=0):
     from jmbo.models import ModelBase
@@ -17,9 +18,24 @@ def generate_slug(obj, text, tail_number=0):
     # use django slugify filter to slugify
     slug = slugify(text)
 
-    existing_slugs = [item.slug for item in ModelBase.objects.filter(
-        slug__regex=r'^%s(-\d+)?' % slug
-    ).exclude(id=obj.id)]
+    # Empty slugs are ugly (eg. '-1' may be generated) so force non-empty
+    if not slug:
+        slug = 'no-title'
+
+    query = ModelBase.objects.filter(
+        slug__startswith=slug
+    ).exclude(id=obj.id).order_by('-id')
+
+    # No collissions
+    if not query.count():
+        return slug
+
+    # Match numerical suffix if it exists
+    match = RE_NUMERICAL_SUFFIX.match(query[0].slug)
+    if match is not None:
+        return "%s-%s" % (slug, int(match.group(1)) + 1)
+    else:
+        return "%s-1" % slug
 
     tail_number = 0
     new_slug = slug
