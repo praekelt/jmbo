@@ -13,9 +13,9 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-:doc:`djanginxed <apps/djanginxed/README>` Description
+:doc:`djanginxed <apps/djanginxed/README>`: *Django Nginx Memcached integration.*
 
-:doc:`django-category <apps/django-category/README>`
+:doc:`django-category <apps/django-category/README>`: *Simple category app providing category and tag models.*
 
 :doc:`django-ckeditor <apps/django-ckeditor/README>`
 
