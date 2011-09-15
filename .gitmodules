@@ -37,3 +37,6 @@
 [submodule "docs/apps/django-likes"]
 	path = docs/apps/django-likes
 	url = https://github.com/praekelt/django-likes.git
+[submodule "docs/apps/django-order"]
+	path = docs/apps/django-order
+	url = https://github.com/praekelt/django-order.git
