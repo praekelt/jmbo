@@ -29,6 +29,8 @@ Contents:
 
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
+:doc:`django-order <apps/django-order/README>`
+
 :doc:`django-preferences <apps/django-preferences/README>`
 
 :doc:`django-recaptcha <apps/django-recaptcha/README>`
