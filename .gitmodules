@@ -43,3 +43,6 @@
 [submodule "docs/apps/djanginxed"]
 	path = docs/apps/djanginxed
 	url = https://github.com/shaunsephton/djanginxed.git
+[submodule "docs/apps/django-richcomments"]
+	path = docs/apps/django-richcomments
+	url = https://github.com/praekelt/django-richcomments.git
