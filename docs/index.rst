@@ -25,6 +25,8 @@ Contents:
 
 :doc:`django-googlesearch <apps/django-googlesearch/README>`
 
+:doc:`django-likes <apps/django-likes/README>`
+
 :doc:`django-object-tools <apps/django-object-tools/README>`
 
 :doc:`django-preferences <apps/django-preferences/README>`
