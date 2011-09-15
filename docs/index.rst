@@ -13,7 +13,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-:doc:`djanginxed <apps/djanginxed/README>`
+:doc:`djanginxed <apps/djanginxed/README>` Description
 
 :doc:`django-category <apps/django-category/README>`
 
