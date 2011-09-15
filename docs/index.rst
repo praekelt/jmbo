@@ -37,6 +37,8 @@ Contents:
 
 :doc:`django-recaptcha <apps/django-recaptcha/README>` - *Django reCAPTCHA form field/widget integration app.*
 
+:doc:`django-richcomments <apps/django-richcomments/README>` - *Django app extending the builtin comments framework for AJAX style commenting.*
+
 :doc:`django-section <apps/django-section/README>` - *Django app for determining site section by request.*
 
 :doc:`django-setuptest <apps/django-setuptest/README>` - *Simple module enabling Django app testing via $ python setup.py test.*
