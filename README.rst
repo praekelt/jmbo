@@ -1,1 +1,1 @@
-Find the latest `Jmbo docs here <http://jmbo.readthedocs.org/>`_
+Find the complete set of `Jmbo docs here <http://jmbo.readthedocs.org/>`_
