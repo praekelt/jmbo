@@ -45,6 +45,8 @@ Contents:
 
 :doc:`django-snippetscream <apps/django-snippetscream/README>` - *Django app packaging the best snippets found on http://djangosnippets.org*
 
+:doc:`jmbo <README>` - *Jmbo core app providing base content model definitions, view helpers and additional utilities.*
+
 Indices and tables
 ==================
 
