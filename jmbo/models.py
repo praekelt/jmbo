@@ -148,7 +148,7 @@ when disabled.",
     likes_closed = models.BooleanField(
         verbose_name="Liking Closed",
         help_text="Close liking for this item. Likes will still display, \
-but users won't be able to the item anymore.",
+but users won't be able to add new likes.",
         default=False,
     )
 
