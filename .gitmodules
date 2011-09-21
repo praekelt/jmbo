@@ -46,3 +46,6 @@
 [submodule "docs/apps/django-richcomments"]
 	path = docs/apps/django-richcomments
 	url = https://github.com/praekelt/django-richcomments.git
+[submodule "docs/apps/jmbo-generic"]
+	path = docs/apps/jmbo-generic
+	url = https://github.com/praekelt/jmbo-generic.git
