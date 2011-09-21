@@ -47,6 +47,8 @@ Contents:
 
 :doc:`jmbo <README>` - *Jmbo core app providing base content model definitions, view helpers and additional utilities.*
 
+:doc:`jmbo-generic <apps/jmbo-generic/README>` - *Jmbo generic behavior/templates app.*
+
 Indices and tables
 ==================
 
