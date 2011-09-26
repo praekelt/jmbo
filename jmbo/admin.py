@@ -3,10 +3,14 @@ from copy import deepcopy
 from django.db.models.fields import FieldDoesNotExist
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 
-from jmbo.models import ModelBase
+from jmbo.models import ModelBase, Pin
+
+from category.models import Category
+from category.admin import CategoryAdmin
 from publisher.models import Publisher
 from photologue.admin import ImageOverrideInline
 
@@ -97,3 +101,21 @@ class ModelBaseAdmin(admin.ModelAdmin):
             form,
             change
         )
+
+
+class PinInline(admin.TabularInline):
+    model = Pin
+
+
+class CategoryJmboAdmin(CategoryAdmin):
+    inlines = [
+        PinInline,
+    ]
+
+
+try:
+    admin.site.register(Category, CategoryJmboAdmin)
+except AlreadyRegistered:
+    admin.site.unregister(Category)
+    admin.site.register(Category, CategoryJmboAdmin)
+
