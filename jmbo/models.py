@@ -316,6 +316,11 @@ but users won't be able to add new likes.",
         return qs.count()
 
 
+class Pin(models.Model):
+    content = models.ForeignKey(ModelBase)
+    category = models.ForeignKey('category.Category')
+
+
 def set_managers(sender, **kwargs):
     """
     Make sure all classes have the appropriate managers.
