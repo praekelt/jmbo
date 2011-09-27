@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.9 (2011-09-27)
+------------------
+#. Added primary category field on ModelBase.
+#. Allow for modifier on humanize time diff tag.
+#. Added category pin model and admin override.
+
 0.1.7 (2011-06-15)
 ------------------
 #. Jmbo rename.
