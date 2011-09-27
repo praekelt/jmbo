@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import comments
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import signals
 from django.utils.encoding import smart_unicode
@@ -99,6 +100,13 @@ is automatically set each time the item is saved.'
         null=True,
         help_text='Categorizing this item.'
     )
+    primary_category = models.ForeignKey(
+        'category.Category',
+        blank=True,
+        null=True,
+        help_text="Primary category for this item. Used to determine the object's absolute/default URL.",
+        related_name="primary_modelbase_set",
+    )
     tags = models.ManyToManyField(
         'category.Tag',
         blank=True,
@@ -169,6 +177,13 @@ but users won't be able to add new likes.",
             if(model == ModelBase):
                 return self
             return model.objects.get(id=self.id)
+
+    def get_absolute_url(self):
+        if self.primary_category:
+            return reverse('category_object_detail', kwargs={'category_slug': self.primary_category.slug, 'slug': self.slug})
+        elif self.categories.all():
+            return reverse('category_object_detail', kwargs={'category_slug': self.categories.all()[0].slug, 'slug': self.slug})
+        return ''
 
     def save(self, *args, **kwargs):
         # set created time to now if not already set.
