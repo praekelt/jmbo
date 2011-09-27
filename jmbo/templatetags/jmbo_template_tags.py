@@ -50,13 +50,12 @@ class SmartQueryStringNode(template.Node):
 
 @register.tag
 def humanize_time_diff(parser, token):
-    try:
-        tag_name, date_obj, suffix = token.split_contents()
-    except ValueError:
+    bits = token.split_contents()
+    if len(bits) < 3:
         raise template.TemplateSyntaxError, \
-                "%s requires exactly two argument" % tag_name
+                    "%s requires at least two argument" % bits[0]
 
-    return HumanizeTimeDifference(date_obj, suffix)
+    return HumanizeTimeDifference(*bits[1:])
 
 
 class HumanizeTimeDifference(template.Node):
@@ -70,14 +69,12 @@ class HumanizeTimeDifference(template.Node):
     4 days 5 hours returns '4 days'
     0 days 4 hours 3 minutes returns '4 hours', etc...
     """
-    def __init__(self, date_obj, suffix):
+    def __init__(self, date_obj, suffix, modifier=None):
         self.date_obj = template.Variable(date_obj)
         self.suffix = template.Variable(suffix)
+        self.modifier = template.Variable(modifier) if modifier else None
 
-    def render(self, context):
-        date_obj = self.date_obj.resolve(context)
-        suffix = self.suffix.resolve(context)
-
+    def humanize(self, date_obj, suffix):
         if date_obj:
             time_difference = datetime.now() - date_obj
             days = time_difference.days
@@ -112,3 +109,12 @@ class HumanizeTimeDifference(template.Node):
             elif seconds == 0:
                 return "Just Now"
         return ""
+
+    def render(self, context):
+        date_obj = self.date_obj.resolve(context)
+        suffix = self.suffix.resolve(context)
+        result = self.humanize(date_obj, suffix)
+        if self.modifier:
+            return getattr(result, self.modifier.resolve(context))()
+
+        return result
