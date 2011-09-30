@@ -49,3 +49,6 @@
 [submodule "docs/apps/jmbo-generic"]
 	path = docs/apps/jmbo-generic
 	url = https://github.com/praekelt/jmbo-generic.git
+[submodule "docs/apps/jmbo-paste"]
+	path = docs/apps/jmbo-paste
+	url = https://github.com/praekelt/jmbo-paste.git
