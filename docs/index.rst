@@ -49,6 +49,8 @@ Contents:
 
 :doc:`jmbo-generic <apps/jmbo-generic/README>` - *Jmbo generic behavior/templates app.*
 
+:doc:`jmbo-paste <apps/jmbo-paste/README>` - *Python Paste templates creating Jmbo Buildout environments.*
+
 Indices and tables
 ==================
 
