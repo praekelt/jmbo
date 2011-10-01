@@ -37,14 +37,6 @@ def generate_slug(obj, text, tail_number=0):
     else:
         return "%s-1" % slug
 
-    tail_number = 0
-    new_slug = slug
-    while new_slug in existing_slugs:
-        new_slug = slugify("%s-%s" % (slug, tail_number))
-        tail_number += 1
-
-    return new_slug
-
 
 def modify_class(original_class, modifier_class, override=True):
     """
