@@ -179,11 +179,13 @@ but users won't be able to add new likes.",
             return model.objects.get(id=self.id)
 
     def get_absolute_url(self):
+        """Category views are for the modelbase superclass, whereas the normal
+        object detail view is for the subclass."""
         if self.primary_category:
             return reverse('category_object_detail', kwargs={'category_slug': self.primary_category.slug, 'slug': self.slug})
         elif self.categories.all():
             return reverse('category_object_detail', kwargs={'category_slug': self.categories.all()[0].slug, 'slug': self.slug})
-        return ''
+        return reverse('%s_object_detail' % self.content_type.name.lower(), kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         # set created time to now if not already set.
