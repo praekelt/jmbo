@@ -181,6 +181,9 @@ but users won't be able to add new likes.",
     def get_absolute_url(self):
         """Category views are for the modelbase superclass, whereas the normal
         object detail view is for the subclass."""
+        # todo: This is confusing. Need to motivate why category reverse is
+        # explicitly for modelbase and not subclass.  Does it make sense to
+        # have a view eg. "post_category_object_detail'?
         if self.primary_category:
             return reverse('category_object_detail', kwargs={'category_slug': self.primary_category.slug, 'slug': self.slug})
         elif self.categories.all():
