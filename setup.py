@@ -22,6 +22,7 @@ setup(
         'django-preferences',
         'django-publisher',
         'django-likes',
+        'south',
     ],
     include_package_data=True,
     tests_require=[
