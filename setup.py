@@ -11,12 +11,12 @@ setup(
     url='http://www.jmbo.org',
     packages = find_packages(),
     dependency_links = [
-        'http://dist.plone.org/thirdparty/',
+        'http://pypi.python.org/',
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
     ],
     install_requires = [
         'PIL',
-        'django',
+        'Django>=1.3',
         'django-category',
         'django-photologue==2.6.praekelt',
         'django-preferences',
