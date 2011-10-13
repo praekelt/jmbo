@@ -533,14 +533,20 @@ class InclusionTagsTestCase(unittest.TestCase):
 
 class TemplateTagsTestCase(unittest.TestCase):
     def setUp(self):
+
         def url_callable(obj):
             return 'Test URL method using object %s' % obj.__class__.__name__
+
+        class CallableURL(object):
+
+            def __call__(self):
+                return url_callable
 
         obj = TestModel(title='title', state='published')
         obj.save()
         self.context = template.Context({
             'object': obj,
-            'url_callable': url_callable
+            'url_callable': CallableURL(),
         })
 
     def test_smart_url(self):

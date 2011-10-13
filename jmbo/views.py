@@ -12,11 +12,13 @@ class CategoryURL(object):
         self.category = category
 
     def __call__(self, obj=None):
-        if obj:
+        if self.category and obj:
             return reverse(
                 'content_category_object_detail',
                 kwargs={'category_slug': self.category.slug, 'slug': obj.slug}
             )
+        elif obj:
+            return obj.as_leaf_class().get_absolute_url()
         else:
             return self
 
