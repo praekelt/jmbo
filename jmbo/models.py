@@ -325,14 +325,24 @@ but users won't be able to add new likes.",
         # built-in comment model's spam filtering system, so they might not
         # be present on a custom comment model subclass. If they exist, we
         # should filter on them.
-        field_names = [f.name for f in comment_model._meta.fields]
-        if 'is_public' in field_names:
+        try:
+            comment_model._meta.get_field('is_public')
+            is_public = True
+        except models.FieldDoesNotExist:
+            is_public = False            
+        if is_public:
             qs = qs.filter(is_public=True)
-        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True) and \
-                'is_removed' in field_names:
-            qs = qs.filter(is_removed=False)
 
-        # Return ammount of items in qs.
+        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True):
+            try:
+                comment_model._meta.get_field('is_removed')
+                is_removed = True
+            except models.FieldDoesNotExist:
+                is_removed = False
+            if is_removed: 
+                qs = qs.filter(is_removed=False)
+
+        # Return amount of items in qs
         return qs.count()
 
 
