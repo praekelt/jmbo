@@ -104,7 +104,8 @@ is automatically set each time the item is saved.'
         'category.Category',
         blank=True,
         null=True,
-        help_text="Primary category for this item. Used to determine the object's absolute/default URL.",
+        help_text="Primary category for this item. Used to determine the \
+            object's absolute/default URL.",
         related_name="primary_modelbase_set",
     )
     tags = models.ManyToManyField(
@@ -185,10 +186,25 @@ but users won't be able to add new likes.",
         # explicitly for modelbase and not subclass.  Does it make sense to
         # have a view eg. "post_category_object_detail'?
         if self.primary_category:
-            return reverse('category_object_detail', kwargs={'category_slug': self.primary_category.slug, 'slug': self.slug})
+            return reverse(
+                'category_object_detail',
+                kwargs={
+                    'category_slug': self.primary_category.slug,
+                    'slug': self.slug
+                }
+            )
         elif self.categories.all():
-            return reverse('category_object_detail', kwargs={'category_slug': self.categories.all()[0].slug, 'slug': self.slug})
-        return reverse('%s_object_detail' % self.content_type.name.lower(), kwargs={'slug': self.slug})
+            return reverse(
+                'category_object_detail',
+                kwargs={
+                    'category_slug': self.categories.all()[0].slug,
+                    'slug': self.slug
+                }
+            )
+        return reverse(
+            '%s_object_detail' % self.content_type.name.lower(),
+            kwargs={'slug': self.slug}
+        )
 
     def save(self, *args, **kwargs):
         # set created time to now if not already set.
@@ -329,7 +345,7 @@ but users won't be able to add new likes.",
             comment_model._meta.get_field('is_public')
             is_public = True
         except models.FieldDoesNotExist:
-            is_public = False            
+            is_public = False
         if is_public:
             qs = qs.filter(is_public=True)
 
@@ -339,7 +355,7 @@ but users won't be able to add new likes.",
                 is_removed = True
             except models.FieldDoesNotExist:
                 is_removed = False
-            if is_removed: 
+            if is_removed:
                 qs = qs.filter(is_removed=False)
 
         # Return amount of items in qs

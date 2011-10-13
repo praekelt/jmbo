@@ -38,11 +38,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'description', )}),
-        ('Publishing', {'fields': (('state', 'sites'), ('publish_on', 'retract_on'), \
-                'publishers'),
+        ('Publishing', {'fields': (('state', 'sites'), \
+                ('publish_on', 'retract_on'), 'publishers'),
                     'classes': ('collapse',),
         }),
-        ('Meta', {'fields': ('categories', 'primary_category', 'tags', 'created', 'owner'),
+        ('Meta', {'fields': ('categories', 'primary_category', 'tags', \
+            'created', 'owner'),
                     'classes': ('collapse',),
         }),
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
@@ -118,4 +119,3 @@ try:
 except AlreadyRegistered:
     admin.site.unregister(Category)
     admin.site.register(Category, CategoryJmboAdmin)
-

@@ -95,8 +95,8 @@ class URLPatternItem(Item):
                         except AttributeError:
                             return self.resolve_pattern_name(pattern, new_path)
                     tried.append(pattern.regex.pattern)
-            raise Resolver404, {'tried': tried, 'path': new_path}
-        raise Resolver404, {'path': path}
+            raise Resolver404({'tried': tried, 'path': new_path})
+        raise Resolver404({'path': path})
 
     def is_active(self, request):
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)

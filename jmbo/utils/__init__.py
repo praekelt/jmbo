@@ -8,6 +8,7 @@ from django.template.defaultfilters import slugify
 
 RE_NUMERICAL_SUFFIX = re.compile(r'^[\w-]*-(\d+)+$')
 
+
 def generate_slug(obj, text, tail_number=0):
     from jmbo.models import ModelBase
     """
