@@ -17,7 +17,7 @@ setup(
     install_requires = [
         'PIL',
         'Django>=1.3',
-        'django-category',
+        'django-category>=0.0.5',
         'django-photologue==2.6.praekelt',
         'django-preferences',
         'django-publisher',
