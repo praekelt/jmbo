@@ -13,12 +13,13 @@ setup(
     dependency_links = [
         'http://pypi.python.org/',
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
     ],
     install_requires = [
         'PIL',
         'Django>=1.3',
         'django-category>=0.0.5',
-        'django-photologue==2.6.praekelt',
+        'django-photologue>=2.6.praekelt',
         'django-preferences',
         'django-publisher',
         'django-likes',
