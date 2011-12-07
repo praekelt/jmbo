@@ -28,7 +28,10 @@ def modelbase_listing(context, object_list, type):
 @register.inclusion_tag('jmbo/inclusion_tags/object_comments.html', \
         takes_context=True)
 def object_comments(context, obj):
-    context.update({'object': obj.modelbase_obj})
+    context.update({
+        'object': obj,
+        'can_render_comment_form': obj.can_comment(context['request'])
+        })
     return context
 
 

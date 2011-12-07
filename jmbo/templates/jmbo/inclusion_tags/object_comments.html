@@ -2,7 +2,7 @@
 
 {% if object.comments_enabled %}
     {% render_comment_list for object %}
-    {% if not object.comments_closed %}
+    {% if can_render_comment_form %}
         {% render_comment_form for object %}
     {% endif %}
 {% endif %}
