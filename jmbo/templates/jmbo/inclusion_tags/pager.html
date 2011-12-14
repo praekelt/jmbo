@@ -1,19 +1,25 @@
-{% load jmbo_template_tags %}
 
 {% if page_obj.has_other_pages %}
-    <div class="paged_results">
+
+    {% load jmbo_template_tags i18n %}
+    <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="{% smart_query_string 'page' page_obj.previous_page_number %}" class="paged_prev">Previous</a>
+            <a href="{% smart_query_string 'page' page_obj.previous_page_number %}" class="prev">&lsaquo;&lsaquo; {% trans "previous" %}</a>
         {% else %}
-            <a style="float: left; width: 60px; padding: 0 0 0 25px;">&nbsp;</a>
+            <span class="disabled prev">&lsaquo;&lsaquo; {% trans "previous" %}</span>
         {% endif %}
-	    <p>
-            {% for page_number in page_obj.paginator.page_range %}
-                <a href="{% smart_query_string 'page' page_number %}"{% ifequal page_obj.number page_number %} class="on"{% endifequal %}>{{ page_number }}</a>{% if not forloop.last %} | {% endif %}
-            {% endfor %}
-        </p>
+        {% for page_number in page_obj.paginator.page_range %}
+            {% ifequal page_obj.number page_number %}
+                <span class="current page">{{ page_number }}</span>
+            {% else %}
+                <a href="{% smart_query_string 'page' page_number %}" class="page">{{ page_number }}</a>
+            {% endifequal %}
+        {% endfor %}
         {% if page_obj.has_next %}
-	        <a href="{% smart_query_string 'page' page_obj.next_page_number %}" class="paged_next">Next</a>
+            <a href="{% smart_query_string 'page' page_obj.next_page_number %}" class="next">{% trans "next" %} &rsaquo;&rsaquo;</a>
+        {% else %}
+            <span class="disabled next">{% trans "next" %} &rsaquo;&rsaquo;</span>
         {% endif %}
-    </div><!--/paged_results-->
+    </div>
+
 {% endif %}
