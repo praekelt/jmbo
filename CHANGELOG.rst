@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.1.20 (unreleased)
+-------------------
+#. Bring pager HTML and CSS in line with django-pagination.
+#. Add wrapping div to comments UI.
+#. Fix admin interface bug where some fields were duplicated.
+
 0.1.9 (2011-09-27)
 ------------------
 #. Added primary category field on ModelBase.
