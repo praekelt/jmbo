@@ -201,8 +201,10 @@ but users won't be able to add new likes.",
                     'slug': self.slug
                 }
             )
+        # Use jmbo naming convention, eg. we may have a view named
+        # 'post_object_detail'. 
         return reverse(
-            '%s_object_detail' % self.content_type.name.lower(),
+            '%s_object_detail' % self.__class__.__name__.lower(),
             kwargs={'slug': self.slug}
         )
 

@@ -6,6 +6,7 @@ Changelog
 #. Bring pager HTML and CSS in line with django-pagination.
 #. Add wrapping div to comments UI.
 #. Fix admin interface bug where some fields were duplicated.
+#. Reverse lookup for <content_type>_object_detail now works for model names that may contain spaces, eg. 'Blog Post'.
 
 0.1.9 (2011-09-27)
 ------------------
