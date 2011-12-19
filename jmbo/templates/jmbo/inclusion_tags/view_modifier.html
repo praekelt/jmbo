@@ -4,7 +4,7 @@
     <div class="items">
         {% for item in view_modifier.items %}
             <div class="item {% if item in view_modifier.active_items %}active{% endif %} {% if forloop.first %}first{% endif %} {% if forloop.last %}last{% endif %}">
-                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a></div>
+                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
             </div>
         {% endfor %}
 	</div>
