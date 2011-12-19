@@ -1,11 +1,11 @@
 {% load jmbo_template_tags %} 
 
-<div class="menu">
-    <ul>
+<div class="jmbo-view-modifier">
+    <div class="items">
         {% for item in view_modifier.items %}
-    		<li{% if item in view_modifier.active_items %} class="on"{% endif %}>
-                <span></span><a href="{{ item.get_absolute_url }}">{{ item.title }}</a><span></span>
-            </li>
+            <div class="item {% if item in view_modifier.active_items %}active{% endif %} {% if forloop.first %}first{% endif %} {% if forloop.last %}last{% endif %}">
+                <a href="{{ item.get_absolute_url }}">{{ item.title }}</a></div>
+            </div>
         {% endfor %}
-	</ul>
-</div><!--/menu-->
+	</div>
+</div>
