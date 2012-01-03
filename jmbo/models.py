@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import comments
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models import signals
 from django.utils.encoding import smart_unicode
@@ -202,11 +202,15 @@ but users won't be able to add new likes.",
                 }
             )
         # Use jmbo naming convention, eg. we may have a view named
-        # 'post_object_detail'. 
-        return reverse(
-            '%s_object_detail' % self.__class__.__name__.lower(),
-            kwargs={'slug': self.slug}
-        )
+        # 'post_object_detail'.
+        try:
+            return reverse(
+                '%s_object_detail' % self.__class__.__name__.lower(),
+                kwargs={'slug': self.slug}
+            )
+        except NoReverseMatch:
+            # Fallback
+            return reverse('object_detail', args=[self.slug])
 
     def save(self, *args, **kwargs):
         # set created time to now if not already set.

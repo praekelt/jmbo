@@ -78,6 +78,16 @@ class CategoryObjectDetail(GenericObjectDetail):
 category_object_detail = CategoryObjectDetail()
 
 
+class ObjectDetail(GenericObjectDetail):
+    def get_queryset(self, *args, **kwargs):
+        return ModelBase.permitted
+
+    def get_template_name(self, *args, **kwargs):
+        return 'jmbo/modelbase_detail.html'
+
+object_detail = ObjectDetail()
+
+
 class ObjectPeek(GenericObjectDetail):
     def get_queryset(self, *args, **kwargs):
         return ModelBase.permitted
