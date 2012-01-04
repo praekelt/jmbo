@@ -1,9 +1,32 @@
-{% load likes_inclusion_tags %}
+{% load likes_inclusion_tags i18n %}
 
-<div class="heading">
-    {% likes object.modelbase_obj %}
-	<h1>{{ object.title }}</h1>
-	<p class="meta">By <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> on {{ object.created|date:"j F Y" }}</p>
+<div class="object-header">    
+    <div class="title">
+	    {{ object.title }}
+    </div>
+
+	<div class="meta">
+
+        <div class="byline">
+            {% blocktrans %}By{% endblocktrans %} <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> {% blocktrans %}on{% endblocktrans %} {{ object.created|date:"j F Y" }}
+        </div>
+
+        {% if object.comments_enabled %}
+        <div class="comments">
+            {% with object.comment_count as total %}
+                ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }}) 
+            {% endwith %}
+        </div>
+        {% endif %}
+
+        {% if object.likes_enabled %}
+        <div class="likes">
+            {% likes object %}
+        </div>
+        {% endif %}
+
+    </div>
+
     {% comment %}
 	<p class="social">
 	    <a href="javascript: void(0);" class="social_share">Share</a>
