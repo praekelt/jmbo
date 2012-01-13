@@ -51,6 +51,12 @@ class GenericBase(object):
                             view_modifier
                 view = view_modifier.modify(view)
 
+        # Apply possible limit after view modifiers. Django API requires
+        # queryset slicing to occur last.
+        limit = view.params.pop('limit', 0)
+        if limit:
+            view.params['queryset'] = view.params['queryset'][:limit]
+
         return view
 
     def get_url_callable(self, *args, **kwargs):
@@ -108,6 +114,7 @@ class GenericObjectList(GenericBase):
         'context_processors': None,
         'template_object_name': 'object',
         'mimetype': None,
+        'limit': 0,
     }
 
     def __call__(self, request, *args, **kwargs):
