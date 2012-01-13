@@ -8,6 +8,7 @@ Changelog
 #. Fix admin interface bug where some fields were duplicated.
 #. Reverse lookup for <content_type>_object_detail now works for model names that may contain spaces, eg. 'Blog Post'.
 #. Add fallback to modelbase detail view to get_absolute_url.
+#. Add ability to limit size of queryset for generic views.
 
 0.1.9 (2011-09-27)
 ------------------
