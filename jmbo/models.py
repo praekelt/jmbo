@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models import signals
 from django.utils.encoding import smart_unicode
+from django.utils.translation import ugettext_lazy as _
 
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -34,23 +35,23 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
-        help_text="Set the item state. The 'Published' state makes the item \
+        help_text=_("Set the item state. The 'Published' state makes the item \
 visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
-item visible on staging instances.",
+item visible on staging instances."),
         blank=True,
         null=True,
     )
     publish_on = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Date and time on which to publish this item (state will \
-change to 'published').",
+        help_text=_("Date and time on which to publish this item (state will \
+change to 'published')."),
     )
     retract_on = models.DateTimeField(
         blank=True,
         null=True,
-        help_text="Date and time on which to retract this item (state will \
-change to 'unpublished').",
+        help_text=_("Date and time on which to retract this item (state will \
+change to 'unpublished')."),
     )
     slug = models.SlugField(
         editable=False,
@@ -59,25 +60,26 @@ change to 'unpublished').",
         unique=True,
     )
     title = models.CharField(
-        max_length=200, help_text='A short descriptive title.',
+        _("Title"),
+        max_length=200, help_text=_('A short descriptive title.'),
     )
     description = models.TextField(
-        help_text='A short description. More verbose than the title but \
-limited to one or two sentences.',
+        help_text=_('A short description. More verbose than the title but \
+limited to one or two sentences.'),
         blank=True,
         null=True,
     )
     created = models.DateTimeField(
-        'Created Date & Time',
+        _('Created Date & Time'),
         blank=True,
-        help_text='Date and time on which this item was created. This is \
-automatically set on creation, but can be changed subsequently.'
+        help_text=_('Date and time on which this item was created. This is \
+automatically set on creation, but can be changed subsequently.')
     )
     modified = models.DateTimeField(
-        'Modified Date & Time',
+        _('Modified Date & Time'),
         editable=False,
-        help_text='Date and time on which this item was last modified. This \
-is automatically set each time the item is saved.'
+        help_text=_('Date and time on which this item was last modified. This \
+is automatically set each time the item is saved.')
     )
     owner = models.ForeignKey(
         User,
@@ -98,66 +100,66 @@ is automatically set each time the item is saved.'
         'category.Category',
         blank=True,
         null=True,
-        help_text='Categorizing this item.'
+        help_text=_('Categorizing this item.')
     )
     primary_category = models.ForeignKey(
         'category.Category',
         blank=True,
         null=True,
-        help_text="Primary category for this item. Used to determine the \
-            object's absolute/default URL.",
+        help_text=_("Primary category for this item. Used to determine the \
+            object's absolute/default URL."),
         related_name="primary_modelbase_set",
     )
     tags = models.ManyToManyField(
         'category.Tag',
         blank=True,
         null=True,
-        help_text='Tag this item.'
+        help_text=_('Tag this item.')
     )
     sites = models.ManyToManyField(
         'sites.Site',
         blank=True,
         null=True,
-        help_text='Makes item eligible to be published on selected sites.',
+        help_text=_('Makes item eligible to be published on selected sites.'),
     )
     publishers = models.ManyToManyField(
         'publisher.Publisher',
         blank=True,
         null=True,
-        help_text='Makes item eligible to be published on selected platform.',
+        help_text=_('Makes item eligible to be published on selected platform.'),
     )
     comments_enabled = models.BooleanField(
-        verbose_name="Commenting Enabled",
-        help_text="Enable commenting for this item. Comments will not \
-display when disabled.",
+        verbose_name=_("Commenting Enabled"),
+        help_text=_("Enable commenting for this item. Comments will not \
+display when disabled."),
         default=True,
     )
     anonymous_comments = models.BooleanField(
-        verbose_name="Anonymous Commenting Enabled",
-        help_text="Enable anonymous commenting for this item.",
+        verbose_name=_("Anonymous Commenting Enabled"),
+        help_text=_("Enable anonymous commenting for this item."),
         default=True,
     )
     comments_closed = models.BooleanField(
-        verbose_name="Commenting Closed",
-        help_text="Close commenting for this item. Comments will still \
-display, but users won't be able to add new comments.",
+        verbose_name=_("Commenting Closed"),
+        help_text=_("Close commenting for this item. Comments will still \
+display, but users won't be able to add new comments."),
         default=False,
     )
     likes_enabled = models.BooleanField(
-        verbose_name="Liking Enabled",
-        help_text="Enable liking for this item. Likes will not display \
-when disabled.",
+        verbose_name=_("Liking Enabled"),
+        help_text=_("Enable liking for this item. Likes will not display \
+when disabled."),
         default=True,
     )
     anonymous_likes = models.BooleanField(
-        verbose_name="Anonymous Liking Enabled",
-        help_text="Enable anonymous liking for this item.",
+        verbose_name=_("Anonymous Liking Enabled"),
+        help_text=_("Enable anonymous liking for this item."),
         default=True,
     )
     likes_closed = models.BooleanField(
-        verbose_name="Liking Closed",
-        help_text="Close liking for this item. Likes will still display, \
-but users won't be able to add new likes.",
+        verbose_name=_("Liking Closed"),
+        help_text=_("Close liking for this item. Likes will still display, \
+but users won't be able to add new likes."),
         default=False,
     )
 

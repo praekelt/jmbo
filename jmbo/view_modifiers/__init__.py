@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext as _
+
 from jmbo.view_modifiers.items import CalEntryUpcomingItem, \
         CalEntryThisWeekendItem, CalEntryNext7DaysItem, \
         CalEntryThisMonthItem, IntegerFieldRangeItem, MostRecentItem, \
@@ -60,7 +62,7 @@ class DateFieldIntervalViewModifier(ViewModifier):
         self.items = [
             CalEntryUpcomingItem(
                 request=request,
-                title="Upcoming",
+                title=_("Upcoming"),
                 get={'name': 'filter', 'value': 'recent'},
                 field_name=field_name,
                 base_url=base_url,
@@ -68,21 +70,21 @@ class DateFieldIntervalViewModifier(ViewModifier):
             ),
             CalEntryThisWeekendItem(
                 request=request,
-                title="This Weekend",
+                title=_("This weekend"),
                 get={'name': 'filter', 'value': 'weekend'},
                 field_name=field_name,
                 base_url=base_url,
             ),
             CalEntryNext7DaysItem(
                 request=request,
-                title="Next 7 Days",
+                title=_("Next 7 days"),
                 get={'name': 'filter', 'value': 'week'},
                 field_name=field_name,
                 base_url=base_url,
             ),
             CalEntryThisMonthItem(
                 request=request,
-                title="This Month",
+                title=_("This month"),
                 get={'name': 'filter', 'value': 'month'},
                 field_name=field_name,
                 base_url=base_url,
@@ -100,7 +102,7 @@ class DefaultViewModifier(ViewModifier):
         self.items = [
             MostRecentItem(
                 request=request,
-                title="Most Recent",
+                title=_("Most recent"),
                 get={'name': 'by', 'value': 'most-recent'},
                 field_name='created',
                 base_url=base_url,
@@ -108,14 +110,14 @@ class DefaultViewModifier(ViewModifier):
             ),
             MostLikedItem(
                 request=request,
-                title="Most Liked",
+                title=_("Most liked"),
                 get={'name': 'by', 'value': 'most-liked'},
                 base_url=base_url,
                 default=False,
             ),
             ThisWeekItem(
                 request=request,
-                title="This Week",
+                title=_("This week"),
                 get={'name': 'for', 'value': 'this-week'},
                 field_name='created',
                 base_url=base_url,
@@ -123,7 +125,7 @@ class DefaultViewModifier(ViewModifier):
             ),
             ThisMonthItem(
                 request=request,
-                title="This Month",
+                title=_("This month"),
                 get={'name': 'for', 'value': 'this-month'},
                 field_name='created',
                 base_url=base_url,
