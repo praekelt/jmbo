@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-17 04:34-0600\n"
+"POT-Creation-Date: 2012-01-19 04:41-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -171,6 +171,42 @@ msgstr "vorige"
 #: templates/jmbo/inclusion_tags/pager.html:21
 msgid "next"
 msgstr "volgende"
+
+#: templatetags/jmbo_template_tags.py:88
+msgid "Yesterday"
+msgstr "Gister"
+
+#: templatetags/jmbo_template_tags.py:90
+msgid "Days"
+msgstr "Dae"
+
+#: templatetags/jmbo_template_tags.py:94
+msgid "Hour"
+msgstr "Uur"
+
+#: templatetags/jmbo_template_tags.py:96
+msgid "Hours"
+msgstr "Ure"
+
+#: templatetags/jmbo_template_tags.py:100
+msgid "Minute"
+msgstr "Minuut"
+
+#: templatetags/jmbo_template_tags.py:102
+msgid "Minutes"
+msgstr "Minute"
+
+#: templatetags/jmbo_template_tags.py:106
+msgid "Second"
+msgstr "Sekonde"
+
+#: templatetags/jmbo_template_tags.py:108
+msgid "Seconds"
+msgstr "Sekondes"
+
+#: templatetags/jmbo_template_tags.py:111
+msgid "Just Now"
+msgstr "Nou net"
 
 #: view_modifiers/__init__.py:65
 msgid "Upcoming"

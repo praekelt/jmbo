@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-19 03:11-0600\n"
+"POT-Creation-Date: 2012-01-19 04:41-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,7 +49,8 @@ msgid ""
 "A short description. More verbose than the title but limited to one or two "
 "sentences."
 msgstr ""
-"Une description courte.  Celle peut être plus longue que le titre mais pas plus longue qu’une ou deux phrases."
+"Une description courte.  Celle peut être plus longue que le titre mais pas "
+"plus longue qu’une ou deux phrases."
 
 #: models.py:73
 msgid "Created Date & Time"
@@ -171,6 +172,42 @@ msgstr "précédent"
 #: templates/jmbo/inclusion_tags/pager.html:21
 msgid "next"
 msgstr "prochain"
+
+#: templatetags/jmbo_template_tags.py:88
+msgid "Yesterday"
+msgstr "Hier"
+
+#: templatetags/jmbo_template_tags.py:90
+msgid "Days"
+msgstr "Jours"
+
+#: templatetags/jmbo_template_tags.py:94
+msgid "Hour"
+msgstr "Heures"
+
+#: templatetags/jmbo_template_tags.py:96
+msgid "Hours"
+msgstr "Heures"
+
+#: templatetags/jmbo_template_tags.py:100
+msgid "Minute"
+msgstr "Minutes"
+
+#: templatetags/jmbo_template_tags.py:102
+msgid "Minutes"
+msgstr "Minutes"
+
+#: templatetags/jmbo_template_tags.py:106
+msgid "Second"
+msgstr "Secondes"
+
+#: templatetags/jmbo_template_tags.py:108
+msgid "Seconds"
+msgstr "Secondes"
+
+#: templatetags/jmbo_template_tags.py:111
+msgid "Just Now"
+msgstr "Tout à l'heure"
 
 #: view_modifiers/__init__.py:65
 msgid "Upcoming"

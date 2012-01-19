@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django import template
+from django.utils.translation import ugettext as _
 
 register = template.Library()
 
@@ -84,30 +85,30 @@ class HumanizeTimeDifference(template.Node):
 
             if days > 0:
                 if days == 1:
-                    return "Yesterday"
+                    return _("Yesterday")
                 else:
-                    dt_str = "Days"
+                    dt_str = _("Days")
                 return "%s %s %s" % (days, dt_str, suffix)
             elif hours > 0:
                 if hours == 1:
-                    dt_str = "Hour"
+                    dt_str = _("Hour")
                 else:
-                    dt_str = "Hours"
+                    dt_str = _("Hours")
                 return "%s %s %s" % (hours, dt_str, suffix)
             elif minutes > 0:
                 if minutes == 1:
-                    dt_str = "Minute"
+                    dt_str = _("Minute")
                 else:
-                    dt_str = "Minutes"
+                    dt_str = _("Minutes")
                 return "%s %s %s" % (minutes, dt_str, suffix)
             elif seconds > 0:
                 if seconds == 1:
-                    dt_str = "Second"
+                    dt_str = _("Second")
                 else:
-                    dt_str = "Seconds"
+                    dt_str = _("Seconds")
                 return "%s %s %s" % (seconds, dt_str, suffix)
             elif seconds == 0:
-                return "Just Now"
+                return _("Just Now")
         return ""
 
     def render(self, context):
