@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-19 04:41-0600\n"
+"POT-Creation-Date: 2012-01-20 12:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -157,11 +157,11 @@ msgstr ""
 
 #: templates/jmbo/inclusion_tags/object_header.html:11
 msgid "on"
-msgstr ""
+msgstr "de"
 
 #: templates/jmbo/inclusion_tags/object_header.html:17
 msgid "comment"
-msgstr ""
+msgstr "commentaire"
 
 #: templates/jmbo/inclusion_tags/pager.html:7
 #: templates/jmbo/inclusion_tags/pager.html:9
@@ -181,31 +181,38 @@ msgstr "Hier"
 msgid "Days"
 msgstr "Jours"
 
-#: templatetags/jmbo_template_tags.py:94
+#: templatetags/jmbo_template_tags.py:92 templatetags/jmbo_template_tags.py:99
+#: templatetags/jmbo_template_tags.py:106
+#: templatetags/jmbo_template_tags.py:113
+#, python-format
+msgid "%(value)s %(discriminant)s %(suffix)s"
+msgstr "%(suffix)s %(value)s %(discriminant)s"
+
+#: templatetags/jmbo_template_tags.py:95
 msgid "Hour"
 msgstr "Heures"
 
-#: templatetags/jmbo_template_tags.py:96
+#: templatetags/jmbo_template_tags.py:97
 msgid "Hours"
 msgstr "Heures"
 
-#: templatetags/jmbo_template_tags.py:100
+#: templatetags/jmbo_template_tags.py:102
 msgid "Minute"
 msgstr "Minutes"
 
-#: templatetags/jmbo_template_tags.py:102
+#: templatetags/jmbo_template_tags.py:104
 msgid "Minutes"
 msgstr "Minutes"
 
-#: templatetags/jmbo_template_tags.py:106
+#: templatetags/jmbo_template_tags.py:109
 msgid "Second"
 msgstr "Secondes"
 
-#: templatetags/jmbo_template_tags.py:108
+#: templatetags/jmbo_template_tags.py:111
 msgid "Seconds"
 msgstr "Secondes"
 
-#: templatetags/jmbo_template_tags.py:111
+#: templatetags/jmbo_template_tags.py:115
 msgid "Just Now"
 msgstr "Tout à l'heure"
 

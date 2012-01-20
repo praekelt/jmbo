@@ -88,25 +88,29 @@ class HumanizeTimeDifference(template.Node):
                     return _("Yesterday")
                 else:
                     dt_str = _("Days")
-                return "%s %s %s" % (days, dt_str, suffix)
+                di = {'value': days, 'discriminant': dt_str, 'suffix': suffix}
+                return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif hours > 0:
                 if hours == 1:
                     dt_str = _("Hour")
                 else:
                     dt_str = _("Hours")
-                return "%s %s %s" % (hours, dt_str, suffix)
+                di = {'value': hours, 'discriminant': dt_str, 'suffix': suffix}
+                return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif minutes > 0:
                 if minutes == 1:
                     dt_str = _("Minute")
                 else:
                     dt_str = _("Minutes")
-                return "%s %s %s" % (minutes, dt_str, suffix)
+                di = {'value': minutes, 'discriminant': dt_str, 'suffix': suffix}
+                return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif seconds > 0:
                 if seconds == 1:
                     dt_str = _("Second")
                 else:
                     dt_str = _("Seconds")
-                return "%s %s %s" % (seconds, dt_str, suffix)
+                di = {'value': seconds, 'discriminant': dt_str, 'suffix': suffix}
+                return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif seconds == 0:
                 return _("Just Now")
         return ""
