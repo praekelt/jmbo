@@ -126,7 +126,9 @@ is automatically set each time the item is saved.')
         'publisher.Publisher',
         blank=True,
         null=True,
-        help_text=_('Makes item eligible to be published on selected platform.'),
+        help_text=_(
+            'Makes item eligible to be published on selected platform.'
+        ),
     )
     comments_enabled = models.BooleanField(
         verbose_name=_("Commenting Enabled"),

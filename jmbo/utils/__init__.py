@@ -23,20 +23,36 @@ def generate_slug(obj, text, tail_number=0):
     if not slug:
         slug = 'no-title'
 
-    query = ModelBase.objects.filter(
+    values_list = ModelBase.objects.filter(
         slug__startswith=slug
-    ).exclude(id=obj.id).order_by('-id')
+    ).values_list('id', 'slug')
 
-    # No collissions
-    if not query.count():
-        return slug
+    # Find highest suffix
+    max = -1
+    for tu in values_list:
+        if tu[1] == slug:
+            if tu[0] == obj.id:
+                # If we encounter obj and the stored slug is the same as the
+                # desired slug then return.
+                return slug
 
-    # Match numerical suffix if it exists
-    match = RE_NUMERICAL_SUFFIX.match(query[0].slug)
-    if match is not None:
-        return "%s-%s" % (slug, int(match.group(1)) + 1)
+            if max == -1:
+                # Set max to indicate a collision
+                max = 0
+
+        # Update max if suffix is greater
+        match = RE_NUMERICAL_SUFFIX.match(tu[1])
+        if match is not None:
+            i = int(match.group(1))
+            if i > max:
+                max = i
+
+    if max >= 0:
+        # There were collisions
+        return "%s-%s" % (slug, max + 1)
     else:
-        return "%s-1" % slug
+        # No collisions
+        return slug
 
 
 def modify_class(original_class, modifier_class, override=True):
