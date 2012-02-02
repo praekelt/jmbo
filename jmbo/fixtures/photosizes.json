@@ -1,1 +1,65 @@
-[{"pk": 7, "model": "photologue.photosize", "fields": {"name": "content_list_gizmo", "watermark": null, "increment_count": false, "effect": null, "crop": true, "height": 43, "width": 77, "upscale": true, "pre_cache": false, "quality": 70}}, {"pk": 6, "model": "photologue.photosize", "fields": {"name": "content_list_gizmo_featured", "watermark": null, "increment_count": false, "effect": null, "crop": false, "height": 82, "width": 145, "upscale": true, "pre_cache": false, "quality": 70}}, {"pk": 13, "model": "photologue.photosize", "fields": {"name": "modelbase_list_wide", "watermark": null, "increment_count": false, "effect": null, "crop": true, "height": 60, "width": 107, "upscale": true, "pre_cache": false, "quality": 70}}]
+[
+    {
+        "pk": null, 
+        "model": "photologue.photosize",
+        "fields": {
+            "name": "content_list_gizmo", 
+            "watermark": null, 
+            "increment_count": false, 
+            "effect": null, 
+            "crop": true, 
+            "height": 43, "width": 77, 
+            "upscale": true, 
+            "pre_cache": false, 
+            "quality": 70
+        }
+    }, 
+    {
+        "pk": null, 
+        "model": "photologue.photosize", 
+        "fields": {
+            "name": "content_list_gizmo_featured", 
+            "watermark": null, 
+            "increment_count": false, 
+            "effect": null, 
+            "crop": false, 
+            "height": 82, 
+            "width": 145, 
+            "upscale": true, 
+            "pre_cache": false, 
+            "quality": 70
+        }
+    }, 
+    {
+        "pk": null, 
+        "model": "photologue.photosize", 
+        "fields": {
+            "name": "modelbase_list_wide", 
+            "watermark": null, 
+            "increment_count": false, 
+            "effect": null, 
+            "crop": true, 
+            "height": 60, 
+            "width": 107, 
+            "upscale": true, 
+            "pre_cache": false, 
+            "quality": 70
+        }
+    },
+    {
+        "pk": null, 
+        "model": "photologue.photosize", 
+        "fields": {
+            "name": "modelbase_detail", 
+            "watermark": null, 
+            "increment_count": false, 
+            "effect": null, 
+            "crop": true, 
+            "height": 150, 
+            "width": 300, 
+            "upscale": true, 
+            "pre_cache": false, 
+            "quality": 70
+        }
+    }
+]
