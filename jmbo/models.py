@@ -322,9 +322,8 @@ but users won't be able to add new likes."),
         adding a method here instead of relying on django-secretballot's
         addition since that doesn't work for subclasses.
         """
-        modelbase_obj = self.modelbase_obj.as_leaf_class()
-        return modelbase_obj.votes.filter(vote=+1).count() - \
-                modelbase_obj.votes.filter(vote=-1).count()
+        return self.votes.filter(vote=+1).count() - \
+                self.votes.filter(vote=-1).count()
 
     @property
     def comment_count(self):
