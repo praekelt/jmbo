@@ -47,7 +47,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
                     'classes': ('collapse',),
         }),
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
-                    'classes': ('collapse',),
+                    'classes': (),
         }),
         ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', \
                 'comments_closed'),
