@@ -370,6 +370,18 @@ but users won't be able to add new likes."),
         # Return amount of items in qs
         return qs.count()
 
+    @property
+    def image_detail_url(self):
+        """If a photosize is defined for the content type return the
+        corresponding image URL, else return modelbase detail default image
+        URL. This allows content types which may typically have images which 
+        are not landscaped (eg human faces) to define their own sizes."""
+        method = 'get_%s_detail_url' % self.__class__.__name__.lower()
+        if hasattr(self, method):
+            return getattr(self, method)()
+        else:
+            return getattr(self, 'get_modelbase_detail_url')()
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
