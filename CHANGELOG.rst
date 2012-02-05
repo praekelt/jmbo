@@ -9,7 +9,8 @@ Changelog
 #. Reverse lookup for <content_type>_object_detail now works for model names that may contain spaces, eg. 'Blog Post'.
 #. Add fallback to modelbase detail view to get_absolute_url.
 #. Add ability to limit size of queryset for generic views.
-#. Afrikaans translations.
+#. Afrikaans and French translations.
+#. Make it possible to specify a custom photosize per content type.
 
 0.1.9 (2011-09-27)
 ------------------
