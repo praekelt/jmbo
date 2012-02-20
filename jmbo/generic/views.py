@@ -197,6 +197,7 @@ class GenericObjectDetail(GenericBase):
         del view.params['queryset']
 
         # return object list generic view
+        #import pdb;pdb.set_trace()
         return list_detail.object_detail(
             request,
             queryset=queryset,

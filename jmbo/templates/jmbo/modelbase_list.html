@@ -2,16 +2,18 @@
 {% load jmbo_inclusion_tags %} 
 
 {% block content %}
-    <div class="page section_news">
-	    <div class="title">
-		    <h1>{{ title }}</h1>
-		</div><!--/title-->
+    <div class="page section_news object-list modelbase-list">
+        
+        {% if view_modifier %}
+    	    <div class="title">
+	    	    {{ title }}
+		    </div>      
+            {% view_modifier view_modifier %}
+        {% endif %}
 
-        {% view_modifier view_modifier %}
-
-        {% modelbase_listing object_list "list_wide" %}
+        {% modelbase_listing object_list "list_item" %}
 
         {% pager page_obj %}
 
-	</div><!--/page-->
+	</div>
 {% endblock %}

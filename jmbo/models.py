@@ -184,27 +184,6 @@ but users won't be able to add new likes."),
             return model.objects.get(id=self.id)
 
     def get_absolute_url(self):
-        """Category views are for the modelbase superclass, whereas the normal
-        object detail view is for the subclass."""
-        # todo: This is confusing. Need to motivate why category reverse is
-        # explicitly for modelbase and not subclass.  Does it make sense to
-        # have a view eg. "post_category_object_detail'?
-        if self.primary_category:
-            return reverse(
-                'category_object_detail',
-                kwargs={
-                    'category_slug': self.primary_category.slug,
-                    'slug': self.slug
-                }
-            )
-        elif self.categories.all():
-            return reverse(
-                'category_object_detail',
-                kwargs={
-                    'category_slug': self.categories.all()[0].slug,
-                    'slug': self.slug
-                }
-            )
         # Use jmbo naming convention, eg. we may have a view named
         # 'post_object_detail'.
         try:
@@ -215,6 +194,29 @@ but users won't be able to add new likes."),
         except NoReverseMatch:
             # Fallback
             return reverse('object_detail', args=[self.slug])
+
+    def get_absolute_category_url(self):
+        """Category aware absolute url"""
+        if self.primary_category:
+            category_slug = self.primary_category.slug
+        elif self.categories.all().exists():
+            category_slug = self.categories.all()[0].slug
+
+        if category_slug:
+            try:
+                return reverse(
+                    '%s_category_object_detail' % self.__class__.__name__.lower(),
+                    kwargs={'category_slug': category_slug, 'slug': self.slug}
+                )
+            except NoReverseMatch:
+                # Fallback
+                return reverse(
+                    'category_object_detail', 
+                    kwargs={'category_slug': category_slug, 'slug': self.slug}
+                )
+
+        # Sane fallback if no category
+        return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
         # set created time to now if not already set.

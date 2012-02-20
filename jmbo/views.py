@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from category.models import Category
 from jmbo.generic.views import GenericObjectDetail, GenericObjectList
@@ -14,7 +15,7 @@ class CategoryURL(object):
     def __call__(self, obj=None):
         if self.category and obj:
             return reverse(
-                'content_category_object_detail',
+                'category_object_detail',
                 kwargs={'category_slug': self.category.slug, 'slug': obj.slug}
             )
         elif obj:
@@ -25,19 +26,36 @@ class CategoryURL(object):
 
 class CategoryObjectList(GenericObjectList):
     def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.filter(categories=self.category)
+        return ModelBase.permitted.filter(Q(primary_category=self.category)|Q(categories=self.category)).exclude(pin__category=self.category)
 
+    #def get_view_modifier(self, request, *args, **kwargs):
+    #    return DefaultViewModifier(request)
     def get_view_modifier(self, request, *args, **kwargs):
-        return DefaultViewModifier(request)
+        return DefaultViewModifier(
+            request,
+            base_url=reverse(
+                'category_object_list',
+                kwargs={'category_slug': self.category.slug}
+            ),
+            ignore_defaults=True
+        )
 
     def get_paginate_by(self, *args, **kwargs):
-        return 7
+        return 10
 
     def get_url_callable(self, *args, **kwargs):
         return CategoryURL(category=self.category)
 
     def get_extra_context(self, *args, **kwargs):
-        return {'title': self.category.title}
+        return {
+            'title': self.category.title,
+            'pinned_object_list': ModelBase.permitted.filter(pin__category=self.category).order_by('-created'),
+            'category': self.category,
+            'url_callable': self.get_url_callable()
+        }
+
+    def get_template_names(self):
+        return ['category/%s_list.html' % self.category.slug, 'category/list.html'] + super(CategoryObjectListView, self).get_template_names()
 
     def __call__(self, request, category_slug, *args, **kwargs):
         self.category = get_object_or_404(Category, slug__iexact=category_slug)
@@ -58,14 +76,22 @@ class CategoryObjectDetail(GenericObjectDetail):
         return DefaultViewModifier(
             request,
             base_url=reverse(
-                'content_category_object_list',
-                kwargs={'category_slug': 'news-updates'}
+                'category_object_list',
+                kwargs={'category_slug': self.category.slug}
             ),
             ignore_defaults=True
         )
 
     def get_extra_context(self, *args, **kwargs):
-        return {'title': self.category.title}
+        return {
+            'title': self.category.title,
+            'category': self.category,
+            'object': get_object_or_404(ModelBase, slug__iexact=kwargs['slug']).as_leaf_class()
+        }
+
+    def get_template_names(self):
+        # todo: explain name resolution in documentation
+        return ['category/%s_detail.html' % self.category.slug, 'category/detail.html'] + super(CategoryObjectDetailView, self).get_template_names()
 
     def __call__(self, request, category_slug, *args, **kwargs):
         self.category = get_object_or_404(Category, slug__iexact=category_slug)

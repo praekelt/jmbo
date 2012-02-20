@@ -3,11 +3,13 @@
 
 {% block content %}
     <div class="page section_news object-detail modelbase-detail">
-	    <div class="title">
-		    <h1>{{ title }}</h1>
-		</div><!--/title-->
-            
-        {% view_modifier view_modifier %}
+
+        {% if view_modifier %}
+    	    <div class="title">
+	    	    {{ title }}
+		    </div>      
+            {% view_modifier view_modifier %}
+        {% endif %}
 
         {% object_header object %}
       
