@@ -8,6 +8,43 @@ from jmbo.models import ModelBase
 from jmbo.view_modifiers import DefaultViewModifier
 
 
+class ObjectDetail(GenericObjectDetail):
+    def get_queryset(self, *args, **kwargs):
+        return ModelBase.permitted
+
+    def get_template_name(self, *args, **kwargs):
+        return 'jmbo/modelbase_detail.html'
+
+object_detail = ObjectDetail()
+
+
+class ObjectList(GenericObjectList):
+
+    def get_queryset(self, *args, **kwargs):
+        return ModelBase.permitted.filter(
+            content_type__app_label=kwargs['app_label'],
+            content_type__model=kwargs['model']
+        ).order_by('-id')
+
+    def get_template_name(self, *args, **kwargs):
+        return 'jmbo/modelbase_list.html'
+
+    def get_paginate_by(self, *args, **kwargs):
+        return 10
+
+object_list = ObjectList()
+
+
+class ObjectPeek(GenericObjectDetail):
+    def get_queryset(self, *args, **kwargs):
+        return ModelBase.permitted
+
+    def get_template_name(self, *args, **kwargs):
+        return 'jmbo/modelbase_peek.html'
+
+object_peek = ObjectPeek()
+
+\
 class CategoryURL(object):
 
     def __init__(self, category):
@@ -98,23 +135,3 @@ class CategoryObjectDetail(GenericObjectDetail):
         )
 
 category_object_detail = CategoryObjectDetail()
-
-
-class ObjectDetail(GenericObjectDetail):
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted
-
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_detail.html'
-
-object_detail = ObjectDetail()
-
-
-class ObjectPeek(GenericObjectDetail):
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted
-
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_peek.html'
-
-object_peek = ObjectPeek()
