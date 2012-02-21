@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% load jmbo_inclusion_tags %}
+
+{% block content %}
+    <div class="object-category-list modelbase-category-list">
+        <div class="title">{{ category.title }}</div>
+
+        <div class="items">
+
+            <div class="pinned">
+                {% for object in pinned_object_list %}
+                    <div class="item">
+                        {% render_object object "pinned_list_item" %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="normal">
+            {% for object in object_list %}
+                <div class="item">
+                    {% render_object object "list_item" %}
+                </div>
+            {% endfor %}
+        </div>
+
+        </div>
+
+        {% pager page_obj %}
+    </div>
+{% endblock %}

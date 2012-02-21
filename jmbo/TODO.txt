@@ -1,0 +1,3 @@
+1. Figure out featured. If featured is the same as pinned then 
+deprecate it.
+2. See id modelbase_list_wide is really needed.
