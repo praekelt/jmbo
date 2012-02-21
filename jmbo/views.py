@@ -31,6 +31,13 @@ class ObjectList(GenericObjectList):
 
     def get_paginate_by(self, *args, **kwargs):
         return 10
+            
+    def get_view_modifier(self, request, *args, **kwargs):
+        return DefaultViewModifier(request, *args, **kwargs)
+
+    def get_extra_context(self, *args, **kwargs):
+        # todo: use translated content type model verbose name plural
+        return {'title': 'Items'}
 
 object_list = ObjectList()
 
