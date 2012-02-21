@@ -2,7 +2,7 @@
 {% load jmbo_inclusion_tags gallery_inclusion_tags %} 
 
 {% block content %}
-    <div class="page section_news object-detail modelbase-detail">
+    <div class="page section_news object-detail {{ object.class_name.lower }}-detail">
 
         {% if view_modifier %}
     	    <div class="title">

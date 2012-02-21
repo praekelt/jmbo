@@ -1,4 +1,4 @@
-<div class="object-detail-inclusion modelbase-detail-inclusion">
+<div class="object-detail-inclusion {{ object.class_name.lower }}-detail-inclusion">
     {% if object.image %}
         <img src="{{ object.image_detail_url }}" />
     {% endif %}
