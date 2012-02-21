@@ -188,7 +188,7 @@ but users won't be able to add new likes."),
         # 'post_object_detail'.
         try:
             return reverse(
-                '%s_object_detail' % self.__class__.__name__.lower(),
+                '%s_object_detail' % self.as_leaf_class().__class__.__name__.lower(),
                 kwargs={'slug': self.slug}
             )
         except NoReverseMatch:
@@ -205,7 +205,7 @@ but users won't be able to add new likes."),
         if category_slug:
             try:
                 return reverse(
-                    '%s_category_object_detail' % self.__class__.__name__.lower(),
+                    '%s_category_object_detail' % self.as_leaf_class().__class__.__name__.lower(),
                     kwargs={'category_slug': category_slug, 'slug': self.slug}
                 )
             except NoReverseMatch:
