@@ -507,7 +507,7 @@ class InclusionTagsTestCase(unittest.TestCase):
     def test_render_tag(self):
         # load correct template for provided object and type
         t = Template("{% load jmbo_inclusion_tags %}\
-{% render_object object 'block' %}")
+{% render_object object 'test_block' %}")
         result = t.render(self.context)
         expected_result = u'Test string for testing purposes\n'
         self.failUnlessEqual(result, expected_result)
@@ -518,7 +518,7 @@ class InclusionTagsTestCase(unittest.TestCase):
         obj.save()
         self.context = template.Context({'object': obj})
         t = Template("{% load jmbo_inclusion_tags %}\
-{% render_object object 'block' %}")
+{% render_object object 'test_block' %}")
         result = t.render(self.context)
         self.failUnless(result)
 

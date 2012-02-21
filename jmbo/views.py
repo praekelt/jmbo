@@ -9,6 +9,7 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class CategoryURL(object):
+
     def __init__(self, category):
         self.category = category
 
@@ -25,11 +26,13 @@ class CategoryURL(object):
 
 
 class CategoryObjectList(GenericObjectList):
+
     def get_queryset(self, *args, **kwargs):
         return ModelBase.permitted.filter(Q(primary_category=self.category)|Q(categories=self.category)).exclude(pin__category=self.category)
 
-    #def get_view_modifier(self, request, *args, **kwargs):
-    #    return DefaultViewModifier(request)
+    def get_template_name(self, *args, **kwargs):
+        return 'jmbo/modelbase_category_list.html'
+
     def get_view_modifier(self, request, *args, **kwargs):
         return DefaultViewModifier(
             request,
@@ -53,9 +56,6 @@ class CategoryObjectList(GenericObjectList):
             'category': self.category,
             'url_callable': self.get_url_callable()
         }
-
-    def get_template_names(self):
-        return ['category/%s_list.html' % self.category.slug, 'category/list.html'] + super(CategoryObjectListView, self).get_template_names()
 
     def __call__(self, request, category_slug, *args, **kwargs):
         self.category = get_object_or_404(Category, slug__iexact=category_slug)
@@ -88,10 +88,6 @@ class CategoryObjectDetail(GenericObjectDetail):
             'category': self.category,
             'object': get_object_or_404(ModelBase, slug__iexact=kwargs['slug']).as_leaf_class()
         }
-
-    def get_template_names(self):
-        # todo: explain name resolution in documentation
-        return ['category/%s_detail.html' % self.category.slug, 'category/detail.html'] + super(CategoryObjectDetailView, self).get_template_names()
 
     def __call__(self, request, category_slug, *args, **kwargs):
         self.category = get_object_or_404(Category, slug__iexact=category_slug)

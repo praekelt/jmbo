@@ -11,7 +11,9 @@
             {% view_modifier view_modifier %}
         {% endif %}
 
-        {% modelbase_listing object_list "list_item" %}
+        {% for object in object_list %}
+            {% render_object object "list_item" %}
+        {% endfor %}
 
         {% pager page_obj %}
 

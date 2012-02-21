@@ -15,16 +15,6 @@ def content_list_gizmo(context, object_list):
     return context
 
 
-@register.inclusion_tag('jmbo/inclusion_tags/modelbase_list.html', \
-        takes_context=True)
-def modelbase_listing(context, object_list, type):
-    context.update({
-        'object_list': object_list,
-        'type': type,
-    })
-    return context
-
-
 @register.inclusion_tag('jmbo/inclusion_tags/object_comments.html', \
         takes_context=True)
 def object_comments(context, obj):
