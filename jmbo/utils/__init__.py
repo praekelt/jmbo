@@ -42,7 +42,7 @@ def generate_slug(obj, text, tail_number=0):
 
         # Update max if suffix is greater
         match = RE_NUMERICAL_SUFFIX.match(tu[1])
-        if match is not None:            
+        if match is not None: 
 
             # If the collision is on obj then use the existing slug
             if tu[0] == obj.id:

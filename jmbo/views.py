@@ -44,7 +44,7 @@ class ObjectPeek(GenericObjectDetail):
 
 object_peek = ObjectPeek()
 
-\
+
 class CategoryURL(object):
 
     def __init__(self, category):
@@ -65,7 +65,9 @@ class CategoryURL(object):
 class CategoryObjectList(GenericObjectList):
 
     def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.filter(Q(primary_category=self.category)|Q(categories=self.category)).exclude(pin__category=self.category)
+        return ModelBase.permitted.filter(
+            Q(primary_category=self.category) | Q(categories=self.category)
+        ).exclude(pin__category=self.category)
 
     def get_template_name(self, *args, **kwargs):
         return 'jmbo/modelbase_category_list.html'
@@ -89,7 +91,9 @@ class CategoryObjectList(GenericObjectList):
     def get_extra_context(self, *args, **kwargs):
         return {
             'title': self.category.title,
-            'pinned_object_list': ModelBase.permitted.filter(pin__category=self.category).order_by('-created'),
+            'pinned_object_list': ModelBase.permitted.filter(
+                pin__category=self.category
+            ).order_by('-created'),
             'category': self.category,
             'url_callable': self.get_url_callable()
         }
@@ -123,7 +127,9 @@ class CategoryObjectDetail(GenericObjectDetail):
         return {
             'title': self.category.title,
             'category': self.category,
-            'object': get_object_or_404(ModelBase, slug__iexact=kwargs['slug']).as_leaf_class()
+            'object': get_object_or_404(
+                ModelBase, slug__iexact=kwargs['slug']
+            ).as_leaf_class()
         }
 
     def __call__(self, request, category_slug, *args, **kwargs):

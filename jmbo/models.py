@@ -211,7 +211,7 @@ but users won't be able to add new likes."),
             except NoReverseMatch:
                 # Fallback
                 return reverse(
-                    'category_object_detail', 
+                    'category_object_detail',
                     kwargs={'category_slug': category_slug, 'slug': self.slug}
                 )
 
@@ -376,7 +376,7 @@ but users won't be able to add new likes."),
     def image_detail_url(self):
         """If a photosize is defined for the content type return the
         corresponding image URL, else return modelbase detail default image
-        URL. This allows content types which may typically have images which 
+        URL. This allows content types which may typically have images which
         are not landscaped (eg human faces) to define their own sizes."""
         method = 'get_%s_detail_url' % self.__class__.__name__.lower()
         if hasattr(self, method):
