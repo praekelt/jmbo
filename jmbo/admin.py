@@ -6,8 +6,9 @@ from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
-from jmbo.models import ModelBase, Pin
+from jmbo.models import ModelBase, Pin, Relation
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -30,7 +31,43 @@ def make_unpublished(modeladmin, request, queryset):
 make_unpublished.short_description = "Mark selected items as unpublished"
 
 
+class ModelBaseAdminForm(forms.ModelForm):
+    """Helper form for ModelBaseAdmin"""
+
+    class Meta:
+        model = ModelBase
+
+    def __init__(self, *args, **kwargs):
+        super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
+
+        # Add relations fields
+        content_type = ContentType.objects.get_for_model(self._meta.model)
+        relations = Relation.objects.filter(source_content_type=content_type)
+        names = set([o.name for o in relations])
+        for name in names:
+            if not self.fields.has_key(name):
+                self.fields[name] = forms.ModelMultipleChoiceField(
+                    ModelBase.objects.all().order_by('title'),
+                    required=False,
+                    label=forms.forms.pretty_name(name),
+                    help_text="This field does not perform any validation. \
+It is your responsibility to select the correct items."
+                )
+
+        instance = kwargs.get('instance', None)
+        if instance is not None:
+            for name in names:
+                initial = Relation.objects.filter(
+                    source_content_type=instance.content_type,
+                    source_object_id=instance.id,
+                    name=name
+                )
+                self.fields[name].initial = [o.target for o in initial]
+
+
 class ModelBaseAdmin(admin.ModelAdmin):
+    form = ModelBaseAdminForm
+
     actions = [make_published, make_staging, make_unpublished]
     inlines = [ImageOverrideInline, ]
     list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
@@ -92,16 +129,51 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
         self.fieldsets = fieldsets
 
+    def get_fieldsets(self, request, obj=None):
+        result = super(ModelBaseAdmin, self).get_fieldsets(request, obj)
+        result = list(result)
+
+        content_type = ContentType.objects.get_for_model(self.model)
+        q = Relation.objects.filter(source_content_type=content_type)
+        if q.exists():
+            result.append(
+                ('Related',
+                    {
+                        'fields': set([o.name for o in q]),
+                        'classes': ('collapse',),
+                    }
+                )
+            )
+
+        return tuple(result)
+
     def save_model(self, request, obj, form, change):
         if not obj.owner:
             obj.owner = request.user
 
-        return super(ModelBaseAdmin, self).save_model(
+        instance = super(ModelBaseAdmin, self).save_model(
             request,
             obj,
             form,
             change
         )
+
+        content_type = ContentType.objects.get_for_model(self.model)
+        relations = Relation.objects.filter(source_content_type=content_type)
+        names = set([o.name for o in relations])
+        for name in names:
+            to_delete = Relation.objects.filter(
+                source_content_type=obj.content_type,
+                source_object_id=obj.id,
+                name=name
+            )
+            for relation in to_delete:
+                relation.delete()
+            for target in form.cleaned_data[name]:
+                relation = Relation(
+                    source=obj, target=target.as_leaf_class(), name=name
+                )
+                relation.save()
 
 
 class PinInline(admin.TabularInline):
@@ -114,8 +186,16 @@ class CategoryJmboAdmin(CategoryAdmin):
     ]
 
 
+class RelationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'source_content_type', 'source_object_id', 'target_content_type',
+        'target_object_id', 'name'
+    )
+
 try:
     admin.site.register(Category, CategoryJmboAdmin)
 except AlreadyRegistered:
     admin.site.unregister(Category)
     admin.site.register(Category, CategoryJmboAdmin)
+
+admin.site.register(Relation, RelationAdmin)

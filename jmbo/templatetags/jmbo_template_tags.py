@@ -3,6 +3,8 @@ from datetime import datetime
 from django import template
 from django.utils.translation import ugettext as _
 
+from jmbo.models import Relation
+
 register = template.Library()
 
 
@@ -102,14 +104,18 @@ class HumanizeTimeDifference(template.Node):
                     dt_str = _("Minute")
                 else:
                     dt_str = _("Minutes")
-                di = {'value': minutes, 'discriminant': dt_str, 'suffix': suffix}
+                di = {
+                    'value': minutes, 'discriminant': dt_str, 'suffix': suffix
+                }
                 return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif seconds > 0:
                 if seconds == 1:
                     dt_str = _("Second")
                 else:
                     dt_str = _("Seconds")
-                di = {'value': seconds, 'discriminant': dt_str, 'suffix': suffix}
+                di = {
+                    'value': seconds, 'discriminant': dt_str, 'suffix': suffix
+                }
                 return _("%(value)s %(discriminant)s %(suffix)s") % di
             elif seconds == 0:
                 return _("Just Now")
@@ -123,3 +129,45 @@ class HumanizeTimeDifference(template.Node):
             return getattr(result, self.modifier.resolve(context))()
 
         return result
+
+
+@register.tag
+def get_relation_list(parser, token):
+    """Gets list of relations from object identified by a relation name.
+
+    Syntax::
+
+        {% get_relation_list [relation_name] for [object] as [varname] %}
+    """
+    tokens = token.contents.split()
+    if len(tokens) != 6:
+        raise template.TemplateSyntaxError(
+            "%r tag requires 6 arguments" % tokens[0]
+        )
+
+    if tokens[2] != 'for':
+        raise template.TemplateSyntaxError(
+            "Third argument in %r tag must be 'for'" % tokens[0]
+        )
+
+    if tokens[4] != 'as':
+        raise template.TemplateSyntaxError(
+            "Fifth argument in %r tag must be 'as'" % tokens[0]
+        )
+
+    return RelationListNode(name=tokens[1], obj=tokens[3], as_var=tokens[5])
+
+
+class RelationListNode(template.Node):
+
+    def __init__(self, name, obj, as_var):
+        self.name = template.Variable(name)
+        self.obj = template.Variable(obj)
+        self.as_var = template.Variable(as_var)
+
+    def render(self, context):
+        name = self.name.resolve(context)
+        obj = self.obj.resolve(context)
+        as_var = self.as_var.resolve(context)
+        context[as_var] = obj.get_related_items(name)
+        return ''

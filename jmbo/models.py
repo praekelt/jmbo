@@ -9,6 +9,7 @@ from django.db import models
 from django.db.models import signals
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes import generic
 
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -188,7 +189,8 @@ but users won't be able to add new likes."),
         # 'post_object_detail'.
         try:
             return reverse(
-                '%s_object_detail' % self.as_leaf_class().__class__.__name__.lower(),
+                '%s_object_detail' \
+                    % self.as_leaf_class().__class__.__name__.lower(),
                 kwargs={'slug': self.slug}
             )
         except NoReverseMatch:
@@ -205,7 +207,8 @@ but users won't be able to add new likes."),
         if category_slug:
             try:
                 return reverse(
-                    '%s_category_object_detail' % self.as_leaf_class().__class__.__name__.lower(),
+                    '%s_category_object_detail' \
+                        % self.as_leaf_class().__class__.__name__.lower(),
                     kwargs={'category_slug': category_slug, 'slug': self.slug}
                 )
             except NoReverseMatch:
@@ -384,10 +387,64 @@ but users won't be able to add new likes."),
         else:
             return getattr(self, 'get_modelbase_detail_url')()
 
+    def get_related_items(self, name, direction='forward'):
+        """If direction is forward get items self points to by name name. If
+        direction is reverse get items pointing to self to by name name."""
+        if direction == 'forward':
+            relations = Relation.objects.filter(
+                source_content_type=obj.content_type,
+                source_object_id=self.id,
+                name=name
+            )
+            # Unpack. Relation set is small by nature.
+            return [o.target for o in relations if o.target.is_permitted]
+
+        elif direction == 'reverse':
+            relations = Relation.objects.filter(
+                target_content_type=self.content_type,
+                target_object_id=self.id,
+                name=name
+            )
+            # Unpack. Relation set is small by nature.
+            return [o.source for o in relations if o.source.is_permitted]
+
+        else:
+            return []
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
     category = models.ForeignKey('category.Category')
+
+
+class Relation(models.Model):
+    """Generic relation between two objects"""
+    source_content_type = models.ForeignKey(
+        ContentType, related_name='relation_source_content_type'
+    )
+    source_object_id = models.PositiveIntegerField()
+    source = generic.GenericForeignKey(
+        'source_content_type', 'source_object_id'
+    )
+    target_content_type = models.ForeignKey(
+        ContentType, related_name='relation_target_content_type'
+    )
+    target_object_id = models.PositiveIntegerField()
+    target = generic.GenericForeignKey(
+        'target_content_type', 'target_object_id'
+    )
+    name = models.CharField(
+        max_length=32,
+        db_index=True,
+        help_text="A name used to identify the relation. Must be of the form \
+blog_galleries. Once set it is typically never changed."
+    )
+
+    class Meta:
+        unique_together = ((
+            'source_content_type', 'source_object_id', 'target_content_type',
+            'target_object_id', 'name'
+        ),)
 
 
 def set_managers(sender, **kwargs):
