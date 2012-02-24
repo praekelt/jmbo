@@ -392,10 +392,10 @@ but users won't be able to add new likes."),
         direction is reverse get items pointing to self to by name name."""
         if direction == 'forward':
             relations = Relation.objects.filter(
-                source_content_type=obj.content_type,
+                source_content_type=self.content_type,
                 source_object_id=self.id,
                 name=name
-            )
+            ).order_by('-source_object_id')
             # Unpack. Relation set is small by nature.
             return [o.target for o in relations if o.target.is_permitted]
 
@@ -404,7 +404,7 @@ but users won't be able to add new likes."),
                 target_content_type=self.content_type,
                 target_object_id=self.id,
                 name=name
-            )
+            ).order_by('-target_object_id')
             # Unpack. Relation set is small by nature.
             return [o.source for o in relations if o.source.is_permitted]
 
