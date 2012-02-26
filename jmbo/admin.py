@@ -70,7 +70,9 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     actions = [make_published, make_staging, make_unpublished]
     inlines = [ImageOverrideInline, ]
-    list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
+    #list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
+    list_display = ('title', 'state', '_get_absolute_url', 'owner', 'created')
+
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
@@ -174,6 +176,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
                     source=obj, target=target.as_leaf_class(), name=name
                 )
                 relation.save()
+
+    def _get_absolute_url(self, obj):
+        url = obj.get_absolute_url()
+        return '<a href="%s" target="public">%s</a>' % (url, url)
+    _get_absolute_url.short_description = 'Permalink'
+    _get_absolute_url.allow_tags = True
 
 
 class PinInline(admin.TabularInline):
