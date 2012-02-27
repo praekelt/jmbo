@@ -137,10 +137,10 @@ def get_relation_list(parser, token):
 
     Syntax::
 
-        {% get_relation_list [relation_name] for [object] as [varname] %}
+        {% get_relation_list [relation_name] for [object] as [varname] [direction] %}
     """
     tokens = token.contents.split()
-    if len(tokens) != 6:
+    if len(tokens) not in (6, 7):
         raise template.TemplateSyntaxError(
             "%r tag requires 6 arguments" % tokens[0]
         )
@@ -155,19 +155,30 @@ def get_relation_list(parser, token):
             "Fifth argument in %r tag must be 'as'" % tokens[0]
         )
 
-    return RelationListNode(name=tokens[1], obj=tokens[3], as_var=tokens[5])
+    direction = 'forward'
+    if len(tokens) == 7:
+        direction = tokens[6]
+
+    return RelationListNode(
+        name=tokens[1], obj=tokens[3], as_var=tokens[5], direction=direction
+    )
 
 
 class RelationListNode(template.Node):
 
-    def __init__(self, name, obj, as_var):
+    def __init__(self, name, obj, as_var, direction='forward'):
         self.name = template.Variable(name)
         self.obj = template.Variable(obj)
         self.as_var = template.Variable(as_var)
+        self.direction = template.Variable(direction)
 
     def render(self, context):
         name = self.name.resolve(context)
         obj = self.obj.resolve(context)
         as_var = self.as_var.resolve(context)
-        context[as_var] = obj.get_related_items(name)
+        try:
+            direction = self.direction.resolve(context)
+        except template.VariableDoesNotExist:
+            direction = 'forward'
+        context[as_var] = obj.get_related_items(name, direction)
         return ''
