@@ -397,7 +397,7 @@ but users won't be able to add new likes."),
                 name=name
             ).order_by('-source_object_id')
             # Unpack. Relation set is small by nature.
-            return [o.target for o in relations if o.target.is_permitted]
+            return [o.target for o in relations if (o.target and o.target.is_permitted)]
 
         elif direction == 'reverse':
             relations = Relation.objects.filter(
@@ -406,7 +406,7 @@ but users won't be able to add new likes."),
                 name=name
             ).order_by('-target_object_id')
             # Unpack. Relation set is small by nature.
-            return [o.source for o in relations if o.source.is_permitted]
+            return [o.source for o in relations if (o.source and o.source.is_permitted)]
 
         else:
             return []
