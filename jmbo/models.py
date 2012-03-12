@@ -64,6 +64,14 @@ change to 'unpublished')."),
         _("Title"),
         max_length=200, help_text=_('A short descriptive title.'),
     )
+    subtitle = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        default='',
+        help_text=_('Some titles may be the same and cause confusion in admin UI. \
+A subtitle makes a distinction.'),
+    )
     description = models.TextField(
         help_text=_('A short description. More verbose than the title but \
 limited to one or two sentences.'),
@@ -244,7 +252,10 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return self.title
+        if self.subtitle:
+            return '%s (%s)' % (self.title, self.subtitle)
+        else:
+            return self.title
 
     @property
     def is_permitted(self):

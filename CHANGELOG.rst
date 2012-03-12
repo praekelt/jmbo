@@ -11,6 +11,8 @@ Changelog
 #. Add ability to limit size of queryset for generic views.
 #. Afrikaans and French translations.
 #. Make it possible to specify a custom photosize per content type.
+#. Introduce a new optional field 'subtitle' for friendlier admin UI.
+#. Add South migrations. Existing installations must be upgraded using ./manage.py migrate jmbo 0001 --fake and then ./manage.py migrate jmbo.
 
 0.1.9 (2011-09-27)
 ------------------

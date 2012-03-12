@@ -47,7 +47,7 @@ class ModelBaseAdminForm(forms.ModelForm):
         for name in names:
             if not self.fields.has_key(name):
                 self.fields[name] = forms.ModelMultipleChoiceField(
-                    ModelBase.objects.all().order_by('title'),
+                    ModelBase.objects.all().order_by('title', 'subtitle'),
                     required=False,
                     label=forms.forms.pretty_name(name),
                     help_text="This field does not perform any validation. \
@@ -70,13 +70,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     actions = [make_published, make_staging, make_unpublished]
     inlines = [ImageOverrideInline, ]
-    #list_display = ('title', 'state', 'admin_thumbnail', 'owner', 'created')
-    list_display = ('title', 'state', '_get_absolute_url', 'owner', 'created')
+    list_display = ('title', 'subtitle', 'state', '_get_absolute_url', 'owner', 'created')
 
     list_filter = ('state', 'created')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'description', )}),
+        (None, {'fields': ('title', 'subtitle', 'description', )}),
         ('Publishing', {'fields': ('state', 'sites', 'publish_on', \
                 'retract_on', 'publishers'),
                     'classes': ('collapse',),
