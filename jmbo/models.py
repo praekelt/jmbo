@@ -406,7 +406,7 @@ but users won't be able to add new likes."),
                 source_content_type=self.content_type,
                 source_object_id=self.id,
                 name=name
-            ).order_by('-source_object_id')
+            ).order_by('-target_object_id')
             # Unpack. Relation set is small by nature.
             return [o.target for o in relations if (o.target and o.target.is_permitted)]
 
@@ -415,7 +415,7 @@ but users won't be able to add new likes."),
                 target_content_type=self.content_type,
                 target_object_id=self.id,
                 name=name
-            ).order_by('-target_object_id')
+            ).order_by('-source_object_id')
             # Unpack. Relation set is small by nature.
             return [o.source for o in relations if (o.source and o.source.is_permitted)]
 
