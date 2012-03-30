@@ -402,25 +402,23 @@ but users won't be able to add new likes."),
         """If direction is forward get items self points to by name name. If
         direction is reverse get items pointing to self to by name name."""
         if direction == 'forward':
-            relations = Relation.objects.filter(
+            ids = Relation.objects.filter(
                 source_content_type=self.content_type,
                 source_object_id=self.id,
                 name=name
-            ).order_by('-target_object_id')
-            # Unpack. Relation set is small by nature.
-            return [o.target for o in relations if (o.target and o.target.is_permitted)]
+            ).order_by('-target_object_id').values_list('target_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids)
 
         elif direction == 'reverse':
-            relations = Relation.objects.filter(
+            ids = Relation.objects.filter(
                 target_content_type=self.content_type,
                 target_object_id=self.id,
                 name=name
-            ).order_by('-source_object_id')
-            # Unpack. Relation set is small by nature.
-            return [o.source for o in relations if (o.source and o.source.is_permitted)]
+            ).order_by('-source_object_id').values_list('source_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids)
 
         else:
-            return []
+            return ModelBase.permitted.none()
 
 
 class Pin(models.Model):
@@ -430,6 +428,9 @@ class Pin(models.Model):
 
 class Relation(models.Model):
     """Generic relation between two objects"""
+    # todo: this code is too generic and makes querying slow. Refactor to 
+    # only relate ModelBase to ModelBase. Migration management command will be 
+    # required.
     source_content_type = models.ForeignKey(
         ContentType, related_name='relation_source_content_type'
     )
