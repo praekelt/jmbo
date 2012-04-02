@@ -420,6 +420,9 @@ but users won't be able to add new likes."),
         else:
             return ModelBase.permitted.none()
 
+    def get_permitted_related_items(self, name, direction='forward'):
+        return self.get_related_items(name, direction)
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
