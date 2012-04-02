@@ -8,3 +8,6 @@ recursive-include jmbo/templates *
 recursive-include jmbo/templatetags *
 recursive-include jmbo/utils *
 recursive-include jmbo/view_modifiers *
+recursive-include jmbo/locale *
+recursive-include jmbo/migrations *
+recursive-include jmbo/static *
