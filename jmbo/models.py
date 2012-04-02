@@ -69,8 +69,8 @@ change to 'unpublished')."),
         blank=True,
         null=True,
         default='',
-        help_text=_('Some titles may be the same and cause confusion in admin UI. \
-A subtitle makes a distinction.'),
+        help_text=_('Some titles may be the same and cause confusion in admin \
+UI. A subtitle makes a distinction.'),
     )
     description = models.TextField(
         help_text=_('A short description. More verbose than the title but \
@@ -406,7 +406,9 @@ but users won't be able to add new likes."),
                 source_content_type=self.content_type,
                 source_object_id=self.id,
                 name=name
-            ).order_by('-target_object_id').values_list('target_object_id', flat=True)
+            ).order_by('-target_object_id').values_list(
+                'target_object_id', flat=True
+            )
             return ModelBase.permitted.filter(id__in=ids)
 
         elif direction == 'reverse':
@@ -414,11 +416,16 @@ but users won't be able to add new likes."),
                 target_content_type=self.content_type,
                 target_object_id=self.id,
                 name=name
-            ).order_by('-source_object_id').values_list('source_object_id', flat=True)
+            ).order_by('-source_object_id').values_list(
+                'source_object_id', flat=True
+            )
             return ModelBase.permitted.filter(id__in=ids)
 
         else:
             return ModelBase.permitted.none()
+
+    def get_permitted_related_items(self, name, direction='forward'):
+        return self.get_related_items(name, direction)
 
 
 class Pin(models.Model):
@@ -428,8 +435,8 @@ class Pin(models.Model):
 
 class Relation(models.Model):
     """Generic relation between two objects"""
-    # todo: this code is too generic and makes querying slow. Refactor to 
-    # only relate ModelBase to ModelBase. Migration management command will be 
+    # todo: this code is too generic and makes querying slow. Refactor to
+    # only relate ModelBase to ModelBase. Migration management command will be
     # required.
     source_content_type = models.ForeignKey(
         ContentType, related_name='relation_source_content_type'
