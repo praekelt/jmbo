@@ -37,7 +37,7 @@ class ObjectList(GenericObjectList):
 
     def get_extra_context(self, *args, **kwargs):
         # todo: use translated content type model verbose name plural
-        return {'title': 'Items'}
+        return {'title': 'Items', 'model':kwargs['model']}
 
 object_list = ObjectList()
 
