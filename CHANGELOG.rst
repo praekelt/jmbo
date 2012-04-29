@@ -1,8 +1,12 @@
 Changelog
 =========
 
-0.1.20 (unreleased)
--------------------
+next
+----
+#. Add Opengraph metadata tags to detail view.
+
+0.1.20
+------
 #. Bring pager HTML and CSS in line with django-pagination.
 #. Add wrapping div to comments UI.
 #. Fix admin interface bug where some fields were duplicated.
