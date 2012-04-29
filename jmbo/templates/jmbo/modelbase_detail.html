@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% load jmbo_inclusion_tags %} 
 
+{% block extrameta %}
+    <meta property="og:title" content="{{ object.title }}" />
+    <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
+    <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
+    <meta property="og:description" content="{{ object.description }}" />
+{% endblock %}
+
 {% block content %}
     <div class="page section_news object-detail {{ object.class_name.lower }}-detail">
 
