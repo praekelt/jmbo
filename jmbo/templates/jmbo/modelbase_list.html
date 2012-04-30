@@ -2,7 +2,7 @@
 {% load jmbo_inclusion_tags %} 
 
 {% block content %}
-    <div class="page section_news object-list {{ object.class_name.lower }}-list">
+    <div class="page section_news object-list {{ model.lower }}-list">
         
         {% if view_modifier %}
     	    <div class="title">
