@@ -23,6 +23,7 @@ setup(
         'django-preferences',
         'django-publisher',
         'django-likes',
+        'django-sites-groups',
         'south',
     ],
     include_package_data=True,
