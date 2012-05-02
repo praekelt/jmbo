@@ -8,12 +8,13 @@ from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from jmbo.models import ModelBase, Pin, Relation
-
 from category.models import Category
 from category.admin import CategoryAdmin
 from publisher.models import Publisher
 from photologue.admin import ImageOverrideInline
+from sites_groups.widgets import SitesGroupsWidget
+
+from jmbo.models import ModelBase, Pin, Relation
 
 
 def make_published(modeladmin, request, queryset):
@@ -36,6 +37,7 @@ class ModelBaseAdminForm(forms.ModelForm):
 
     class Meta:
         model = ModelBase
+        widgets = {'sites': SitesGroupsWidget}
 
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
