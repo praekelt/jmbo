@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.2
+---
 #. Add Opengraph metadata tags to detail view.
 #. Add dependency on django-sites-groups.
 #. Setup South migration chain.

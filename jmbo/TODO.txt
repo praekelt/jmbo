@@ -1,5 +1,5 @@
 1. Figure out featured. If featured is the same as pinned then 
 deprecate it.
-2. See id modelbase_list_wide is really needed.
+2. See if modelbase_list_wide is really needed.
 3. Investigate feasibility of smart_url. It feels a bit brutal and 
 only currently uses category view callable to determine url.
