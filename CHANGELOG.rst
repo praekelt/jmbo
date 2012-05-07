@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.1
+-----
+#. Find links in setup.py
+
 0.2
 ---
 #. Add Opengraph metadata tags to detail view.
