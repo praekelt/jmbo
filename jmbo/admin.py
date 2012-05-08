@@ -47,7 +47,7 @@ class ModelBaseAdminForm(forms.ModelForm):
         relations = Relation.objects.filter(source_content_type=content_type)
         names = set([o.name for o in relations])
         for name in names:
-            if not self.fields.has_key(name):
+            if name not in self.fields:
                 self.fields[name] = forms.ModelMultipleChoiceField(
                     ModelBase.objects.all().order_by('title', 'subtitle'),
                     required=False,
@@ -72,9 +72,10 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     actions = [make_published, make_staging, make_unpublished]
     inlines = [ImageOverrideInline, ]
-    list_display = ('title', 'subtitle', 'state', '_get_absolute_url', 'owner', 'created')
+    list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
+            'owner', 'created')
 
-    list_filter = ('state', 'created')
+    list_filter = ('state', 'created', 'categories',)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),
