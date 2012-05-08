@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.2.3 (2012-05-08)
+------------------
+#. render_object tag now fails with clear TemplateDoesNot exist exception.
+
+0.2.2
+-----
+#. Include category filtering in admin.
+
 0.2.1
 -----
 #. Find links in setup.py
