@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.4
+-----
+#. Remove dependency links in setup.py.
+
 0.2.3 (2012-05-08)
 ------------------
 #. render_object tag now fails with clear TemplateDoesNot exist exception.
