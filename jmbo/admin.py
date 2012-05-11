@@ -7,6 +7,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -31,6 +32,12 @@ def make_unpublished(modeladmin, request, queryset):
     queryset.update(state='unpublished')
 make_unpublished.short_description = "Mark selected items as unpublished"
 
+try:
+    from django.contrib.admin import SimpleListFilter
+    class CategoriesListFilter(object):
+        pass
+except ImportError:
+    CategoriesListFilter = 'categories'
 
 class ModelBaseAdminForm(forms.ModelForm):
     """Helper form for ModelBaseAdmin"""
@@ -75,7 +82,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
             'owner', 'created')
 
-    list_filter = ('state', 'created', 'categories',)
+    list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),
