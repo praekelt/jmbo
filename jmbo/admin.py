@@ -7,6 +7,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -15,6 +16,12 @@ from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Pin, Relation
+
+# Maintain backwards compatibility with Django version < 1.4
+try:
+    from django.contrib.admin import SimpleListFilter
+except ImportError:
+    CategoriesListFilter = 'categories'
 
 
 def make_published(modeladmin, request, queryset):
@@ -75,7 +82,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
             'owner', 'created')
 
-    list_filter = ('state', 'created', 'categories',)
+    list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),
