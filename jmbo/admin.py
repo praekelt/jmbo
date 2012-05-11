@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django import forms
 from django.contrib import admin
@@ -17,9 +18,33 @@ from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Pin, Relation
 
-# Maintain backwards compatibility with Django version < 1.4
+# Maintain backwards compatibility with Django versions < 1.4.
 try:
     from django.contrib.admin import SimpleListFilter
+
+    class CategoriesListFilter(SimpleListFilter):
+        title = "categories"
+        parameter_name = "category_slug"
+
+        def lookups(self, request, model_admin):
+            """
+            Returns a list of tuples. The first element in each
+            tuple is the coded value for the option that will
+            appear in the URL query. The second element is the
+            human-readable name for the option that will appear
+            in the right sidebar.
+            """
+            return ((category.slug, category.title) \
+                    for category in Category.objects.all())
+
+        def queryset(self, request, queryset):
+            """
+            Returns queryset filtered on categories and primary_category.
+            """
+            if self.value():
+                category = Category.objects.get(slug=self.value())
+                return queryset.filter(Q(primary_category=category) | \
+                        Q(categories=category))
 except ImportError:
     CategoriesListFilter = 'categories'
 
