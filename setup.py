@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.2.3',
+    version='0.2.5',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -11,13 +11,8 @@ setup(
     url='http://www.jmbo.org',
     packages = find_packages(),
     dependency_links = [
-        'http://github.com/praekelt/django-category/tarball/master#egg=django-category',
-        'http://github.com/praekelt/django-likes/tarball/master#egg=django-likes',
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
-        'http://github.com/praekelt/django-preferences/tarball/master#egg=django-preferences',
-        'http://github.com/praekelt/django-publisher/tarball/master#egg=django-publisher',
-        'http://github.com/praekelt/django-sites-groups/tarball/master#egg=django-sites-groups',
     ],
     install_requires = [
         'PIL',

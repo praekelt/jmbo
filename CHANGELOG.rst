@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.5 (2012-05-11)
+------------------
+#. Admin category filtering now filters on both categories and primary_category fields.
+
 0.2.3 (2012-05-08)
 ------------------
 #. render_object tag now fails with clear TemplateDoesNot exist exception.
