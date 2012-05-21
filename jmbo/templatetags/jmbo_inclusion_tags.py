@@ -2,6 +2,7 @@ from copy import copy
 
 from django import template
 from django.template import TemplateDoesNotExist
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
 
@@ -95,11 +96,16 @@ class RenderObjectNode(template.Node):
         try:
             response = render_to_string(template_name, context)
         except TemplateDoesNotExist:
-            template_name = "jmbo/inclusion_tags/modelbase_%s.html" % type
+            fallback_template_name = "jmbo/inclusion_tags/modelbase_%s.html" \
+                    % type
             try:
-                response = render_to_string(template_name, context)
+                response = render_to_string(fallback_template_name, context)
             except TemplateDoesNotExist:
-                response = ''
+                if settings.TEMPLATE_DEBUG:
+                    raise TemplateDoesNotExist({'resolved': template_name, \
+                            'fallback': fallback_template_name})
+                else:
+                    response = ''
 
         return response
 

@@ -1,9 +1,27 @@
 Changelog
 =========
 
-next
-----
+0.2.5 (2012-05-11)
+------------------
+#. Admin category filtering now filters on both categories and primary_category fields.
+
+0.2.3 (2012-05-08)
+------------------
+#. render_object tag now fails with clear TemplateDoesNot exist exception.
+
+0.2.2
+-----
+#. Include category filtering in admin.
+
+0.2.1
+-----
+#. Find links in setup.py
+
+0.2
+---
 #. Add Opengraph metadata tags to detail view.
+#. Add dependency on django-sites-groups.
+#. Setup South migration chain.
 
 0.1.20
 ------
