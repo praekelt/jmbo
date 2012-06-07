@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.2.6 (2012-06-07)
+------------------
+#. Add image_list_url to Modelbase.
+#. Pin django-setuptest to 0.0.6 because of issue in 0.0.7
+
 0.2.5 (2012-05-11)
 ------------------
 #. Admin category filtering now filters on both categories and primary_category fields.
