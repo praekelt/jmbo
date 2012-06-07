@@ -61,5 +61,21 @@
             "pre_cache": false, 
             "quality": 70
         }
+    },
+    {
+        "pk": null, 
+        "model": "photologue.photosize", 
+        "fields": {
+            "name": "modelbase_list", 
+            "watermark": null, 
+            "increment_count": false, 
+            "effect": null, 
+            "crop": true, 
+            "height": 64, 
+            "width": 64, 
+            "upscale": true, 
+            "pre_cache": false, 
+            "quality": 70
+        }
     }
 ]
