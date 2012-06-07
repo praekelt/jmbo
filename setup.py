@@ -27,7 +27,7 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'django-setuptest>=0.0.6',
+        'django-setuptest==0.0.6',
     ],
     test_suite="setuptest.SetupTestSuite",
     classifiers=[
