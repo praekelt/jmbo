@@ -10,6 +10,7 @@ from django.db.models import signals
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
+from django.core import serializers
 
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -438,6 +439,16 @@ but users won't be able to add new likes."),
 
     def get_permitted_related_items(self, name, direction='forward'):
         return self.get_related_items(name, direction)
+
+    @property
+    def as_json(self):
+        # Serializer must be installed
+        di = getattr(settings, 'SERIALIZATION_MODULES', {})
+        if not di.has_key('jmbo'):
+            raise RuntimeError, """You must add the jmbo serializer to the \
+SERIALIZATION_MODULES setting"""
+        json = serializers.get_serializer('jmbo')()
+        return json.serialize(self, ensure_ascii=False)
 
 
 class Pin(models.Model):

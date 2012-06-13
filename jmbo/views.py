@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.http import HttpResponse
 
 from category.models import Category
 from jmbo.generic.views import GenericObjectDetail, GenericObjectList
@@ -50,6 +51,11 @@ class ObjectPeek(GenericObjectDetail):
         return 'jmbo/modelbase_peek.html'
 
 object_peek = ObjectPeek()
+
+
+def as_json(self, slug):
+    obj = get_object_or_404(ModelBase, slug=slug)
+    return HttpResponse(obj.as_leaf_class().as_json) 
 
 
 class CategoryURL(object):

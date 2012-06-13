@@ -21,6 +21,12 @@ urlpatterns = patterns(
         name='object_peek'
     ),
     url(
+        r'^content/as-json/(?P<slug>[\w-]+)/$',
+        'as_json',
+        {},
+        name='as-json'
+    ),
+    url(
         r'^content/(?P<category_slug>[\w-]+)/list/$',
         'category_object_list',
         {},
