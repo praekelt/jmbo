@@ -53,9 +53,14 @@ class ObjectPeek(GenericObjectDetail):
 object_peek = ObjectPeek()
 
 
-def as_json(self, slug):
+def as_json(request, slug):
     obj = get_object_or_404(ModelBase, slug=slug)
-    return HttpResponse(obj.as_leaf_class().as_json) 
+    options = {}
+    for param in ('fields', 'properties'):
+        value = request.GET.get(param)
+        if value:
+            options[param] = value.split(',')
+    return HttpResponse(obj.as_leaf_class().as_json(**options))
 
 
 class CategoryURL(object):

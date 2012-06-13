@@ -440,15 +440,14 @@ but users won't be able to add new likes."),
     def get_permitted_related_items(self, name, direction='forward'):
         return self.get_related_items(name, direction)
 
-    @property
-    def as_json(self):
+    def as_json(self, **options):
         # Serializer must be installed
         di = getattr(settings, 'SERIALIZATION_MODULES', {})
         if not di.has_key('jmbo'):
             raise RuntimeError, """You must add the jmbo serializer to the \
 SERIALIZATION_MODULES setting"""
         json = serializers.get_serializer('jmbo')()
-        return json.serialize(self, ensure_ascii=False)
+        return json.serialize(self, ensure_ascii=False, **options)
 
 
 class Pin(models.Model):
