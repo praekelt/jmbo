@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django import forms
 from django.contrib import admin
@@ -7,6 +8,7 @@ from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -15,6 +17,36 @@ from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Pin, Relation
+
+# Maintain backwards compatibility with Django versions < 1.4.
+try:
+    from django.contrib.admin import SimpleListFilter
+
+    class CategoriesListFilter(SimpleListFilter):
+        title = "categories"
+        parameter_name = "category_slug"
+
+        def lookups(self, request, model_admin):
+            """
+            Returns a list of tuples. The first element in each
+            tuple is the coded value for the option that will
+            appear in the URL query. The second element is the
+            human-readable name for the option that will appear
+            in the right sidebar.
+            """
+            return ((category.slug, category.title) \
+                    for category in Category.objects.all())
+
+        def queryset(self, request, queryset):
+            """
+            Returns queryset filtered on categories and primary_category.
+            """
+            if self.value():
+                category = Category.objects.get(slug=self.value())
+                return queryset.filter(Q(primary_category=category) | \
+                        Q(categories=category))
+except ImportError:
+    CategoriesListFilter = 'categories'
 
 
 def make_published(modeladmin, request, queryset):
@@ -75,7 +107,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
             'owner', 'created')
 
-    list_filter = ('state', 'created', 'categories',)
+    list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),

@@ -397,6 +397,18 @@ but users won't be able to add new likes."),
             return getattr(self, method)()
         else:
             return getattr(self, 'get_modelbase_detail_url')()
+            
+    @property
+    def image_list_url(self):
+        """If a photosize is defined for the content type return the
+        corresponding image URL, else return modelbase detail default image
+        URL. This allows content types which may typically have images which
+        are not landscaped (eg human faces) to define their own sizes."""
+        method = 'get_%s_list_url' % self.__class__.__name__.lower()
+        if hasattr(self, method):
+            return getattr(self, method)()
+        else:
+            return getattr(self, 'get_modelbase_list_url')()
 
     def get_related_items(self, name, direction='forward'):
         """If direction is forward get items self points to by name name. If
