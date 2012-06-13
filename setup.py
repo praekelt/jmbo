@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.2.4',
+    version='0.2.6',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -27,7 +27,7 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'django-setuptest>=0.0.6',
+        'django-setuptest==0.0.6',
     ],
     test_suite="setuptest.SetupTestSuite",
     classifiers=[
