@@ -54,7 +54,7 @@ object_peek = ObjectPeek()
 
 
 def as_json(request, slug):
-    obj = get_object_or_404(ModelBase, slug=slug)
+    obj = get_object_or_404(ModelBase.permitted, slug=slug)
     options = {}
     for param in ('fields', 'properties'):
         value = request.GET.get(param)
