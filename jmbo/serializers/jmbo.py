@@ -54,8 +54,9 @@ class Serializer(JsonSerializer):
                 if field.serialize:
                     if self.selected_fields is None or field.attname in self.selected_fields:
                         self.handle_m2m_field(obj, field)
-            for prop in self.selected_properties:
-                self.handle_property(obj, prop)
+            if self.selected_properties:
+                for prop in self.selected_properties:
+                    self.handle_property(obj, prop)
             self.end_object(obj)
         self.end_serialization(single=not iterable)
         return self.getvalue()
