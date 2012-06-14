@@ -397,7 +397,7 @@ but users won't be able to add new likes."),
             return getattr(self, method)()
         else:
             return getattr(self, 'get_modelbase_detail_url')()
-            
+
     @property
     def image_list_url(self):
         """If a photosize is defined for the content type return the

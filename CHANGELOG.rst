@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.3 (2012-06-14)
+----------------
+#. django-tastypie support added
+
 0.2.6 (2012-06-07)
 ------------------
 #. Add image_list_url to Modelbase.
