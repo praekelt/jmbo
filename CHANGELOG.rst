@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add a decorator register_tag that can accept a softcoded list of templates.
+
 0.3 (2012-06-14)
 ----------------
 #. django-tastypie support added
