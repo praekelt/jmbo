@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.2.6',
+    version='0.3',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -24,6 +24,7 @@ setup(
         'django-publisher',
         'django-sites-groups',
         'south',
+        'django-tastypie',
     ],
     include_package_data=True,
     tests_require=[
