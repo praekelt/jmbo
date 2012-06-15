@@ -1,12 +1,67 @@
 from copy import copy
+from inspect import getargspec
 
 from django import template
 from django.template import TemplateDoesNotExist
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template.loader import render_to_string
+from django.template.context import Context
+from django.template import Node, generic_tag_compiler, Variable
+from django.utils.functional import curry
+from django.utils.itercompat import is_iterable
+
 
 register = template.Library()
+
+
+# Base the inclusion_tag decorator on Django's default register tag. We want 
+# to be able to dynamically compute a list of templates suitable for rendering.
+def inclusion_tag(register, context_class=Context, takes_context=False):
+    def dec(func):
+        params, xx, xxx, defaults = getargspec(func)
+        if takes_context:
+            if params[0] == 'context':
+                params = params[1:]
+            else:
+                raise TemplateSyntaxError("Any tag function decorated with takes_context=True must have a first argument of 'context'")
+
+        class InclusionNode(Node):
+            def __init__(self, vars_to_resolve):
+                self.vars_to_resolve = map(Variable, vars_to_resolve)
+
+            def render(self, context):
+                resolved_vars = [var.resolve(context) for var in self.vars_to_resolve]
+                if takes_context:
+                    args = [context] + resolved_vars
+                else:
+                    args = resolved_vars
+
+                # Only this line has been changed from the default
+                # register_tag
+                file_name, dict = func(*args)
+
+                if not getattr(self, 'nodelist', False):
+                    from django.template.loader import get_template, select_template
+                    if not isinstance(file_name, basestring) and is_iterable(file_name):
+                        t = select_template(file_name)
+                    else:
+                        t = get_template(file_name)
+                    self.nodelist = t.nodelist
+                new_context = context_class(dict, autoescape=context.autoescape)
+                # Copy across the CSRF token, if present, because inclusion
+                # tags are often used for forms, and we need instructions
+                # for using CSRF protection to be as simple as possible.
+                csrf_token = context.get('csrf_token', None)
+                if csrf_token is not None:
+                    new_context['csrf_token'] = csrf_token
+                return self.nodelist.render(new_context)
+
+        compile_func = curry(generic_tag_compiler, params, defaults, getattr(func, "_decorated_function", func).__name__, InclusionNode)
+        compile_func.__doc__ = func.__doc__
+        register.tag(getattr(func, "_decorated_function", func).__name__, compile_func)
+        return func
+    return dec
 
 
 @register.inclusion_tag('jmbo/inclusion_tags/content_list_gizmo.html', \
@@ -16,14 +71,19 @@ def content_list_gizmo(context, object_list):
     return context
 
 
-@register.inclusion_tag('jmbo/inclusion_tags/object_comments.html', \
-        takes_context=True)
+@inclusion_tag(register, takes_context=True)
 def object_comments(context, obj):
+    ctype = obj.content_type
+    template_name = [
+        "jmbo/inclusion_tags/%s/%s/object_comments.html" % (ctype.app_label, ctype.model),
+        "jmbo/inclusion_tags/%s/object_comments.html" % ctype.app_label,
+        "jmbo/inclusion_tags/object_comments.html"
+    ]
     context.update({
         'object': obj,
-        'can_render_comment_form': obj.can_comment(context['request'])
+        'can_render_comment_form': obj.can_comment(context['request']),
         })
-    return context
+    return template_name, context
 
 
 @register.inclusion_tag('jmbo/inclusion_tags/object_header.html', \
