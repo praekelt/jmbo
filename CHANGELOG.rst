@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.3.1 (2012-06-15)
+------------------
 #. Add a decorator register_tag that can accept a softcoded list of templates.
 
 0.3 (2012-06-14)
