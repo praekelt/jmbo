@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.3.2
+-----
+#. Use slug for lookups in tastypie API.
+
 0.3.1 (2012-06-15)
 ------------------
 #. Add a decorator register_tag that can accept a softcoded list of templates.
