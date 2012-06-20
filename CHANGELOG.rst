@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Use Pillow instead of PIL.
+
 0.3.2
 -----
 #. Use slug for lookups in tastypie API.

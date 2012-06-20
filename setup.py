@@ -15,7 +15,7 @@ setup(
         'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
     ],
     install_requires = [
-        'PIL',
+        'Pillow',
         'Django>=1.3',
         'django-category>=0.0.5',
         'django-likes',
