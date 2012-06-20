@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.3.3 (2012-06-20)
+------------------
 #. Use Pillow instead of PIL.
 
 0.3.2
