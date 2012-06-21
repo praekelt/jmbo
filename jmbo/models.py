@@ -1,8 +1,10 @@
+import types
 from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import comments
+from django.contrib.sites.models import Site, SiteManager
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
@@ -15,7 +17,7 @@ from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
 from secretballot.models import Vote
-from jmbo.managers import PermittedManager
+from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
 import jmbo.signals
 
@@ -25,7 +27,7 @@ class JmboPreferences(Preferences):
 
 
 class ModelBase(ImageModel):
-    objects = models.Manager()
+    objects = DefaultManager()
     permitted = PermittedManager()
 
     state = models.CharField(
@@ -439,6 +441,9 @@ but users won't be able to add new likes."),
     def get_permitted_related_items(self, name, direction='forward'):
         return self.get_related_items(name, direction)
 
+    def natural_key(self):
+        return (self.slug, )
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
@@ -489,6 +494,13 @@ def set_managers(sender, **kwargs):
 
 signals.class_prepared.connect(set_managers)
 
+
+# add natural_key to Django's Site model and manager
+Site.add_to_class('natural_key', lambda self: (self.domain, ))
+setattr(SiteManager, 'get_by_natural_key', types.MethodType(
+    lambda self, domain: self.get(domain=domain), SiteManager))
+    
+    
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
