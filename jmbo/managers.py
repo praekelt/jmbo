@@ -17,3 +17,10 @@ class PermittedManager(models.Manager):
         # Filter objects for current site.
         queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
         return queryset
+
+
+class DefaultManager(models.Manager):
+    
+    def get_by_natural_key(self, slug):
+        return self.get(slug=slug)
+
