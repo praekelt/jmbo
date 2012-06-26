@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.3.4 (2012-06-26)
+------------------
+#. Natural key support for dumping and loading data.
+
 0.3.3 (2012-06-20)
 ------------------
 #. Use Pillow instead of PIL.
