@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. publish_on and retract_on filters are now applied.
+
 0.3.4 (2012-06-26)
 ------------------
 #. Natural key support for dumping and loading data.
