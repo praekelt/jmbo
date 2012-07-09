@@ -485,6 +485,67 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
 
+    def test_publish_retract(self):
+        today = datetime.today()
+        yesterday = today - timedelta(days=1)
+        tomorrow = today + timedelta(days=1)
+
+        p1 = ModelBase(title='title', state='published')
+        p1.save()
+        p1.sites.add(self.web_site)
+        p1.save()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p1 in queryset)
+
+        p2 = ModelBase(title='title', state='published', publish_on=today)
+        p2.save()
+        p2.sites.add(self.web_site)
+        p2.save()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p2 in queryset)
+
+        p3 = ModelBase(title='title', state='published', retract_on=tomorrow)
+        p3.save()
+        p3.sites.add(self.web_site)
+        p3.save()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p3 in queryset)
+
+        p4 = ModelBase(title='title', state='published', publish_on=today, retract_on=tomorrow)
+        p4.save()
+        p4.sites.add(self.web_site)
+        p4.save()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p4 in queryset)
+
+        p5 = ModelBase(title='title', state='published', publish_on=tomorrow)
+        p5.save()
+        p5.sites.add(self.web_site)
+        p5.save()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p5 in queryset)
+
+        p6 = ModelBase(title='title', state='published', retract_on=today)
+        p6.save()
+        p6.sites.add(self.web_site)
+        p6.save()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p6 in queryset)
+        
+        p7 = ModelBase(title='title', state='published', publish_on=tomorrow, retract_on=tomorrow)
+        p7.save()
+        p7.sites.add(self.web_site)
+        p7.save()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p7 in queryset)
+        
+        p8 = ModelBase(title='title', state='published', publish_on=yesterday, retract_on=yesterday)
+        p8.save()
+        p8.sites.add(self.web_site)
+        p8.save()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p8 in queryset)
+
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')
         obj.save()

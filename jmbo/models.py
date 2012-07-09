@@ -47,12 +47,14 @@ item visible on staging instances."),
     publish_on = models.DateTimeField(
         blank=True,
         null=True,
+        db_index=True,
         help_text=_("Date and time on which to publish this item (state will \
 change to 'published')."),
     )
     retract_on = models.DateTimeField(
         blank=True,
         null=True,
+        db_index=True,
         help_text=_("Date and time on which to retract this item (state will \
 change to 'unpublished')."),
     )
