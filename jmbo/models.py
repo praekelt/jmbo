@@ -38,6 +38,7 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
+        editable=False,
         help_text=_("Set the item state. The 'Published' state makes the item \
 visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
 item visible on staging instances."),
@@ -234,12 +235,14 @@ but users won't be able to add new likes."),
         return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
+        now = datetime.now()
+
         # set created time to now if not already set.
         if not self.created:
-            self.created = datetime.now()
+            self.created = now
 
         # set modified to now on each save.
-        self.modified = datetime.now()
+        self.modified = now
 
         # set leaf class content type
         if not self.content_type:
@@ -252,6 +255,19 @@ but users won't be able to add new likes."),
 
         # set title as slug uniquely
         self.slug = generate_slug(self, self.title)
+
+        # Set state if possible
+        b = False
+        if self.publish_on or self.retract_on:
+            b = True
+            if self.publish_on:
+                b = b and (self.publish_on <= now)
+            if self.retract_on:
+                b = b and (self.retract_on > now)
+            if b and (self.state != 'published'):
+                self.state = 'published'
+            elif not b and (self.state != 'unpublished'):
+                self.state = 'unpublished'
 
         super(ModelBase, self).save(*args, **kwargs)
 
@@ -445,6 +461,18 @@ but users won't be able to add new likes."),
 
     def natural_key(self):
         return (self.slug, )
+    
+    def publish(self):
+        if self.state != 'published':
+            self.state = 'published'
+            self.publish_on = datetime.now()
+            self.save()
+
+    def unpublish(self):
+        if self.state != 'unpublished':
+            self.state = 'unpublished'
+            self.retract_on = datetime.now()
+            self.save()
 
 
 class Pin(models.Model):

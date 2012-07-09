@@ -1,8 +1,5 @@
-import datetime
-
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
 
 
 class PermittedManager(models.Manager):
@@ -19,14 +16,6 @@ class PermittedManager(models.Manager):
 
         # Filter objects for current site.
         queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
-
-        # Filter published date
-        now = datetime.datetime.now()
-        q1 = Q(publish_on__isnull=True, retract_on__isnull=True)
-        q2 = Q(publish_on__lte=now, retract_on__isnull=True)
-        q3 = Q(publish_on__isnull=True, retract_on__gt=now)
-        q4 = Q(publish_on__lte=now, retract_on__gt=now)
-        queryset = queryset.filter(q1|q2|q3|q4)
 
         return queryset
 

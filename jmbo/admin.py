@@ -50,17 +50,14 @@ except ImportError:
 
 
 def make_published(modeladmin, request, queryset):
-    queryset.update(state='published')
+    for obj in queryset:
+        obj.publish()
 make_published.short_description = "Mark selected items as published"
 
 
-def make_staging(modeladmin, request, queryset):
-    queryset.update(state='staging')
-make_staging.short_description = "Mark selected items as staging"
-
-
 def make_unpublished(modeladmin, request, queryset):
-    queryset.update(state='unpublished')
+    for obj in queryset:
+        obj.unpublish()
 make_unpublished.short_description = "Mark selected items as unpublished"
 
 
@@ -102,16 +99,16 @@ It is your responsibility to select the correct items."
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
 
-    actions = [make_published, make_staging, make_unpublished]
+    actions = [make_published, make_unpublished]
     inlines = [ImageOverrideInline, ]
-    list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
+    list_display = ('title', 'subtitle', 'state', 'publish_on', 'retract_on', '_get_absolute_url', \
             'owner', 'created')
 
     list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),
-        ('Publishing', {'fields': ('state', 'sites', 'publish_on', \
+        ('Publishing', {'fields': ('sites', 'publish_on', \
                 'retract_on', 'publishers'),
                     'classes': ('collapse',),
         }),
