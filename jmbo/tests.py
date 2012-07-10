@@ -495,6 +495,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         p1.save()
         p1.sites.add(self.web_site)
         p1.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failUnless(p1 in queryset)
 
@@ -502,20 +503,15 @@ class PermittedManagerTestCase(unittest.TestCase):
         p2.save()
         p2.sites.add(self.web_site)
         p2.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failUnless(p2 in queryset)
-
-        p3 = ModelBase(title='title', retract_on=tomorrow)
-        p3.save()
-        p3.sites.add(self.web_site)
-        p3.save()
-        queryset = ModelBase.permitted.all()
-        self.failUnless(p3 in queryset)
 
         p4 = ModelBase(title='title', publish_on=today, retract_on=tomorrow)
         p4.save()
         p4.sites.add(self.web_site)
         p4.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failUnless(p4 in queryset)
 
@@ -523,66 +519,35 @@ class PermittedManagerTestCase(unittest.TestCase):
         p5.save()
         p5.sites.add(self.web_site)
         p5.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failIf(p5 in queryset)
 
-        p6 = ModelBase(title='title', retract_on=today)
+        p6 = ModelBase(title='title', publish_on=yesterday, retract_on=today)
         p6.save()
         p6.sites.add(self.web_site)
         p6.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failIf(p6 in queryset)
-        
+
         p7 = ModelBase(title='title', publish_on=tomorrow, retract_on=tomorrow)
         p7.save()
         p7.sites.add(self.web_site)
         p7.save()
+        jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failIf(p7 in queryset)
-        
-        p8 = ModelBase(title='title', publish_on=yesterday, retract_on=yesterday)
+
+        p8 = ModelBase(
+            title='title', publish_on=yesterday, retract_on=yesterday
+        )
         p8.save()
         p8.sites.add(self.web_site)
         p8.save()
-        queryset = ModelBase.permitted.all()
-        self.failIf(p8 in queryset)
-
-        # Deliberately do something illogical
-        p9 = ModelBase(title='title', state='unpublished', publish_on=today)
-        p9.save()
-        p9.sites.add(self.web_site)
-        p9.save()
-        queryset = ModelBase.permitted.all()
-        self.failUnless(p9 in queryset)
-
-    def test_jmbo_publish(self):
-        today = datetime.today()
-        yesterday = today - timedelta(days=1)
-        tomorrow = today + timedelta(days=1)
-
-        p1 = ModelBase(title='title', publish_on=today)
-        p1.save()
-        p1.sites.add(self.web_site)        
-        p1.save()
-        # Drop to lower level API so we can emulate state between cron jobs
-        ModelBase.objects.filter(id=p1.id).update(state='unpublished')
-        queryset = ModelBase.permitted.all()
-        self.failIf(p1 in queryset)
-
-        p2 = ModelBase(title='title', publish_on=yesterday, retract_on=today)
-        p2.save()
-        p2.sites.add(self.web_site)        
-        p2.save()
-        # Drop to lower level API so we can emulate state between cron jobs
-        ModelBase.objects.filter(id=p2.id).update(state='published')
-        queryset = ModelBase.permitted.all()
-        self.failUnless(p2 in queryset)
-
-        # Run the management command
         jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
-        self.failUnless(p1 in queryset)       
-        self.failIf(p2 in queryset)       
+        self.failIf(p8 in queryset)
 
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')

@@ -448,7 +448,7 @@ but users won't be able to add new likes."),
 
     def natural_key(self):
         return (self.slug, )
-    
+
     def publish(self):
         if self.state != 'published':
             now = datetime.now()
@@ -518,8 +518,7 @@ signals.class_prepared.connect(set_managers)
 # add natural_key to Django's Site model and manager
 Site.add_to_class('natural_key', lambda self: (self.domain, ))
 SiteManager.get_by_natural_key = lambda self, domain: self.get(domain=domain)
-    
-    
+
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
