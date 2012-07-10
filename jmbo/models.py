@@ -256,19 +256,6 @@ but users won't be able to add new likes."),
         # set title as slug uniquely
         self.slug = generate_slug(self, self.title)
 
-        # Set state if possible
-        b = False
-        if self.publish_on or self.retract_on:
-            b = True
-            if self.publish_on:
-                b = b and (self.publish_on <= now)
-            if self.retract_on:
-                b = b and (self.retract_on > now)
-            if b and (self.state != 'published'):
-                self.state = 'published'
-            elif not b and (self.state != 'unpublished'):
-                self.state = 'unpublished'
-
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -464,16 +451,17 @@ but users won't be able to add new likes."),
     
     def publish(self):
         if self.state != 'published':
+            now = datetime.now()
             self.state = 'published'
-            self.publish_on = None
-            self.retract_on = None
+            self.publish_on = now
+            if self.retract_on and (self.retract_on <= now):
+                self.retract_on = None
             self.save()
 
     def unpublish(self):
         if self.state != 'unpublished':
             self.state = 'unpublished'
-            self.publish_on = None
-            self.retract_on = None
+            self.retract_on = datetime.now()
             self.save()
 
 
