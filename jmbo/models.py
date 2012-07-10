@@ -38,6 +38,7 @@ class ModelBase(ImageModel):
             ('staging', 'Staging'),
         ),
         default='unpublished',
+        editable=False,
         help_text=_("Set the item state. The 'Published' state makes the item \
 visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
 item visible on staging instances."),
@@ -47,12 +48,14 @@ item visible on staging instances."),
     publish_on = models.DateTimeField(
         blank=True,
         null=True,
+        db_index=True,
         help_text=_("Date and time on which to publish this item (state will \
 change to 'published')."),
     )
     retract_on = models.DateTimeField(
         blank=True,
         null=True,
+        db_index=True,
         help_text=_("Date and time on which to retract this item (state will \
 change to 'unpublished')."),
     )
@@ -232,12 +235,14 @@ but users won't be able to add new likes."),
         return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
+        now = datetime.now()
+
         # set created time to now if not already set.
         if not self.created:
-            self.created = datetime.now()
+            self.created = now
 
         # set modified to now on each save.
-        self.modified = datetime.now()
+        self.modified = now
 
         # set leaf class content type
         if not self.content_type:
@@ -444,6 +449,21 @@ but users won't be able to add new likes."),
     def natural_key(self):
         return (self.slug, )
 
+    def publish(self):
+        if self.state != 'published':
+            now = datetime.now()
+            self.state = 'published'
+            self.publish_on = now
+            if self.retract_on and (self.retract_on <= now):
+                self.retract_on = None
+            self.save()
+
+    def unpublish(self):
+        if self.state != 'unpublished':
+            self.state = 'unpublished'
+            self.retract_on = datetime.now()
+            self.save()
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
@@ -498,8 +518,7 @@ signals.class_prepared.connect(set_managers)
 # add natural_key to Django's Site model and manager
 Site.add_to_class('natural_key', lambda self: (self.domain, ))
 SiteManager.get_by_natural_key = lambda self, domain: self.get(domain=domain)
-    
-    
+
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
