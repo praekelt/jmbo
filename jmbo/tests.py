@@ -564,16 +564,25 @@ class PermittedManagerTestCase(unittest.TestCase):
         p1.save()
         p1.sites.add(self.web_site)        
         p1.save()
-        # Drop to lower level API so we can set publish_on and retract_on
-        #import pdb;pdb.set_trace()
+        # Drop to lower level API so we can emulate state between cron jobs
         ModelBase.objects.filter(id=p1.id).update(state='unpublished')
         queryset = ModelBase.permitted.all()
         self.failIf(p1 in queryset)
+
+        p2 = ModelBase(title='title', publish_on=yesterday, retract_on=today)
+        p2.save()
+        p2.sites.add(self.web_site)        
+        p2.save()
+        # Drop to lower level API so we can emulate state between cron jobs
+        ModelBase.objects.filter(id=p2.id).update(state='published')
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p2 in queryset)
 
         # Run the management command
         jmbo_publish.Command().handle()
         queryset = ModelBase.permitted.all()
         self.failUnless(p1 in queryset)       
+        self.failIf(p2 in queryset)       
 
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')

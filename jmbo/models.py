@@ -465,13 +465,15 @@ but users won't be able to add new likes."),
     def publish(self):
         if self.state != 'published':
             self.state = 'published'
-            self.publish_on = datetime.now()
+            self.publish_on = None
+            self.retract_on = None
             self.save()
 
     def unpublish(self):
         if self.state != 'unpublished':
             self.state = 'unpublished'
-            self.retract_on = datetime.now()
+            self.publish_on = None
+            self.retract_on = None
             self.save()
 
 

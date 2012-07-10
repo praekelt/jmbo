@@ -13,7 +13,9 @@ class Command(BaseCommand):
     @transaction.commit_on_success
     def handle(self, *args, **options):
         now = datetime.datetime.now()
+
         q1 = Q(publish_on__lte=now, retract_on__isnull=True)
-        q2 = Q(publish_on__isnull=True, retract_on__gt=now)
-        q3 = Q(publish_on__lte=now, retract_on__gt=now)
-        ModelBase.objects.filter(state='unpublished').filter(q1|q2|q3).update(state='published')
+        q2 = Q(publish_on__lte=now, retract_on__gt=now)
+        ModelBase.objects.filter(state='unpublished').filter(q1|q2).update(state='published')
+
+        ModelBase.objects.filter(state='published').filter(retract_on__lte=now).update(state='unpublished')
