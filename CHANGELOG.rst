@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Detail templates can now be customized per model. Create {app_label}/{model}_detail.html.
+
 0.3.4 (2012-06-26)
 ------------------
 #. Natural key support for dumping and loading data.

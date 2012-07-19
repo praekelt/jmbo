@@ -15,6 +15,11 @@ class ObjectDetail(GenericObjectDetail):
     def get_template_name(self, *args, **kwargs):
         return 'jmbo/modelbase_detail.html'
 
+    def get_template_name_field(self, *args, **kwargs):
+        """This hook allows the model to specify a detail template. When we
+        move to class-based generic views this magic will disappear."""
+        return 'template_name_field'
+
 object_detail = ObjectDetail()
 
 

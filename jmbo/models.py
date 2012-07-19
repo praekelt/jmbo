@@ -444,6 +444,14 @@ but users won't be able to add new likes."),
     def natural_key(self):
         return (self.slug, )
 
+    @property
+    def template_name_field(self):
+        """This hook allows the model to specify a detail template. When we
+        move to class-based generic views this magic will disappear."""
+        return '%s/%s_detail.html' % (
+            self.content_type.app_label, self.content_type.model
+        )
+
 
 class Pin(models.Model):
     content = models.ForeignKey(ModelBase)
@@ -498,8 +506,8 @@ signals.class_prepared.connect(set_managers)
 # add natural_key to Django's Site model and manager
 Site.add_to_class('natural_key', lambda self: (self.domain, ))
 SiteManager.get_by_natural_key = lambda self, domain: self.get(domain=domain)
-    
-    
+
+
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
