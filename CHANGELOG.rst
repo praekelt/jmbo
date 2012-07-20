@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Detail templates can now be customized per model. Create {app_label}/{model}_detail.html.
+#. publish_on and retract_on filters are now applied.
 
 0.3.4 (2012-06-26)
 ------------------

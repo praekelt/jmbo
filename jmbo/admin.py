@@ -9,6 +9,7 @@ from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -50,17 +51,14 @@ except ImportError:
 
 
 def make_published(modeladmin, request, queryset):
-    queryset.update(state='published')
+    for obj in queryset:
+        obj.publish()
 make_published.short_description = "Mark selected items as published"
 
 
-def make_staging(modeladmin, request, queryset):
-    queryset.update(state='staging')
-make_staging.short_description = "Mark selected items as staging"
-
-
 def make_unpublished(modeladmin, request, queryset):
-    queryset.update(state='unpublished')
+    for obj in queryset:
+        obj.unpublish()
 make_unpublished.short_description = "Mark selected items as unpublished"
 
 
@@ -102,16 +100,17 @@ It is your responsibility to select the correct items."
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
 
-    actions = [make_published, make_staging, make_unpublished]
+    actions = [make_published, make_unpublished]
     inlines = [ImageOverrideInline, ]
-    list_display = ('title', 'subtitle', 'state', '_get_absolute_url', \
-            'owner', 'created')
+    list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
+        '_get_absolute_url', 'owner', 'created', '_actions'
+    )
 
     list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description', )}),
-        ('Publishing', {'fields': ('state', 'sites', 'publish_on', \
+        ('Publishing', {'fields': ('sites', 'publish_on', \
                 'retract_on', 'publishers'),
                     'classes': ('collapse',),
         }),
@@ -216,6 +215,24 @@ class ModelBaseAdmin(admin.ModelAdmin):
         return '<a href="%s" target="public">%s</a>' % (url, url)
     _get_absolute_url.short_description = 'Permalink'
     _get_absolute_url.allow_tags = True
+
+    def _actions(self, obj):
+        # Deliberately add simple inline javascript here to avoid having to
+        # customize change_list.html.
+        result = ''
+        if obj.state == 'unpublished':
+            url = "%s?id=%s" % (reverse('jmbo-publish-ajax'), obj.id)
+            result += '''<a href="%s" \
+onclick="$.get('%s'); $(this).replaceWith('Published'); return false;">
+Publish</a><br />''' % (url, url)
+        if obj.state == 'published':
+            url = "%s?id=%s" % (reverse('jmbo-unpublish-ajax'), obj.id)
+            result += '''<a href="%s" \
+onclick="$.get('%s'); $(this).replaceWith('Unpublished'); return false;">
+Unpublish</a><br />''' % (url, url)
+        return result
+    _actions.short_description = 'Actions'
+    _actions.allow_tags = True
 
 
 class PinInline(admin.TabularInline):

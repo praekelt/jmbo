@@ -42,4 +42,20 @@ urlpatterns = patterns(
         {},
         name='category_object_detail'
     ),
+
+    # Admin ajax urls
+    (
+        r'^admin/jmbo/publish-ajax/$',
+        'jmbo.admin_views.publish_ajax',
+        {},
+        'jmbo-publish-ajax',
+    ),
+
+    (
+        r'^admin/jmbo/unpublish-ajax/$',
+        'jmbo.admin_views.unpublish_ajax',
+        {},
+        'jmbo-unpublish-ajax',
+    ),
+
 )
