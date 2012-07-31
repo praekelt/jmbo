@@ -1,10 +1,11 @@
 Changelog
 =========
 
-next
-----
+0.4
+---
 #. Detail templates can now be customized per model. Create {app_label}/{model}_detail.html.
-#. publish_on and retract_on filters are now applied.
+#. publish_on and retract_on filters are now applied via management command `jmbo_publish`. Run it via cron.
+#. Published state is not directly editable through change form anymore. It is now an action.
 
 0.3.4 (2012-06-26)
 ------------------
