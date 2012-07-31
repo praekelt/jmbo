@@ -20,6 +20,7 @@ from django.test.client import Client
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
 from jmbo.utils.tests import RequestFactory
+from jmbo.management.commands import jmbo_publish
 
 from photologue.models import PhotoSize
 from secretballot.models import Vote
@@ -484,6 +485,69 @@ class PermittedManagerTestCase(unittest.TestCase):
         published_obj_mobile.save()
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
+
+    def test_publish_retract(self):
+        today = datetime.today()
+        yesterday = today - timedelta(days=1)
+        tomorrow = today + timedelta(days=1)
+
+        p1 = ModelBase(title='title', state='published')
+        p1.save()
+        p1.sites.add(self.web_site)
+        p1.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p1 in queryset)
+
+        p2 = ModelBase(title='title', publish_on=today)
+        p2.save()
+        p2.sites.add(self.web_site)
+        p2.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p2 in queryset)
+
+        p4 = ModelBase(title='title', publish_on=today, retract_on=tomorrow)
+        p4.save()
+        p4.sites.add(self.web_site)
+        p4.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failUnless(p4 in queryset)
+
+        p5 = ModelBase(title='title', publish_on=tomorrow)
+        p5.save()
+        p5.sites.add(self.web_site)
+        p5.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p5 in queryset)
+
+        p6 = ModelBase(title='title', publish_on=yesterday, retract_on=today)
+        p6.save()
+        p6.sites.add(self.web_site)
+        p6.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p6 in queryset)
+
+        p7 = ModelBase(title='title', publish_on=tomorrow, retract_on=tomorrow)
+        p7.save()
+        p7.sites.add(self.web_site)
+        p7.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p7 in queryset)
+
+        p8 = ModelBase(
+            title='title', publish_on=yesterday, retract_on=yesterday
+        )
+        p8.save()
+        p8.sites.add(self.web_site)
+        p8.save()
+        jmbo_publish.Command().handle()
+        queryset = ModelBase.permitted.all()
+        self.failIf(p8 in queryset)
 
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')
