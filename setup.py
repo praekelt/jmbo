@@ -16,7 +16,7 @@ setup(
     ],
     install_requires = [
         'Pillow',
-        'Django>=1.4',
+        'Django==1.4.1',
         'django-category>=0.0.5',
         'django-likes',
         'django-photologue>=2.6.praekelt',
