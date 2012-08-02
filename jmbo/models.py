@@ -13,6 +13,7 @@ from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
 
+from atlas.models import Location
 from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
@@ -177,6 +178,12 @@ when disabled."),
         help_text=_("Close liking for this item. Likes will still display, \
 but users won't be able to add new likes."),
         default=False,
+    )
+    location = models.ForeignKey(
+        Location,
+        blank=True,
+        null=True,
+        help_text=_("A location that can be used for content filtering."),
     )
 
     class Meta:

@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.db import models
+from django.contrib.gis.db.models import GeoManager
 
 
-class PermittedManager(models.Manager):
+class PermittedManager(GeoManager):
     def get_query_set(self):
         # Get base queryset and exclude based on state.
         queryset = super(PermittedManager, self).get_query_set().exclude(
@@ -20,7 +21,7 @@ class PermittedManager(models.Manager):
         return queryset
 
 
-class DefaultManager(models.Manager):
+class DefaultManager(GeoManager):
 
     def get_by_natural_key(self, slug):
         return self.get(slug=slug)
