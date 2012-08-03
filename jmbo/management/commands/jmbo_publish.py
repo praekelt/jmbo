@@ -16,6 +16,6 @@ class Command(BaseCommand):
 
         q1 = Q(publish_on__lte=now, retract_on__isnull=True)
         q2 = Q(publish_on__lte=now, retract_on__gt=now)
-        ModelBase.objects.filter(state='unpublished').filter(q1|q2).update(state='published')
+        ModelBase.objects.filter(state='unpublished').filter(q1 | q2).update(state='published')
 
         ModelBase.objects.filter(state='published').filter(retract_on__lte=now).update(state='unpublished')
