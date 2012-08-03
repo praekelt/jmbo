@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.5
+---
+#. Django 1.4 compatible release. Django 1.4 is now required.
+
 0.4
 ---
 #. Detail templates can now be customized per model. Create {app_label}/{model}_detail.html.
