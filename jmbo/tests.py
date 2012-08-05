@@ -16,6 +16,7 @@ from django.template import Template
 from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.test.client import Client
+from django.contrib.gis.geos import fromstr
 
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
@@ -24,6 +25,7 @@ from jmbo.management.commands import jmbo_publish
 
 from photologue.models import PhotoSize
 from secretballot.models import Vote
+from atlas.models import Location, City, Country
 
 
 class DummyRelationalModel1(models.Model):
@@ -619,3 +621,32 @@ class TemplateTagsTestCase(unittest.TestCase):
 {% smart_url url_callable object %}")
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel')
+
+
+class LocationAwarenessTestCase(unittest.TestCase):
+    def setUp(self):
+        country = Country(name="South Africa", country_code="ZA")
+        country.save()
+        self.ct = City(
+            name="Cape Town",
+            country=country,
+            coordinates=fromstr('POINT(18.423218 -33.925839)', srid=4326)
+        )
+        self.ct.save()
+        loc1 = Location(
+            city=self.ct,
+            country=country,
+            coordinates=fromstr('POINT(18.41 -33.91)', srid=4326),
+            name='loc1'
+        )
+        loc1.save()
+        self.model = ModelBase(title="title1", location=loc1)
+        self.model.save()
+
+    def test_distance_calculation(self):
+        qs = ModelBase.objects.distance(self.ct.coordinates)
+        for obj in qs:
+            if obj.distance is not None:
+                self.assertEqual(obj.location.coordinates.distance(self.ct.coordinates), obj.distance)
+        
+        

@@ -11,17 +11,23 @@ class LocationAwareQuerySet(GeoQuerySet):
     
     # annotates each object with a distance attribute
     def distance(self, point):
+        # Join location attributes
         qs = self.select_related("location")
+        
+        # Calculate spherical distance and store in distance attribute
         if DB_ENGINE.rfind('postgis') >= 0:
-            return qs.extra(select={'distance':
-                    'ST_Distance("atlas_location"."coordinates", ST_GeomFromText(\'%s\', %d))'
-                    % (str(point), point.srid)})
+            sql = 'ST_Distance_Sphere("atlas_location"."coordinates", ST_GeomFromText(\'%s\', %d))' \
+                    % (str(point), point.srid)
         elif DB_ENGINE.rfind('mysql') >= 0:
-            return qs.extra(select={'distance':
-                    'distance_sphere(`atlas_location`.`coordinates`, geomfromtext(\'%s\', %d))'
-                    % (str(point), point.srid)})
+            sql = 'distance_sphere(`atlas_location`.`coordinates`, geomfromtext(\'%s\', %d))' \
+                    % (str(point), point.srid)
+        elif DB_ENGINE.rfind('spatialite') >= 0:
+            sql = 'ST_Distance("atlas_location"."coordinates", ST_GeomFromText(\'%s\', %d))' \
+                    % (str(point), point.srid)
         else:
             raise ValueError("Distance calculations are not supported for ModelBase using this database.")
+        
+        return qs.extra(select={'distance': sql})
 
 
 class LocationAwareManager(GeoManager):
