@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = ( 
+        ("atlas", "0003_auto__chg_field_location_city"),
+    ) 
+
     def forwards(self, orm):
         # Adding field 'ModelBase.location'
         db.add_column('jmbo_modelbase', 'location',
