@@ -294,7 +294,13 @@ but users won't be able to add new likes."),
         if self.__class__ == ModelBase:
             return self
         else:
-            return self.modelbase_ptr
+            '''
+            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since 
+            the name of the link could be different
+            '''
+            link_name = self._meta.get_ancestor_link(ModelBase).name
+            return getattr(self, link_name)
+            
 
     def can_vote(self, request):
         """
