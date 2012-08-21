@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django import template
 from django.utils.translation import ugettext as _
+from django.utils import timezone
 
 from jmbo.models import Relation
 
@@ -79,7 +80,7 @@ class HumanizeTimeDifference(template.Node):
 
     def humanize(self, date_obj, suffix):
         if date_obj:
-            time_difference = datetime.now() - date_obj
+            time_difference = timezone.now() - date_obj
             days = time_difference.days
             hours = time_difference.seconds / 3600
             minutes = time_difference.seconds % 3600 / 60
