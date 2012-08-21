@@ -99,6 +99,7 @@ It is your responsibility to select the correct items."
 
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
+    change_form_template = 'admin/jmbo/extras/change_form.html'
 
     actions = [make_published, make_unpublished]
     inlines = [ImageOverrideInline, ]
@@ -193,6 +194,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
             change
         )
 
+        if hasattr(request, 'POST'):
+            if '_save_and_publish' in request.POST:
+                obj.publish()
+            elif '_save_and_unpublish' in request.POST:
+                obj.unpublish()
+
         content_type = ContentType.objects.get_for_model(self.model)
         relations = Relation.objects.filter(source_content_type=content_type)
         names = set([o.name for o in relations])
@@ -223,12 +230,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
         if obj.state == 'unpublished':
             url = "%s?id=%s" % (reverse('jmbo-publish-ajax'), obj.id)
             result += '''<a href="%s" \
-onclick="django.jQuery.get('%s'); $(this).replaceWith('Published'); return false;">
+onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Published'); return false;">
 Publish</a><br />''' % (url, url)
         if obj.state == 'published':
             url = "%s?id=%s" % (reverse('jmbo-unpublish-ajax'), obj.id)
             result += '''<a href="%s" \
-onclick="django.jQuery.get('%s'); $(this).replaceWith('Unpublished'); return false;">
+onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Unpublished'); return false;">
 Unpublish</a><br />''' % (url, url)
         return result
     _actions.short_description = 'Actions'
