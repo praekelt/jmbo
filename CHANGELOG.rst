@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Use django.jQuery instead of $ to trigger publish ajax call. $ is not necessarily available.
+
 0.5.1 (2012-08-20)
 ------------------
 #. ``on_likes_enabled_test`` and ``on_can_vote_test`` signal receivers now only checks ``ModelBase`` based objects. Also updated for compatibility with ``django-likes`` 0.0.8, which updated its signal's ``obj`` param to conventional ``instance``. ``django-likes`` >= 0.0.8 is now required for correct operation.
