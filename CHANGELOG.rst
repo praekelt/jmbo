@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.5.2
+-----
 #. Use django.jQuery instead of $ to trigger publish ajax call. $ is not necessarily available.
 
 0.5.1 (2012-08-20)
