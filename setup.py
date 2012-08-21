@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.5',
+    version='0.5.1',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -19,7 +19,7 @@ setup(
         'Django==1.4',
         'django-atlas',
         'django-category>=0.0.5',
-        'django-likes',
+        'django-likes>=0.0.8',
         'django-photologue>=2.6.praekelt',
         'django-preferences',
         'django-publisher',
