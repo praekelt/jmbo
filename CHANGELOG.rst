@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add `Save and publish` and `Save and unpublish` buttons to edit form.
+
 0.5.2
 -----
 #. Use django.jQuery instead of $ to trigger publish ajax call. $ is not necessarily available.

@@ -99,6 +99,7 @@ It is your responsibility to select the correct items."
 
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
+    change_form_template = 'admin/jmbo/extras/change_form.html'
 
     actions = [make_published, make_unpublished]
     inlines = [ImageOverrideInline, ]
@@ -192,6 +193,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
             form,
             change
         )
+
+        if '_save_and_publish' in request.POST:
+            obj.publish()
+        elif '_save_and_unpublish' in request.POST:
+            obj.unpublish()
 
         content_type = ContentType.objects.get_for_model(self.model)
         relations = Relation.objects.filter(source_content_type=content_type)
