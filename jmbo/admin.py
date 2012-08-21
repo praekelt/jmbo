@@ -223,12 +223,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
         if obj.state == 'unpublished':
             url = "%s?id=%s" % (reverse('jmbo-publish-ajax'), obj.id)
             result += '''<a href="%s" \
-onclick="$.get('%s'); $(this).replaceWith('Published'); return false;">
+onclick="django.jQuery.get('%s'); $(this).replaceWith('Published'); return false;">
 Publish</a><br />''' % (url, url)
         if obj.state == 'published':
             url = "%s?id=%s" % (reverse('jmbo-unpublish-ajax'), obj.id)
             result += '''<a href="%s" \
-onclick="$.get('%s'); $(this).replaceWith('Unpublished'); return false;">
+onclick="django.jQuery.get('%s'); $(this).replaceWith('Unpublished'); return false;">
 Unpublish</a><br />''' % (url, url)
         return result
     _actions.short_description = 'Actions'
