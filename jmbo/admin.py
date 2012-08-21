@@ -194,10 +194,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
             change
         )
 
-        if '_save_and_publish' in request.POST:
-            obj.publish()
-        elif '_save_and_unpublish' in request.POST:
-            obj.unpublish()
+        if hasattr(request, 'POST'):
+            if '_save_and_publish' in request.POST:
+                obj.publish()
+            elif '_save_and_unpublish' in request.POST:
+                obj.unpublish()
 
         content_type = ContentType.objects.get_for_model(self.model)
         relations = Relation.objects.filter(source_content_type=content_type)
