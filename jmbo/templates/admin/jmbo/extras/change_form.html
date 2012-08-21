@@ -1,0 +1,10 @@
+{% extends "admin/change_form.html" %}
+{% comment %}
+We need to add an extra submit button called "Save and publish".
+{% endcomment %}
+
+{% load jmbo_admin_modify %}
+
+{% block submit_buttons_top %}{% submit_row %}{% endblock %}
+
+{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
