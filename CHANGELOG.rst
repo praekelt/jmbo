@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+0.5.3
+-----
 #. Add `Save and publish` and `Save and unpublish` buttons to edit form.
 
 0.5.2
