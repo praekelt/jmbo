@@ -80,7 +80,7 @@ class HumanizeTimeDifference(template.Node):
 
     def humanize(self, date_obj, suffix):
         if date_obj:
-            if timezone.is_aware(date_obj):
+            if isinstance(date_obj, datetime) and timezone.is_aware(date_obj):
                 time_difference = timezone.now() - date_obj
             else:
                 time_difference = datetime.now() - date_obj
