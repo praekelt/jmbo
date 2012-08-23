@@ -80,7 +80,10 @@ class HumanizeTimeDifference(template.Node):
 
     def humanize(self, date_obj, suffix):
         if date_obj:
-            time_difference = timezone.now() - date_obj
+            if timezone.is_aware(date_obj):
+                time_difference = timezone.now() - date_obj
+            else:
+                time_difference = datetime.now() - date_obj
             days = time_difference.days
             hours = time_difference.seconds / 3600
             minutes = time_difference.seconds % 3600 / 60
