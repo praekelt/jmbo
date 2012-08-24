@@ -537,8 +537,8 @@ signals.class_prepared.connect(set_managers)
 
 
 # add natural_key to Django's Site model and manager
-Site.add_to_class('natural_key', lambda self: (self.domain, ))
-SiteManager.get_by_natural_key = lambda self, domain: self.get(domain=domain)
+Site.add_to_class('natural_key', lambda self: (self.domain, self.name))
+SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=domain, name=name)
 
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
