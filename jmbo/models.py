@@ -202,7 +202,14 @@ but users won't be able to add new likes."),
             model = content_type.model_class()
             if(model == ModelBase):
                 return self
-            return model.objects.get(id=self.id)
+            instance = model.objects.get(id=self.id)
+            '''
+            If distance was dynamically added to this object,
+            it needs to be added to the leaf object as well
+            '''
+            if getattr(self, "distance", None):
+                instance.distance = self.distance
+            return instance
 
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
