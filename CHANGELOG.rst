@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.5.4
+-----
+#. Pin Django on 1.4.x range.
+
 0.5.3
 -----
 #. Add `Save and publish` and `Save and unpublish` buttons to edit form.
