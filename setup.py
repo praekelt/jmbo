@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.5.3',
+    version='0.5.4',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -16,7 +16,7 @@ setup(
     ],
     install_requires = [
         'Pillow',
-        'django',
+        'django>=1.4,<1.5',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
         'django-photologue>=2.6.praekelt',
