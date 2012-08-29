@@ -16,7 +16,7 @@ setup(
     ],
     install_requires = [
         'Pillow',
-        'Django==1.4',
+        'django',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
         'django-photologue>=2.6.praekelt',
@@ -28,9 +28,9 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'django-setuptest==0.0.6',
+        'django-setuptest>=0.0.6',
     ],
-    test_suite="setuptest.SetupTestSuite",
+    test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: BSD License",
