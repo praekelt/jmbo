@@ -12,6 +12,7 @@ from django.db.models import signals
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
+from django.utils import timezone
 
 from atlas.models import Location
 from photologue.models import ImageModel
@@ -249,7 +250,7 @@ but users won't be able to add new likes."),
         return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
-        now = datetime.now()
+        now = timezone.now()
 
         # set created time to now if not already set.
         if not self.created:
@@ -471,7 +472,7 @@ but users won't be able to add new likes."),
 
     def publish(self):
         if self.state != 'published':
-            now = datetime.now()
+            now = timezone.now()
             self.state = 'published'
             self.publish_on = now
             if self.retract_on and (self.retract_on <= now):
@@ -481,7 +482,7 @@ but users won't be able to add new likes."),
     def unpublish(self):
         if self.state != 'unpublished':
             self.state = 'unpublished'
-            self.retract_on = datetime.now()
+            self.retract_on = timezone.now()
             self.save()
 
     @property
