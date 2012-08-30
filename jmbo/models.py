@@ -207,7 +207,7 @@ but users won't be able to add new likes."),
             If distance was dynamically added to this object,
             it needs to be added to the leaf object as well
             '''
-            if getattr(self, "distance", None):
+            if hasattr(self, "distance"):
                 instance.distance = self.distance
             return instance
 
