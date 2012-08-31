@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. `modelbase_detail` inclusion template now has a block for easier re-use.
+
 0.5.4
 -----
 #. Pin Django on 1.4.x range.
