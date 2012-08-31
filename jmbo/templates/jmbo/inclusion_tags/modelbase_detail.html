@@ -4,7 +4,9 @@
             <img src="{{ object.image_detail_url }}" />
         {% endif %}
         {% if object.description %}
-            <p>{{ object.description|linebreaks }}</p>
+            <div class="description">
+                {{ object.description|linebreaks }}
+            </div>
         {% endif %}
     {% endblock %}    
     <div class="clear"></div>
