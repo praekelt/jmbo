@@ -8,7 +8,7 @@ from django.contrib.sites.models import Site, SiteManager
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
-from django.db.models import signals
+from django.db.models import signals, Sum
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
@@ -362,12 +362,13 @@ but users won't be able to add new likes."),
     @property
     def vote_total(self):
         """
-        Calculates vote total as total_upvotes - total_downvotes. We are
+        Calculates vote total (+1 for upvote and -1 for downvote). We are
         adding a method here instead of relying on django-secretballot's
         addition since that doesn't work for subclasses.
         """
-        return self.votes.filter(vote=+1).count() - \
-                self.votes.filter(vote=-1).count()
+        votes = Vote.objects.filter(object_id= \
+            self.id).aggregate(Sum('vote'))['vote__sum']
+        return votes if votes else 0
 
     @property
     def comment_count(self):
