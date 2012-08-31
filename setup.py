@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.5.3',
+    version='0.5.4',
     description='Jmbo base app.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -16,7 +16,7 @@ setup(
     ],
     install_requires = [
         'Pillow',
-        'Django==1.4',
+        'django>=1.4,<1.5',
         'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
@@ -29,10 +29,10 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'django-setuptest==0.0.6',
         'pysqlite>=2.5',
+        'django-setuptest>=0.0.6',
     ],
-    test_suite="setuptest.SetupTestSuite",
+    test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: BSD License",
