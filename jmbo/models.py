@@ -399,7 +399,7 @@ but users won't be able to add new likes."),
         corresponding image URL, else return modelbase detail default image
         URL. This allows content types which may typically have images which
         are not landscaped (eg human faces) to define their own sizes."""
-        method = 'get_%s_detail_url' % self.__class__.__name__.lower()
+        method = 'get_%s_detail_url' % self.as_leaf_class().__class__.__name__.lower()
         if hasattr(self, method):
             return getattr(self, method)()
         else:
@@ -411,7 +411,7 @@ but users won't be able to add new likes."),
         corresponding image URL, else return modelbase detail default image
         URL. This allows content types which may typically have images which
         are not landscaped (eg human faces) to define their own sizes."""
-        method = 'get_%s_list_url' % self.__class__.__name__.lower()
+        method = 'get_%s_list_url' % self.as_leaf_class().__class__.__name__.lower()
         if hasattr(self, method):
             return getattr(self, method)()
         else:
