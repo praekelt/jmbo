@@ -97,6 +97,13 @@ def object_header(context, obj):
     return context
 
 
+@register.inclusion_tag('jmbo/inclusion_tags/object_footer.html', \
+        takes_context=True)
+def object_footer(context, obj):
+    context.update({'object': obj})
+    return context
+
+
 @register.tag
 def pager(parser, token):
     """

@@ -5,6 +5,7 @@ next
 ----
 #. `modelbase_detail` inclusion template now has a block for easier re-use.
 #. Simplified paginator. No more breadcrumbs.
+#. Introduce `object_footer` template which shows sharing links.
 
 0.5.4
 -----
