@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. `modelbase_detail` inclusion template now has a block for easier re-use.
+#. Simplified paginator. No more breadcrumbs.
 
 0.5.4
 -----
