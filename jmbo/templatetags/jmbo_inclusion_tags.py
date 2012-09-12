@@ -83,9 +83,11 @@ def object_comments(context, obj):
         "jmbo/inclusion_tags/%s/object_comments.html" % ctype.app_label,
         "jmbo/inclusion_tags/object_comments.html"
     ]
+    can_comment, code = obj.can_comment(context['request'])
     context.update({
         'object': obj,
-        'can_render_comment_form': obj.can_comment(context['request']),
+        'can_render_comment_form': can_comment,
+        'can_comment_code': code
         })
     return template_name, context
 
