@@ -1,24 +1,25 @@
+{% comment %}
+1. Remove breadcrumbs.
+2. First and last links.
+{% endcomment %}
 
 {% if page_obj.has_other_pages %}
 
     {% load jmbo_template_tags i18n %}
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="{% smart_query_string 'page' page_obj.previous_page_number %}" class="prev">&lsaquo;&lsaquo; {% trans "previous" %}</a>
+            <a href="{% smart_query_string 'page' 1 %}" class="first">&lsaquo;&lsaquo; {% trans "first" %}</a>
+            <a href="{% smart_query_string 'page' page_obj.previous_page_number %}" class="prev">&lsaquo; {% trans "previous" %}</a>
         {% else %}
-            <span class="disabled prev">&lsaquo;&lsaquo; {% trans "previous" %}</span>
+            <span class="disabled first">&lsaquo;&lsaquo; {% trans "first" %}</span>
+            <span class="disabled prev">&lsaquo; {% trans "previous" %}</span>
         {% endif %}
-        {% for page_number in page_obj.paginator.page_range %}
-            {% ifequal page_obj.number page_number %}
-                <span class="current page">{{ page_number }}</span>
-            {% else %}
-                <a href="{% smart_query_string 'page' page_number %}" class="page">{{ page_number }}</a>
-            {% endifequal %}
-        {% endfor %}
         {% if page_obj.has_next %}
-            <a href="{% smart_query_string 'page' page_obj.next_page_number %}" class="next">{% trans "next" %} &rsaquo;&rsaquo;</a>
+            <a href="{% smart_query_string 'page' page_obj.next_page_number %}" class="next">{% trans "next" %} &rsaquo;</a>
+            <a href="{% smart_query_string 'page' page_obj.paginator.num_pages %}" class="last">{% trans "last" %} &rsaquo;&rsaquo;</a>
         {% else %}
-            <span class="disabled next">{% trans "next" %} &rsaquo;&rsaquo;</span>
+            <span class="disabled next">{% trans "next" %} &rsaquo;</span>
+            <span class="disabled last">{% trans "last" %} &rsaquo;&rsaquo;</span>
         {% endif %}
     </div>
 

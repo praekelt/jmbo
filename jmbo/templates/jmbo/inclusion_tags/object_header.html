@@ -7,9 +7,11 @@
 
 	<div class="meta">
 
+        {% comment %}
         <div class="byline">
             {% blocktrans %}By{% endblocktrans %} <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> {% blocktrans %}on{% endblocktrans %} {{ object.created|date:"j F Y" }}
         </div>
+        {% endcomment %}
 
         {% if object.comments_enabled %}
         <div class="comments">
@@ -27,17 +29,4 @@
 
     </div>
 
-    {% comment %}
-	<p class="social">
-	    <a href="javascript: void(0);" class="social_share">Share</a>
-		<a href="#contribute" class="social_comments">Comments</a>
-		<a href="javascript: void(0);" class="social_like">I Like</a>
-	</p>
-	<p class="social_pop">
-	    <input type="text" name="share" value="http://www.radio2000.co.za/" />
-		<a href="#" class="social_mail"></a>
-		<a href="#" class="social_face"></a>
-		<a href="#" class="social_twit"></a>
-	</p>
-    {% endcomment %}
-</div><!--/heading-->
+</div>

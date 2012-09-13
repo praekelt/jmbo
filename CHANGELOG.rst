@@ -4,6 +4,9 @@ Changelog
 next
 ----
 #. `modelbase_detail` inclusion template now has a block for easier re-use.
+#. Simplified paginator. No more breadcrumbs.
+#. Introduce `object_footer` template which shows sharing links.
+#. ``can_comment`` has an API change. It has always only been used internally and should not cause problems.
 
 0.5.4
 -----
