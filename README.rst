@@ -24,7 +24,7 @@ called Trivial Content.
 
 .. image:: images/admin.png
 
-1. Title is self-explanatory.
+1.  Title is self-explanatory.
 
 2.  Subtitle is an optional field that is only visible in the admin interface.
     If you have two items with the same title (a common case in multilingual sites)
@@ -42,7 +42,7 @@ called Trivial Content.
     is preferred but an attempt is made to convert the uploaded image into 
     a 4:3 format. Applications may override this aspect ratio as they wish.
 
-    `Crop from` and `Effect` is for advanced use. `Crop from` is used when the 
+    `Crop from` and `Effect` are for advanced use. `Crop from` is used when the 
     default cropping algorithm is eg. chopping a person's head off.
 
 7. See below.
@@ -62,3 +62,48 @@ called Trivial Content.
 
 13. `Save` saves the item. You are redirected to a listing of all trivial
     content items.
+
+.. image:: images/publishing.png
+
+1.  Jmbo uses the Django sites framework. This means items can be selectively
+    published to one or more sites. Select the applicable sites, or use the
+    shortcuts to select a group of sites.
+
+2.  `Publish on` is an optional date on which to publish the item. If you leave
+    it empty you must publish the item manually, eg. by clicking `Save and
+    publish`.
+
+3.  `Retract on` is an optional date on which to retract the item. If you leave
+    it empty you must unpublish the item manually, eg. by clicking `Save and
+    unpublish`.
+
+4.  Publishers is marked for deprecation. The idea was to publish an item to eg. Facebook. Unfortunately 
+    those platforms often have unstable API's, making it impractical.
+   
+.. image:: images/meta.png
+
+1.  Jmbo uses categories from `django-category`. Categorizing an item enables 
+    you to display it in a certain context. An example is a listing (as defined by 
+    `jmbo-foundry`) of all items in a category.
+2.  The primary category is considered the most important category. Once again it enables 
+    you do display the item in a certain context.
+3.  Freeform tagging of an item allows more ways of searching for it.
+4.  `Created date and time` is when the item was created. If you leave it
+    empty it is automatically set to the current time.
+5.  The owner of the item. The dropdown may change into an autocomplete field 
+    if there are many people to choose from.
+
+.. image:: images/commenting-liking.png
+
+1. Enable commenting for this item. Comments will not display when disabled.
+
+2. Enable anonymous commenting for this item.
+
+3. Close commenting for this item. Comments will still display, but users won't be able to add new comments.
+
+4. Enable liking for this item. Likes will not display when disabled.
+
+5. Enable anonymous liking for this item.
+
+6. Close liking for this item. Likes will still display, but users won't be able to add new likes.
+
