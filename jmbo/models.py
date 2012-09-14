@@ -197,20 +197,20 @@ but users won't be able to add new likes."),
         Inspired by http://www.djangosnippets.org/snippets/1031/
         """
         try:
-            return self.__getattribute__(self.class_name.lower())
+            instance = self.__getattribute__(self.class_name.lower())
         except AttributeError:
             content_type = self.content_type
             model = content_type.model_class()
             if(model == ModelBase):
                 return self
             instance = model.objects.get(id=self.id)
-            '''
-            If distance was dynamically added to this object,
-            it needs to be added to the leaf object as well
-            '''
-            if hasattr(self, "distance"):
-                instance.distance = self.distance
-            return instance
+        '''
+        If distance was dynamically added to this object,
+        it needs to be added to the leaf object as well
+        '''
+        if hasattr(self, "distance"):
+            instance.distance = self.distance
+        return instance
 
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
