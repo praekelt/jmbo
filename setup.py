@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.5.4',
-    description='Jmbo base app.',
+    version='0.5.5',
+    description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
     author_email='dev@praekelt.com',
@@ -28,7 +28,7 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'django-setuptest>=0.0.6',
+        'django-setuptest>=0.1.2',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[

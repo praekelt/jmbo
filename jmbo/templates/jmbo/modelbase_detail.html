@@ -6,7 +6,7 @@
     <meta property="og:type" content="article"/>
     <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
     <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
-    <meta property="og:description" content="{{ object.description }}" />
+    <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
 {% endblock %}
 
 {% block content %}
@@ -22,6 +22,8 @@
         {% object_header object %}
       
         {% render_object object.as_leaf_class "detail" %}
+
+        {% object_footer object %}
 
         {% object_comments object %}
 

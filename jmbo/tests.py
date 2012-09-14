@@ -355,7 +355,7 @@ class ModelBaseTestCase(unittest.TestCase):
             anonymous_comments=True
         )
         obj.save()
-        self.failIf(obj.can_comment(request))
+        self.failIf(obj.can_comment(request)[0])
 
         # return false when commenting is disabled
         obj = ModelBase(
@@ -364,7 +364,7 @@ class ModelBaseTestCase(unittest.TestCase):
             anonymous_comments=True
         )
         obj.save()
-        self.failIf(obj.can_comment(request))
+        self.failIf(obj.can_comment(request)[0])
 
         # return false if anonymous and anonymous commenting is disabled
         obj = ModelBase(
@@ -373,7 +373,7 @@ class ModelBaseTestCase(unittest.TestCase):
             anonymous_comments=False
         )
         obj.save()
-        self.failIf(obj.can_comment(request))
+        self.failIf(obj.can_comment(request)[0])
 
         # return true if anonymous and anonymous commenting is enabled
         obj = ModelBase(
@@ -382,7 +382,7 @@ class ModelBaseTestCase(unittest.TestCase):
             anonymous_comments=True
         )
         obj.save()
-        self.failUnless(obj.can_comment(request))
+        self.failUnless(obj.can_comment(request)[0])
 
 
 class ModelBaseAdminTestCase(unittest.TestCase):

@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.5.5
+-----
+#. `modelbase_detail` inclusion template now has a block for easier re-use.
+#. Simplified paginator. No more breadcrumbs.
+#. Introduce `object_footer` template which shows sharing links.
+#. ``can_comment`` has an API change. It has always only been used internally and should not cause problems.
+#. README.rst gets friendlier documentation.
+
 0.5.4
 -----
 #. Pin Django on 1.4.x range.
