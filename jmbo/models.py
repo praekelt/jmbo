@@ -312,7 +312,7 @@ but users won't be able to add new likes."),
 
     def can_vote(self, request):
         """
-        Determnines whether or not the current user can vote.
+        Determines whether or not the current user can vote.
         Returns a bool as well as a string indicating the current vote status,
         with vote status being one of: 'closed', 'disabled',
         'auth_required', 'can_vote', 'voted'
@@ -346,18 +346,18 @@ but users won't be able to add new likes."),
 
         # can't comment if commenting is closed
         if modelbase_obj.comments_closed:
-            return False
+            return False, 'closed'
 
         # can't comment if commenting is disabled
         if not modelbase_obj.comments_enabled:
-            return False
+            return False, 'disabled'
 
         # anonymous users can't comment if anonymous comments are disabled
         if not request.user.is_authenticated() and not \
                 modelbase_obj.anonymous_comments:
-            return False
+            return False, 'auth_required'
 
-        return True
+        return True, 'can_comment'
 
     @property
     def vote_total(self):
