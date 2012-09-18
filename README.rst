@@ -112,3 +112,4 @@ called Trivial Content.
     :align: center
 
     A trivial item as it is seen by the public.
+
