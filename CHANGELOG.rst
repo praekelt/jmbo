@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Jmbo is now location aware. This requires a manual upgrade of libraries and existing databases. Do not upgrade to 1.0 without preparation.
+
 0.5.5
 -----
 #. `modelbase_detail` inclusion template now has a block for easier re-use.
