@@ -42,11 +42,11 @@ if [ $DB_TYPE == 1 ]; then
         POSTGIS_SQL_PATH=/usr/share/postgresql/9.1/contrib/postgis-1.5
     fi
 
-    psql -d $DB -f $POSTGIS_SQL_PATH/$POSTGIS_SQL && \
-    psql -d $DB -f $POSTGIS_SQL_PATH/spatial_ref_sys.sql && \
-    psql -d $DB -c "GRANT ALL ON geometry_columns TO PUBLIC;" && \
-    psql -d $DB -c "GRANT ALL ON spatial_ref_sys TO PUBLIC;"
-    
+    sudo -u postgres psql -d $DB -f $POSTGIS_SQL_PATH/$POSTGIS_SQL
+    sudo -u postgres psql -d $DB -f $POSTGIS_SQL_PATH/spatial_ref_sys.sql
+    sudo -u postgres psql -d $DB -c "GRANT ALL ON geometry_columns TO PUBLIC;"
+    sudo -u postgres psql -d $DB -c "GRANT ALL ON spatial_ref_sys TO PUBLIC;"
+   
     echo "PostGIS SQL installed"
 fi
 
