@@ -17,6 +17,7 @@ setup(
     install_requires = [
         'Pillow',
         'django>=1.4,<1.5',
+        'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
         'django-photologue>=2.6.praekelt',
@@ -28,6 +29,7 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
+        'pysqlite>=2.5',
         'django-setuptest>=0.1.2',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
