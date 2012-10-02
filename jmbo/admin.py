@@ -116,7 +116,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
                     'classes': ('collapse',),
         }),
         ('Meta', {'fields': ('categories', 'primary_category', 'tags', \
-            'created', 'owner'),
+            'created', 'owner', 'location'),
                     'classes': ('collapse',),
         }),
         ('Image', {'fields': ('image', 'crop_from', 'effect'),

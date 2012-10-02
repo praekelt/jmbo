@@ -19,10 +19,11 @@ Content types
 
 Trivial content type
 ********************
+
 Jmbo itself has no content type. For our purposes assume a trivial content type
 called Trivial Content.
 
-.. image:: images/admin.png
+.. image:: https://raw.github.com/praekelt/jmbo/develop/images/admin.png
 
 1.  Title is self-explanatory.
 
@@ -63,7 +64,7 @@ called Trivial Content.
 13. `Save` saves the item. You are redirected to a listing of all trivial
     content items.
 
-.. image:: images/publishing.png
+.. image:: https://raw.github.com/praekelt/jmbo/develop/images/publishing.png
 
 1.  Jmbo uses the Django sites framework. This means items can be selectively
     published to one or more sites. Select the applicable sites, or use the
@@ -80,7 +81,7 @@ called Trivial Content.
 4.  Publishers is marked for deprecation. The idea was to publish an item to eg. Facebook. Unfortunately 
     those platforms often have unstable API's, making it impractical.
    
-.. image:: images/meta.png
+.. image:: https://raw.github.com/praekelt/jmbo/develop/images/meta.png
 
 1.  Jmbo uses categories from `django-category`. Categorizing an item enables 
     you to display it in a certain context. An example is a listing (as defined by 
@@ -93,7 +94,7 @@ called Trivial Content.
 5.  The owner of the item. The dropdown may change into an autocomplete field 
     if there are many people to choose from.
 
-.. image:: images/commenting-liking.png
+.. image:: https://raw.github.com/praekelt/jmbo/develop/images/commenting-liking.png
 
 1. Enable commenting for this item. Comments will not display when disabled.
 
@@ -106,4 +107,9 @@ called Trivial Content.
 5. Enable anonymous liking for this item.
 
 6. Close liking for this item. Likes will still display, but users won't be able to add new likes.
+
+.. figure:: images/content.png
+    :align: center
+
+    A trivial item as it is seen by the public.
 

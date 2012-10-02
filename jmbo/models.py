@@ -8,11 +8,13 @@ from django.contrib.sites.models import Site, SiteManager
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
-from django.db.models import signals
+from django.db.models import signals, Sum
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
+from django.utils import timezone
 
+from atlas.models import Location
 from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
@@ -178,6 +180,12 @@ when disabled."),
 but users won't be able to add new likes."),
         default=False,
     )
+    location = models.ForeignKey(
+        Location,
+        blank=True,
+        null=True,
+        help_text=_("A location that can be used for content filtering."),
+    )
 
     class Meta:
         ordering = ('-created',)
@@ -189,13 +197,20 @@ but users won't be able to add new likes."),
         Inspired by http://www.djangosnippets.org/snippets/1031/
         """
         try:
-            return self.__getattribute__(self.class_name.lower())
+            instance = self.__getattribute__(self.class_name.lower())
         except AttributeError:
             content_type = self.content_type
             model = content_type.model_class()
             if(model == ModelBase):
                 return self
-            return model.objects.get(id=self.id)
+            instance = model.objects.get(id=self.id)
+        '''
+        If distance was dynamically added to this object,
+        it needs to be added to the leaf object as well
+        '''
+        if hasattr(self, "distance"):
+            instance.distance = self.distance
+        return instance
 
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
@@ -235,7 +250,7 @@ but users won't be able to add new likes."),
         return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
-        now = datetime.now()
+        now = timezone.now()
 
         # set created time to now if not already set.
         if not self.created:
@@ -287,7 +302,13 @@ but users won't be able to add new likes."),
         if self.__class__ == ModelBase:
             return self
         else:
-            return self.modelbase_ptr
+            '''
+            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since 
+            the name of the link could be different
+            '''
+            link_name = self._meta.get_ancestor_link(ModelBase).name
+            return getattr(self, link_name)
+            
 
     def can_vote(self, request):
         """
@@ -341,12 +362,13 @@ but users won't be able to add new likes."),
     @property
     def vote_total(self):
         """
-        Calculates vote total as total_upvotes - total_downvotes. We are
+        Calculates vote total (+1 for upvote and -1 for downvote). We are
         adding a method here instead of relying on django-secretballot's
         addition since that doesn't work for subclasses.
         """
-        return self.votes.filter(vote=+1).count() - \
-                self.votes.filter(vote=-1).count()
+        votes = Vote.objects.filter(object_id= \
+            self.id).aggregate(Sum('vote'))['vote__sum']
+        return votes if votes else 0
 
     @property
     def comment_count(self):
@@ -451,7 +473,7 @@ but users won't be able to add new likes."),
 
     def publish(self):
         if self.state != 'published':
-            now = datetime.now()
+            now = timezone.now()
             self.state = 'published'
             self.publish_on = now
             if self.retract_on and (self.retract_on <= now):
@@ -461,7 +483,7 @@ but users won't be able to add new likes."),
     def unpublish(self):
         if self.state != 'unpublished':
             self.state = 'unpublished'
-            self.retract_on = datetime.now()
+            self.retract_on = timezone.now()
             self.save()
 
     @property
@@ -524,8 +546,8 @@ signals.class_prepared.connect(set_managers)
 
 
 # add natural_key to Django's Site model and manager
-Site.add_to_class('natural_key', lambda self: (self.domain, ))
-SiteManager.get_by_natural_key = lambda self, domain: self.get(domain=domain)
+Site.add_to_class('natural_key', lambda self: (self.domain, self.name))
+SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=domain, name=name)
 
 # enable voting for ModelBase, but specify a different total name
 # so ModelBase's vote_total method is not overwritten
