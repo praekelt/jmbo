@@ -108,7 +108,7 @@ called Trivial Content.
 
 6. Close liking for this item. Likes will still display, but users won't be able to add new likes.
 
-.. figure:: images/content.png
+.. figure:: https://raw.github.com/praekelt/jmbo/develop/images/content.png
     :align: center
 
     A trivial item as it is seen by the public.
