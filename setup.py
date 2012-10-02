@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='0.5.5',
+    version='1.0',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -16,6 +16,7 @@ setup(
     ],
     install_requires = [
         'Pillow',
+        'pytz',
         'django>=1.4,<1.5',
         'django-atlas',
         'django-category>=0.0.5',

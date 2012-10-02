@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0
+---
 #. Jmbo is now location aware. This requires a manual upgrade of libraries and existing databases. DO NOT UPGRADE to 1.0 without preparation. If you are on Ubuntu then it is as simple as running the interactive ``convert_to_geodb_ubuntu.sh`` script.
 
 0.5.5
