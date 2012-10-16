@@ -116,7 +116,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
                     'classes': ('collapse',),
         }),
         ('Meta', {'fields': ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'location'),
+            'created', 'owner', 'location' if hasattr(ModelBase, 'location') else None),
                     'classes': ('collapse',),
         }),
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
@@ -130,7 +130,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 'likes_closed'),
                     'classes': ('collapse',),
         }),
-    )
+    ) 
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)

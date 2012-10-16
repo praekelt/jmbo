@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes import generic
 from django.utils import timezone
 
-from atlas.models import Location
 from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
@@ -22,6 +21,7 @@ from secretballot.models import Vote
 from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
 import jmbo.signals
+from jmbo import USE_GIS
 
 
 class JmboPreferences(Preferences):
@@ -180,12 +180,14 @@ when disabled."),
 but users won't be able to add new likes."),
         default=False,
     )
-    location = models.ForeignKey(
-        Location,
-        blank=True,
-        null=True,
-        help_text=_("A location that can be used for content filtering."),
-    )
+    if USE_GIS:
+        from atlas.models import Location
+        location = models.ForeignKey(
+            Location,
+            blank=True,
+            null=True,
+            help_text=_("A location that can be used for content filtering."),
+        )
 
     class Meta:
         ordering = ('-created',)

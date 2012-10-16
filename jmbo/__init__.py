@@ -1,3 +1,11 @@
+from django.conf import settings
+
+
+USE_GIS = False
+if 'atlas' and 'django.contrib.gis' in settings.INSTALLED_APPS:
+    USE_GIS = True
+
+
 def modify_classes():
     """
     Auto-discover INSTALLED_APPS class_modifiers.py modules and fail silently
@@ -5,7 +13,6 @@ def modify_classes():
     may want.
     """
     import copy
-    from django.conf import settings
     from django.contrib.admin.sites import site
     from django.utils.importlib import import_module
     from django.utils.module_loading import module_has_submodule

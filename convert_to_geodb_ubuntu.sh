@@ -10,10 +10,12 @@ echo "(3) Other"
 echo -n ""
 read DB_TYPE
 
+read -p "Installing required packages. Existing packages will not be upgraded to newer versions. [enter]" y
+sudo apt-get install libproj0 libproj-dev libgeos-3.2.2 libgdal1-dev \
+libgdal1-1.7.0 libgeoip1 libgeoip-dev --no-upgrade
+
 if [ $DB_TYPE == 1 ]; then
-    read -p "Installing required packages. Existing packages will not be upgraded to newer versions. [enter]" y
-    sudo apt-get install libproj0 libproj-dev libgeos-3.2.2 libgdal1-dev \
-    libgdal1-1.7.0 postgis postgresql-9.1-postgis --no-upgrade
+    sudo apt-get install postgis postgresql-9.1-postgis --no-upgrade
 
     POSTGIS_SQL=postgis.sql
 
@@ -51,6 +53,8 @@ if [ $DB_TYPE == 1 ]; then
 fi
 
 if [ $DB_TYPE == 2 ]; then
+    sudo apt-get install sqlite3 libspatialite3 --no-upgrade
+
     sqlite3 $DB "SELECT load_extension('libspatialite.so'); SELECT InitSpatialMetadata();"
 
     echo "Spatialite SQL installed"
