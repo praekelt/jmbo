@@ -18,6 +18,8 @@ from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Pin, Relation
+from jmbo import USE_GIS
+
 
 # Maintain backwards compatibility with Django versions < 1.4.
 try:
@@ -115,8 +117,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 'retract_on', 'publishers'),
                     'classes': ('collapse',),
         }),
-        ('Meta', {'fields': ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'location' if hasattr(ModelBase, 'location') else None),
+        ('Meta', {'fields': None,
                     'classes': ('collapse',),
         }),
         ('Image', {'fields': ('image', 'crop_from', 'effect'),
@@ -130,7 +131,13 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 'likes_closed'),
                     'classes': ('collapse',),
         }),
-    ) 
+    )
+    if USE_GIS:
+        fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
+            'created', 'owner', 'location')
+    else:
+        fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
+            'created', 'owner')
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
