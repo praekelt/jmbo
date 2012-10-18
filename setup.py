@@ -26,7 +26,7 @@ setup(
         'django-publisher',
         'django-sites-groups',
         'south',
-        'django-tastypie',
+        'django-tastypie>=0.9,<1.0.0',
     ],
     include_package_data=True,
     tests_require=[

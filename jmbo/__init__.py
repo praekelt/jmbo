@@ -1,3 +1,4 @@
+USE_GIS = True
 def modify_classes():
     """
     Auto-discover INSTALLED_APPS class_modifiers.py modules and fail silently
