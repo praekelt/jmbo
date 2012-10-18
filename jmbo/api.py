@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import url
 from django.core.urlresolvers import reverse
+from django.db.models.fields.related import RelatedField
 
 from tastypie.resources import ModelResource, ALL, ALL_WITH_RELATIONS
 from tastypie.bundle import Bundle
@@ -30,7 +31,7 @@ class ModelBaseResource(SlugResource):
 
     class Meta:
         queryset = ModelBase.permitted.all()
-        resource_name = 'modelbase'
+        resource_name = 'content'
         # NB. implement filtering properly later
         '''filtering = {
             'categories': ALL_WITH_RELATIONS,
@@ -41,15 +42,63 @@ class ModelBaseResource(SlugResource):
         # these fields are used internally and should not be exposed
         excludes = ('id', 'view_count', 'date_taken', 'crop_from', 'effect',
         'state', 'publish_on', 'retract_on', 'class_name')
+    
+    def __init__(self, *args, **kwargs):
+        self.as_leaf = kwargs.pop('as_leaf', False)
+        self.get_type = ''
+        self._content_type_fields = {}
+        super(ModelBaseResource, self).__init__(*args, **kwargs)
 
+    def get_list(self, request, **kwargs):
+        if request:
+            self.as_leaf = int(request.GET.get('as_leaf_class', 0))
+        self.get_type = 'list'
+        return super(ModelBaseResource, self).get_list(request, **kwargs)
+
+    def get_detail(self, request, **kwargs):
+        if request:
+            self.as_leaf = int(request.GET.get('as_leaf_class', 0))
+        self.get_type = 'detail'
+        return super(ModelBaseResource, self).get_detail(request, **kwargs)
+
+    def obj_get_list(self, request=None, **kwargs):
+        qs = super(ModelBaseResource, self).obj_get_list(request, **kwargs)
+        if self.as_leaf:
+            leaf_qs = []
+            self._content_type_fields = {}
+            for obj in qs:
+                leaf_qs.append(obj.as_leaf_class())
+            return leaf_qs
+        return qs
+    
+    def obj_get(self, request=None, **kwargs):
+        obj = super(ModelBaseResource, self).obj_get(request, **kwargs)
+        if self.as_leaf:
+            return obj.as_leaf_class()
+        return obj
 
     def dehydrate_image(self, bundle):
         if bundle.obj.image:
-            return {'image_list_uri': bundle.obj.image_list_url,
-                'image_detail_uri': bundle.obj.image_detail_url}
+            if self.get_type == 'list':
+                return bundle.obj.image_list_url
+            elif self.get_type == 'detail':
+                return bundle.obj.image_detail_url
         return None
-
 
     def dehydrate(self, bundle):
         bundle.data['content_type'] = bundle.obj.content_type.natural_key()
+        if self.as_leaf:
+            obj = bundle.obj
+            if obj.content_type_id in self._content_type_fields:
+                for f in self._content_type_fields[obj.content_type_id]:
+                    bundle.data[f] = getattr(obj, f)
+            else:
+                extra_fields = []
+                model = obj.content_type.model_class()
+                for field in model._meta.fields:
+                    name = field.name
+                    if name not in self._meta.excludes and name not in bundle.data and not isinstance(field, RelatedField):
+                        bundle.data[name] = getattr(obj, name)
+                        extra_fields.append(name)
+                self._content_type_fields[obj.content_type_id] = extra_fields
         return bundle
