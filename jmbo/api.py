@@ -50,14 +50,13 @@ class ModelBaseResource(SlugResource):
         super(ModelBaseResource, self).__init__(*args, **kwargs)
     
     def build_filters(self, filters=None):
-        orm_filters = super(ModelBaseResource, self).build_filters(filters)
         if 'content_type' in filters:
             app, model = filters.pop('content_type')[0].split(',')
             model = ContentType.objects.get(app_label=app, model=model).model_class()
             self._meta.object_class = model
             self._meta.queryset = model.permitted.all()
             self.fields.update(ModelBaseResource.get_fields([], self._meta.excludes))
-        return orm_filters
+        return super(ModelBaseResource, self).build_filters(filters)
     
     def obj_update(self, bundle, request, **kwargs):
         if len(bundle.data) == 1 and 'like' in bundle.data:
