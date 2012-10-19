@@ -45,7 +45,7 @@ class ModelBaseResource(SlugResource):
     
     def __init__(self, *args, **kwargs):
         self.as_leaf = kwargs.pop('as_leaf', False)
-        self.get_type = ''
+        self.get_type = kwargs.pop('get_type', 'list')
         self._content_type_fields = {}
         super(ModelBaseResource, self).__init__(*args, **kwargs)
     
@@ -111,6 +111,8 @@ class ModelBaseResource(SlugResource):
     def dehydrate(self, bundle):
         bundle.data['content_type'] = bundle.obj.content_type.natural_key()
         bundle.data['can_vote'] = bundle.obj.can_vote(bundle.request)[0]
+        bundle.data['likes'] = bundle.obj.vote_total
+        bundle.data['comments'] = bundle.obj.comment_count
         if self.as_leaf:
             obj = bundle.obj
             if obj.content_type_id in self._content_type_fields:
