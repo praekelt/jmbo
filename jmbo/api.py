@@ -11,6 +11,18 @@ from tastypie.exceptions import BadRequest
 from jmbo.models import ModelBase
 
 
+'''
+Necessary for queries across generic foreign keys
+'''
+class ContentTypeResource(ModelResource):
+
+    class Meta:
+        queryset = ContentType.objects.all()
+        resource_name = "contenttype"
+        fields = ['model']
+        allowed_methods = ['get']
+
+
 class SlugResource(ModelResource):
     
     class Meta:
