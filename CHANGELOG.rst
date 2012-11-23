@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.1
+-----
 #. `as_leaf_class` method would break if two models had the same name. Fixed.
 
 1.0
