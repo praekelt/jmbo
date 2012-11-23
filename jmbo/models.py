@@ -198,7 +198,7 @@ but users won't be able to add new likes."),
         """
         try:
             instance = self.__getattribute__(self.class_name.lower())
-        except AttributeError:
+        except (AttributeError, self.DoesNotExist):
             content_type = self.content_type
             model = content_type.model_class()
             if(model == ModelBase):
