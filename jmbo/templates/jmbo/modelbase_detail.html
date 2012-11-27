@@ -19,13 +19,12 @@
             {% view_modifier view_modifier %}
         {% endif %}
 
-        {% object_header object %}
-      
-        {% render_object object.as_leaf_class "detail" %}
+        {% with object.as_leaf_class as object %}
+            {% object_header object %}         
+            {% render_object object "detail" %}
+            {% object_footer object %}
+            {% object_comments object %}
+        {% endwith %}
 
-        {% object_footer object %}
-
-        {% object_comments object %}
-
-	</div><!--/page-->
+	</div>
 {% endblock %}

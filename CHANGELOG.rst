@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Ensure the leaf object is passed to template tags in `modelbase_detail.html`. 
+
 1.0.1
 -----
 #. `as_leaf_class` method would break if two models had the same name. Fixed.
