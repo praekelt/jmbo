@@ -439,28 +439,28 @@ but users won't be able to add new likes."),
         else:
             return getattr(self, 'get_modelbase_list_url')()
 
-    def get_related_items(self, name, direction='forward'):
+    def get_related_items(self, name=None, direction='forward'):
         """If direction is forward get items self points to by name name. If
         direction is reverse get items pointing to self to by name name."""
         if direction == 'forward':
             ids = Relation.objects.filter(
                 source_content_type=self.content_type,
-                source_object_id=self.id,
-                name=name
-            ).order_by('-target_object_id').values_list(
-                'target_object_id', flat=True
+                source_object_id=self.id
             )
-            return ModelBase.permitted.filter(id__in=ids)
+            if name:
+                ids = ids.filter(name=name)
+            ids= ids.values_list('target_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
 
         elif direction == 'reverse':
             ids = Relation.objects.filter(
                 target_content_type=self.content_type,
-                target_object_id=self.id,
-                name=name
-            ).order_by('-source_object_id').values_list(
-                'source_object_id', flat=True
+                target_object_id=self.id
             )
-            return ModelBase.permitted.filter(id__in=ids)
+            if name:
+                ids = ids.filter(name=name)
+            ids = ids.values_list('source_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
 
         else:
             return ModelBase.permitted.none()
