@@ -441,15 +441,41 @@ but users won't be able to add new likes."),
 
     def get_related_items(self, name=None, direction='forward'):
         """If direction is forward get items self points to by name name. If
-        direction is reverse get items pointing to self to by name name."""
-        if direction == 'forward':
+        direction is reverse get items pointing to self to by name name.
+        
+        There is no logical value in having a large amount of relations on 
+        an object. This nature of the data makes the use of the ids iterators 
+        safe.
+        """
+
+        if direction == 'both':
             ids = Relation.objects.filter(
                 source_content_type=self.content_type,
                 source_object_id=self.id
             )
             if name:
                 ids = ids.filter(name=name)
-            ids= ids.values_list('target_object_id', flat=True)
+            ids_forward = ids.values_list('target_object_id', flat=True)
+
+            ids = Relation.objects.filter(
+                target_content_type=self.content_type,
+                target_object_id=self.id
+            )
+            if name:
+                ids = ids.filter(name=name)
+            ids_reverse = ids.values_list('source_object_id', flat=True)
+
+            ids = [i for i in ids_forward] + [i for i in ids_reverse]
+            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
+
+        elif direction == 'forward':
+            ids = Relation.objects.filter(
+                source_content_type=self.content_type,
+                source_object_id=self.id
+            )
+            if name:
+                ids = ids.filter(name=name)
+            ids = ids.values_list('target_object_id', flat=True)
             return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
 
         elif direction == 'reverse':
@@ -465,7 +491,7 @@ but users won't be able to add new likes."),
         else:
             return ModelBase.permitted.none()
 
-    def get_permitted_related_items(self, name, direction='forward'):
+    def get_permitted_related_items(self, name=None, direction='forward'):
         return self.get_related_items(name, direction)
 
     def natural_key(self):
