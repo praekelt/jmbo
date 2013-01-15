@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.2
+-----
+#. Ensure the leaf object is passed to template tags in `modelbase_detail.html`. 
+#. `get_related_items` parameter `name` is now optional. The sorting has changed to reverse on modified (our default sorting).
+
 1.0.1
 -----
 #. `as_leaf_class` method would break if two models had the same name. Fixed.
