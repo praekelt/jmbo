@@ -72,6 +72,12 @@ class ModelBaseAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
 
+        self.fields['image'].help_text = """An image can be in format JPG, \
+PNG or GIF. Images are scaled to the appropriate size when people browse to \
+the site on mobile browsers, so always upload an image that will look good on \
+normal web browsers. In general an image with an aspect ratio of 4:3 will \
+yield best results."""
+
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
@@ -102,7 +108,6 @@ class ModelBaseAdmin(admin.ModelAdmin):
     change_form_template = 'admin/jmbo/extras/change_form.html'
 
     actions = [make_published, make_unpublished]
-    inlines = [ImageOverrideInline, ]
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
@@ -110,26 +115,43 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'subtitle', 'description', )}),
-        ('Publishing', {'fields': ('sites', 'publish_on', \
-                'retract_on', 'publishers'),
-                    'classes': ('collapse',),
-        }),
-        ('Meta', {'fields': ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'location'),
-                    'classes': ('collapse',),
-        }),
-        ('Image', {'fields': ('image', 'crop_from', 'effect'),
-                    'classes': (),
-        }),
-        ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', \
-                'comments_closed'),
-                    'classes': ('collapse',),
-        }),
-        ('Liking', {'fields': ('likes_enabled', 'anonymous_likes', \
-                'likes_closed'),
-                    'classes': ('collapse',),
-        }),
+        (None, {'fields': ('title', 'subtitle', 'image', 'description')}),
+        (
+            'Publishing', 
+            {
+                'fields': ('sites', 'publish_on', 'retract_on'),
+                'classes': (),
+            }
+        ),
+        (
+            'Metadata', 
+            {
+                'fields': ('categories', 'primary_category', 'tags', 
+                    'created', 'owner', 'location'
+                 ),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Commenting', 
+            {
+                'fields': ('comments_enabled', 'anonymous_comments', 
+                    'comments_closed'
+                ),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Liking', 
+            {
+                'fields': ('likes_enabled', 'anonymous_likes', 'likes_closed'),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Advanced', 
+            {'fields': ('crop_from', 'effect'), 'classes': ('collapse',)}
+        )
     )
 
     def __init__(self, model, admin_site):

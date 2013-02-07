@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.3
+-----
+#. Simplify the change form. Move advanced fields into their own section.
+
 1.0.2
 -----
 #. Ensure the leaf object is passed to template tags in `modelbase_detail.html`. 
