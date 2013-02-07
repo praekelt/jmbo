@@ -142,6 +142,7 @@ is automatically set each time the item is saved.')
         'publisher.Publisher',
         blank=True,
         null=True,
+        editable=False,
         help_text=_(
             'Makes item eligible to be published on selected platform.'
         ),
