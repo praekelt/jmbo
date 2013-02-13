@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Restore crop from field to a more prominent position.
+
 1.0.3
 -----
 #. Simplify the change form. Move advanced fields into their own section.
