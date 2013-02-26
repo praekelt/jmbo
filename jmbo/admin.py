@@ -78,6 +78,13 @@ the site on mobile browsers, so always upload an image that will look good on \
 normal web browsers. In general an image with an aspect ratio of 4:3 will \
 yield best results."""
 
+        self.fields['crop_from'].help_text = """If you upload an image in an \
+aspect ratio that may require it to be cropped then you can adjust from where \
+the cropping takes place. This is useful to prevent peoples' heads from being \
+chopped off."""
+
+        self.fields['effect'].help_text = """Apply an effect to the image."""
+
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
@@ -115,14 +122,21 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_filter = ('state', 'created', CategoriesListFilter,)
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'subtitle', 'image', 'description')}),
+        (None, {'fields': ('title', 'subtitle', 'description')}),
+        (
+            'Image', 
+            {
+                'fields': ('image', 'crop_from'),
+                'classes': ()
+            }
+        ),
         (
             'Publishing', 
             {
                 'fields': ('sites', 'publish_on', 'retract_on'),
                 'classes': (),
             }
-        ),
+        ),        
         (
             'Metadata', 
             {
@@ -150,8 +164,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
         ),
         (
             'Advanced', 
-            {'fields': ('crop_from', 'effect'), 'classes': ('collapse',)}
-        )
+            {
+                'fields': ('effect',),
+                'classes': ('collapse',)
+            }
+        ),
     )
 
     def __init__(self, model, admin_site):
