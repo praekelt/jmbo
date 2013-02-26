@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.4
+-----
 #. Restore crop from field to a more prominent position.
 
 1.0.3
