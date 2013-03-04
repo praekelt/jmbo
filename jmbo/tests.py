@@ -17,6 +17,8 @@ from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.gis.geos import fromstr
+from django.utils import timezone
+from django.core.management import call_command
 
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
@@ -113,14 +115,14 @@ class UtilsTestCase(unittest.TestCase):
 
 class ModelBaseTestCase(unittest.TestCase):
     def test_save(self):
-        before_save = datetime.now()
+        before_save = timezone.now()
 
         # created field should be set on save
         obj = ModelBase(title='title')
         obj.save()
 
         # created field should be set to current datetime on save
-        after_save = datetime.now()
+        after_save = timezone.now()
         self.failIf(obj.created > after_save or obj.created < before_save)
 
         # If a user supplies a created date use that
@@ -131,10 +133,10 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failIf(obj.created != test_datetime)
 
         # modified should be set to current datetime on each save
-        before_save = datetime.now()
+        before_save = timezone.now()
         obj = ModelBase(title='title')
         obj.save()
-        after_save = datetime.now()
+        after_save = timezone.now()
         self.failIf(obj.modified > after_save or obj.modified < before_save)
 
         # leaf class content type should be set on save
@@ -385,6 +387,19 @@ class ModelBaseTestCase(unittest.TestCase):
         )
         obj.save()
         self.failUnless(obj.can_comment(request)[0])
+
+    def test_publishing_timezone_awareness(self):
+        obj_naive = ModelBase.objects.create(
+            title="Obj1",
+            publish_on=datetime.now() - timedelta(hours=1)
+        )
+        obj_aware = ModelBase.objects.create(
+            title="Obj2",
+            publish_on=timezone.now() - timedelta(hours=1)
+        )
+        call_command('jmbo_publish')
+        self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, 'published')
+        self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, 'published')
 
 
 class ModelBaseAdminTestCase(unittest.TestCase):
