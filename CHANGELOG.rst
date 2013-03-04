@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.5
+-----
+#. Make `jmbo_publish` command timezone-aware, ensuring that it works with old, naive timestamps.
+
 1.0.4
 -----
 #. Restore crop from field to a more prominent position.

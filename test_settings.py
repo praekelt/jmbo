@@ -1,3 +1,7 @@
+USE_TZ = True
+
+TIME_ZONE = 'Africa/Johannesburg'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
