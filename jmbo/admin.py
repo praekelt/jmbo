@@ -119,7 +119,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
 
-    list_filter = ('state', 'created', CategoriesListFilter,)
+    list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description')}),
