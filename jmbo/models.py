@@ -275,10 +275,12 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
+        sites = ', '.join([s.name for s in self.sites.all()])
+        sites = sites if sites else 'no sites'
         if self.subtitle:
-            return '%s (%s)' % (self.title, self.subtitle)
+            return '%s - %s (%s)' % (self.title, self.subtitle, sites)
         else:
-            return self.title
+            return '%s (%s)' % (self.title, sites)
 
     @property
     def is_permitted(self):
