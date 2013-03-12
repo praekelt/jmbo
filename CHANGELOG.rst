@@ -5,6 +5,7 @@ next
 ----
 #. Add a list filter in admin to filter `ModelBase` objects by site and site group.
 #. `ModelBase.__unicode__` includes the site name - non-admin templates that rely on __unicode__ will have to be updated.
+#. Set title, description and keywords meta tags on detail page.
 
 1.0.5
 -----
