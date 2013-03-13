@@ -29,7 +29,10 @@ class GetItem(Item):
     def is_active(self, request):
         if hasattr(self, 'get'):
             if self.get['name'] in request.GET:
-                return request.GET[self.get['name']] == self.get['value']
+                # Strip away potential #abcd suffix from value
+                value = self.get['value']
+                value = value.split('#')[0]
+                return request.GET[self.get['name']] == value
 
         return False
 
