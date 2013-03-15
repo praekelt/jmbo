@@ -4,7 +4,7 @@
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    <meta property="description" content="{{ object.description|default_if_none:'' }}" />
+    <meta name="description" content="{{ object.description|default_if_none:'' }}" />
     {% with object.tags.all as tags %}
         {% if tags %}
             <meta name="keywords" content="{{ tags|join:", " }}" />
