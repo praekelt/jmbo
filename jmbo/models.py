@@ -275,10 +275,12 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
+        sites = ', '.join([s.name for s in self.sites.all()])
+        sites = sites if sites else 'no sites'
         if self.subtitle:
-            return '%s (%s)' % (self.title, self.subtitle)
+            return '%s - %s (%s)' % (self.title, self.subtitle, sites)
         else:
-            return self.title
+            return '%s (%s)' % (self.title, sites)
 
     @property
     def is_permitted(self):
@@ -385,11 +387,16 @@ but users won't be able to add new likes."),
             model="modelbase"
         )
 
+        # Compute site id range. This is a slight pollution from jmbo-foundry
+        # but we don't want to monkey path Jmbo itself.
+        i = settings.SITE_ID / 10
+        site_ids = range(i * 10 + 1, (i + 1) * 10)
+
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(
             content_type__in=[self.content_type, modelbase_content_type],
             object_pk=smart_unicode(self.pk),
-            site__pk=settings.SITE_ID,
+            site__pk__in = site_ids,
         )
 
         # The is_public and is_removed fields are implementation details of the
