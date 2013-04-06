@@ -1,13 +1,17 @@
+{% load cache %}
+
 <div class="object-detail-inclusion {{ object.class_name.lower }}-detail-inclusion">
     {% block content %}
-        {% if object.image %}
-            <img src="{{ object.image_detail_url }}" />
-        {% endif %}
-        {% if object.description %}
-            <div class="description">
-                {{ object.description|linebreaks }}
-            </div>
-        {% endif %}
+        {% cache 3600 'object_detail_inclusion' object.id object.modified %}
+            {% if object.image %}
+                <img src="{{ object.image_detail_url }}" />
+            {% endif %}
+            {% if object.description %}
+                <div class="description">
+                    {{ object.description|linebreaks }}
+                </div>
+            {% endif %}
+        {% endcache %}
     {% endblock %}    
     <div class="clear"></div>
 </div>
