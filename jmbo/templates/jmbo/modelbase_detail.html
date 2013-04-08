@@ -4,7 +4,7 @@
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    {% cache 1200 'object_detail' object.id object.modified %}
+    {% cache 1200 'object-detail' object.id object.modified %}
     <meta name="description" content="{{ object.description|default_if_none:'' }}" />
     {% with object.tags.all as tags %}
         {% if tags %}
