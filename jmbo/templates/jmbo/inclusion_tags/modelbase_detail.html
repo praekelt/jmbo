@@ -2,7 +2,7 @@
 
 <div class="object-detail-inclusion {{ object.class_name.lower }}-detail-inclusion">
     {% block content %}
-        {% cache 3600 'object_detail_inclusion' object.id object.modified %}
+        {% cache 1200 'object_detail_inclusion' object.id object.modified %}
             {% if object.image %}
                 <img src="{{ object.image_detail_url }}" />
             {% endif %}
