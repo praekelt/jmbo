@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-{% load jmbo_inclusion_tags %} 
+{% load cache jmbo_inclusion_tags %} 
 
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
+    {% cache 1200 'object-detail' object.id object.modified %}
     <meta name="description" content="{{ object.description|default_if_none:'' }}" />
     {% with object.tags.all as tags %}
         {% if tags %}
@@ -17,6 +18,7 @@
         <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
     {% endif %}
     <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />    
+{% endcache %}
 {% endblock %}
 
 {% block content %}

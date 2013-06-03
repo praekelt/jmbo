@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Generic caching on detail templates.
+
 1.0.6
 -----
 #. Add a list filter in admin to filter `ModelBase` objects by site and site group.

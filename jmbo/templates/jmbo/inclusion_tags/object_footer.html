@@ -1,5 +1,6 @@
-{% load i18n %}
+{% load cache i18n %}
 
+{% cache 3600 'object_footer' object.id object.modified %}
 <div class="object-footer">    
 
     <div class="sharing">
@@ -17,4 +18,5 @@
         </div>
     </div>
 
-</div>    
+</div>
+{% endcache %}
