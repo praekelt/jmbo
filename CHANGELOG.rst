@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Generic caching on detail templates.
+#. Share on Google.
 
 1.0.6
 -----
