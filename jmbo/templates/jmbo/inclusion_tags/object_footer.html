@@ -19,7 +19,7 @@
         <div class="google">
             <a href="http://plus.google.com/share?url=http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url|iriencode }}"
                target="blank">
-               <img src="{{ STATIC_URL }}jmbo/images/google_share.png" alt="{% trans "Share on Google+" %}" />{% trans "+1" %}
+               <img src="{{ STATIC_URL }}jmbo/images/google_share.png" alt="{% trans "Share on Google+" %}" />{% trans "Share" %}
             </a>
         </div>
     </div>
