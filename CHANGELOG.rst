@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.7
+-----
 #. Generic caching on detail templates.
 #. Share on Google.
 
