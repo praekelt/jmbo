@@ -1,24 +1,24 @@
 {% extends "base.html" %}
-{% load cache jmbo_inclusion_tags %} 
+{% load jmbo_inclusion_tags jmbo_template_tags %} 
 
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    {% cache 1200 'object-detail' object.id object.modified %}
-    <meta name="description" content="{{ object.description|default_if_none:'' }}" />
-    {% with object.tags.all as tags %}
-        {% if tags %}
-            <meta name="keywords" content="{{ tags|join:", " }}" />
+    {% jmbocache 1200 'object-detail' object.id object.modified %}
+        <meta name="description" content="{{ object.description|default_if_none:'' }}" />
+        {% with object.tags.all as tags %}
+            {% if tags %}
+                <meta name="keywords" content="{{ tags|join:", " }}" />
+            {% endif %}
+        {% endwith %}
+        <meta property="og:title" content="{{ object.title }}" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
+        {% if object.image %}
+            <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
         {% endif %}
-    {% endwith %}
-    <meta property="og:title" content="{{ object.title }}" />
-    <meta property="og:type" content="article"/>
-    <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
-    {% if object.image %}
-        <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
-    {% endif %}
-    <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />    
-{% endcache %}
+        <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />    
+    {% endjmbocache %}
 {% endblock %}
 
 {% block content %}

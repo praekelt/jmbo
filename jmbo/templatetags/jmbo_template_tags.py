@@ -3,6 +3,8 @@ from datetime import datetime
 from django import template
 from django.utils.translation import ugettext as _
 from django.utils import timezone
+from django.templatetags.cache import CacheNode
+from django.conf import settings
 
 from jmbo.models import Relation
 
@@ -186,3 +188,23 @@ class RelationListNode(template.Node):
             direction = 'forward'
         context[as_var] = obj.get_related_items(name, direction)
         return ''
+
+
+class JmboCacheNode(CacheNode):
+    """Based on Django's default cache template tag. Add SITE_ID as implicit
+    vary on parameter."""
+
+    def __init__(self, *args, **kwargs):
+        super(JmboCacheNode, self).__init__(*args, **kwargs)
+        self.vary_on.append(str(settings.SITE_ID))
+
+
+@register.tag('jmbocache')
+def do_jmbocache(parser, token):
+    """Based on Django's default cache template tag"""
+    nodelist = parser.parse(('endjmbocache',))
+    parser.delete_first_token()
+    tokens = token.contents.split()
+    if len(tokens) < 3:
+        raise template.TemplateSyntaxError(u"'%r' tag requires at least 2 arguments." % tokens[0])
+    return JmboCacheNode(nodelist, tokens[1], tokens[2], tokens[3:])
