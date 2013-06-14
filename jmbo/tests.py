@@ -637,6 +637,17 @@ class TemplateTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel')
 
+    def test_jmbocache(self):
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
 
 class LocationAwarenessTestCase(unittest.TestCase):
     def setUp(self):
