@@ -630,12 +630,44 @@ class TemplateTagsTestCase(unittest.TestCase):
             'url_callable': CallableURL(),
         })
 
+    @classmethod  
+    def setUpClass(cls):
+        # Add an extra site
+        site, dc = Site.objects.get_or_create(name='another', domain='another.com')
+
     def test_smart_url(self):
         # return method call with result based on object provided
         t = Template("{% load jmbo_template_tags %}\
 {% smart_url url_callable object %}")
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel')
+
+    def test_jmbocache(self):
+        # Caching on same site
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
+        # Caching on different sites
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        settings.SITE_ID = 2
+        Site.objects.clear_cache()
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        settings.SITE_ID = 2
+        Site.objects.clear_cache()
+        self.failIfEqual(result1, result2)
 
 
 class LocationAwarenessTestCase(unittest.TestCase):

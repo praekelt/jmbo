@@ -1,6 +1,6 @@
-{% load cache i18n %}
+{% load i18n jmbo_template_tags %}
 
-{% cache 3600 'object_footer' object.id object.modified %}
+{% jmbocache 3600 'object_footer' object.id object.modified %}
 <div class="object-footer">    
 
     <div class="sharing">
@@ -25,4 +25,4 @@
     </div>
 
 </div>
-{% endcache %}
+{% endjmbocache %}
