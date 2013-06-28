@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.8
+-----
+#. Add caching template tag `jmbocache` which automatically adds the `SITE_ID` as part of the cache key.
+
 1.0.7
 -----
 #. Generic caching on detail templates.
