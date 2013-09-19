@@ -9,8 +9,9 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class ObjectDetail(GenericObjectDetail):
+
     def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted
+        return ModelBase.permitted.get_query_set(for_user=self.request.user)
 
     def get_template_name(self, *args, **kwargs):
         return 'jmbo/modelbase_detail.html'
