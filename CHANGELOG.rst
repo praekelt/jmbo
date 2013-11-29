@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Change permitted manager and generic object detail so staff can preview unpublished content.
+#. Aggregate total comments and likes onto `ModelBase` to prevent expensive queries.
 
 1.0.8
 -----
@@ -35,7 +36,7 @@ next
 
 1.0.2
 -----
-#. Ensure the leaf object is passed to template tags in `modelbase_detail.html`. 
+#. Ensure the leaf object is passed to template tags in `modelbase_detail.html`.
 #. `get_related_items` parameter `name` is now optional. The sorting has changed to reverse on modified (our default sorting).
 
 1.0.1

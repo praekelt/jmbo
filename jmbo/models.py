@@ -187,6 +187,8 @@ but users won't be able to add new likes."),
         null=True,
         help_text=_("A location that can be used for content filtering."),
     )
+    comment_count = models.PositiveIntegerField(default=0, editable=False)
+    vote_total = models.PositiveIntegerField(default=0, editable=False)
 
     class Meta:
         ordering = ('-created',)
@@ -258,7 +260,9 @@ but users won't be able to add new likes."),
             self.created = now
 
         # set modified to now on each save.
-        self.modified = now
+        set_modified = kwargs.pop('set_modified', True)
+        if set_modified:
+            self.modified = now
 
         # set leaf class content type
         if not self.content_type:
@@ -311,7 +315,7 @@ but users won't be able to add new likes."),
             '''
             link_name = self._meta.get_ancestor_link(ModelBase).name
             return getattr(self, link_name)
-            
+
 
     def can_vote(self, request):
         """
@@ -363,7 +367,7 @@ but users won't be able to add new likes."),
         return True, 'can_comment'
 
     @property
-    def vote_total(self):
+    def _vote_total(self):
         """
         Calculates vote total (+1 for upvote and -1 for downvote). We are
         adding a method here instead of relying on django-secretballot's
@@ -374,7 +378,7 @@ but users won't be able to add new likes."),
         return votes if votes else 0
 
     @property
-    def comment_count(self):
+    def _comment_count(self):
         """
         Counts total number of comments on ModelBase object.
         Comments should always be recorded on ModelBase objects.
@@ -388,7 +392,7 @@ but users won't be able to add new likes."),
         )
 
         # Compute site id range. This is a slight pollution from jmbo-foundry
-        # but we don't want to monkey path Jmbo itself.
+        # but we don't want to monkey patch Jmbo itself.
         i = settings.SITE_ID / 10
         site_ids = range(i * 10 + 1, (i + 1) * 10)
 
@@ -450,9 +454,9 @@ but users won't be able to add new likes."),
     def get_related_items(self, name=None, direction='forward'):
         """If direction is forward get items self points to by name name. If
         direction is reverse get items pointing to self to by name name.
-        
-        There is no logical value in having a large amount of relations on 
-        an object. This nature of the data makes the use of the ids iterators 
+
+        There is no logical value in having a large amount of relations on
+        an object. This nature of the data makes the use of the ids iterators
         safe.
         """
 

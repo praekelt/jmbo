@@ -180,6 +180,7 @@ class ModelBaseTestCase(unittest.TestCase):
         obj.add_vote("token3", 1)
 
         # vote_total should return an integer
+        obj = ModelBase.objects.get(id=obj.id)
         result = obj.vote_total
         self.failUnlessEqual(result.__class__, int)
 
@@ -311,11 +312,13 @@ class ModelBaseTestCase(unittest.TestCase):
         # should be 1 since we've created 1 comment.
         comment_obj = comment_model(content_object=obj, site_id=1)
         comment_obj.save()
+        obj = ModelBase.objects.get(id=obj.id)
         self.failUnless(obj.comment_count == 1)
 
         # Return 0 if no comments exist.
         dummy_obj = DummyModel()
         dummy_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.comment_count == 0)
 
         # Return the number of comments if comments exist on the
@@ -326,6 +329,7 @@ class ModelBaseTestCase(unittest.TestCase):
             site_id=1
         )
         comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.modelbase_obj.comment_count == 1)
 
         # If a comment was made on the ModelBase object it should
@@ -336,6 +340,7 @@ class ModelBaseTestCase(unittest.TestCase):
         # is 2 for both the dummy object and its modelbase object.
         comment_obj = comment_model(content_object=dummy_obj, site_id=1)
         comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.comment_count == 2)
         self.failUnless(dummy_obj.modelbase_obj.comment_count == 2)
 
