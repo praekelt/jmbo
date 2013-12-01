@@ -26,12 +26,13 @@ def on_can_vote_test(sender, instance, user, request, **kwargs):
         return result, extra
 
 
-@receiver(post_save, sender=Comment)
+@receiver(post_save)
 def on_comment_post_save(sender, **kwargs):
-    obj = kwargs['instance'].content_object
-    if isinstance(obj, jmbo.models.ModelBase):
-        obj.comment_count = obj._comment_count
-        obj.save(set_modified=False)
+    if issubclass(sender, Comment):
+        obj = kwargs['instance'].content_object
+        if isinstance(obj, jmbo.models.ModelBase):
+            obj.comment_count = obj._comment_count
+            obj.save(set_modified=False)
 
 
 @receiver(post_save, sender=Vote)
