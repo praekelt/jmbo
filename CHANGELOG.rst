@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.9
+-----
 #. Change permitted manager and generic object detail so staff can preview unpublished content.
 #. Aggregate total comments and likes onto `ModelBase` to prevent expensive queries.
 
