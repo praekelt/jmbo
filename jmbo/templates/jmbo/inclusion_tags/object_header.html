@@ -1,6 +1,6 @@
 {% load likes_inclusion_tags i18n jmbo_template_tags %}
 
-<div class="object-header">    
+<div class="object-header">
     <div class="title">
 	    {{ object.title }}
     </div>
@@ -8,10 +8,10 @@
 	<div class="meta">
 
         {% if object.comments_enabled %}
-            {% jmbocache 30 'object-header-comments' %}
+            {% jmbocache 3600 'object-header-comments' object.id object.comment_count %}
                 <div class="comments">
                     {% with object.comment_count as total %}
-                        ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }}) 
+                        ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }})
                     {% endwith %}
                 </div>
             {% endjmbocache %}

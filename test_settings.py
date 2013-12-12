@@ -25,6 +25,9 @@ INSTALLED_APPS = [
     'photologue',
     'secretballot',
     'publisher',
+    'south',
 ]
 
 SITE_ID = 1
+
+SOUTH_TESTS_MIGRATE = False
