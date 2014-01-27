@@ -591,5 +591,6 @@ SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=doma
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
     ModelBase,
-    total_name="secretballot_added_vote_total"
+    manager_name='secretballot_objects',
+    total_name='secretballot_added_vote_total'
 )

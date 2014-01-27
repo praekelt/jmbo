@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Change secretballot usage so it does not hijack the objects manager anymore.
+
 1.0.9
 -----
 #. Change permitted manager and generic object detail so staff can preview unpublished content.
