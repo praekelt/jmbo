@@ -19,6 +19,7 @@ from django.test.client import Client
 from django.contrib.gis.geos import fromstr
 from django.utils import timezone
 from django.core.management import call_command
+from django.utils.translation import ugettext as _
 
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
@@ -685,6 +686,16 @@ class TemplateTagsTestCase(unittest.TestCase):
         result2 = t.render(self.context)
         self.failUnlessEqual(result1, result2)
 
+        # Check that translation proxies are valid variables
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
 
 class LocationAwarenessTestCase(unittest.TestCase):
     def setUp(self):

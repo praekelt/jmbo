@@ -5,6 +5,7 @@ from django import template
 from django.utils.translation import ugettext as _
 from django.utils import timezone
 from django.utils.http import urlquote
+from django.utils.functional import Promise
 from django.templatetags.cache import CacheNode
 from django.template import resolve_variable
 from django.template.base import VariableDoesNotExist
@@ -220,7 +221,10 @@ class JmboCacheNode(CacheNode):
             except VariableDoesNotExist:
                 pass
             else:
+                if isinstance(r, Promise):
+                    r = unicode(r)
                 resolved.append(r)
+        #import pdb;pdb.set_trace()
         args = hashlib.md5(u':'.join([urlquote(r) for r in resolved]))
         cache_key = 'template.cache.%s.%s' % (self.fragment_name, args.hexdigest())
         value = cache.get(cache_key)
