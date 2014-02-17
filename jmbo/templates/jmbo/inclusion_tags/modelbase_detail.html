@@ -5,6 +5,9 @@
         {% jmbocache 1200 'object-detail-inclusion' object.id object.modified %}
             {% if object.image %}
                 <img src="{{ object.image_detail_url }}" />
+                {% if object.image_attribution %}
+                    <div class="attribution">{{ object.image_attribution }}</div>
+                {% endif %}
             {% endif %}
             {% if object.description %}
                 <div class="description">
@@ -12,6 +15,6 @@
                 </div>
             {% endif %}
         {% endjmbocache %}
-    {% endblock %}    
+    {% endblock %}
     <div class="clear"></div>
 </div>

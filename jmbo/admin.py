@@ -124,46 +124,46 @@ class ModelBaseAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('title', 'subtitle', 'description')}),
         (
-            'Image', 
+            'Image',
             {
-                'fields': ('image', 'crop_from'),
+                'fields': ('image', 'crop_from', 'image_attribution'),
                 'classes': ()
             }
         ),
         (
-            'Publishing', 
+            'Publishing',
             {
                 'fields': ('sites', 'publish_on', 'retract_on'),
                 'classes': (),
             }
-        ),        
+        ),
         (
-            'Metadata', 
+            'Metadata',
             {
-                'fields': ('categories', 'primary_category', 'tags', 
-                    'created', 'owner', 'location'
+                'fields': ('categories', 'primary_category', 'tags',
+                    'created', 'owner', 'owner_override', 'location'
                  ),
                 'classes': ('collapse',)
             }
         ),
         (
-            'Commenting', 
+            'Commenting',
             {
-                'fields': ('comments_enabled', 'anonymous_comments', 
+                'fields': ('comments_enabled', 'anonymous_comments',
                     'comments_closed'
                 ),
                 'classes': ('collapse',)
             }
         ),
         (
-            'Liking', 
+            'Liking',
             {
                 'fields': ('likes_enabled', 'anonymous_likes', 'likes_closed'),
                 'classes': ('collapse',)
             }
         ),
         (
-            'Advanced', 
+            'Advanced',
             {
                 'fields': ('effect',),
                 'classes': ('collapse',)
