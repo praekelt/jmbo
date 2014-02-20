@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.10
+------
 #. Change secretballot usage so it does not hijack the objects manager anymore.
 #. Add `owner_override` and `image_attribution` fields.
 
