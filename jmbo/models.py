@@ -102,6 +102,13 @@ is automatically set each time the item is saved.')
         blank=True,
         null=True,
     )
+    owner_override = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("If the author is not a registered user then set it here, \
+eg. Reuters.")
+    )
     content_type = models.ForeignKey(
         ContentType,
         editable=False,
@@ -186,6 +193,12 @@ but users won't be able to add new likes."),
         blank=True,
         null=True,
         help_text=_("A location that can be used for content filtering."),
+    )
+    image_attribution = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("Attribution for the canonical image, eg. Shutterstock.")
     )
     comment_count = models.PositiveIntegerField(default=0, editable=False)
     vote_total = models.PositiveIntegerField(default=0, editable=False)
@@ -591,5 +604,6 @@ SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=doma
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
     ModelBase,
-    total_name="secretballot_added_vote_total"
+    manager_name='secretballot_objects',
+    total_name='secretballot_added_vote_total'
 )

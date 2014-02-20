@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.0.10
+------
+#. Change secretballot usage so it does not hijack the objects manager anymore.
+#. Add `owner_override` and `image_attribution` fields.
+
 1.0.9
 -----
 #. Change permitted manager and generic object detail so staff can preview unpublished content.

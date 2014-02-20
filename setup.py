@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='1.0.9',
+    version='1.0.10',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -13,6 +13,7 @@ setup(
     dependency_links = [
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.8.praekelt#egg=django-photologue-2.8.praekelt',
     ],
     install_requires = [
         'Pillow',
@@ -26,7 +27,7 @@ setup(
         'django-publisher',
         'django-sites-groups',
         'south',
-        'django-tastypie',
+        'django-tastypie<0.10',
     ],
     include_package_data=True,
     tests_require=[

@@ -19,6 +19,7 @@ from django.test.client import Client
 from django.contrib.gis.geos import fromstr
 from django.utils import timezone
 from django.core.management import call_command
+from django.utils.translation import ugettext as _
 
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
@@ -674,6 +675,27 @@ class TemplateTagsTestCase(unittest.TestCase):
         Site.objects.clear_cache()
         self.failIfEqual(result1, result2)
 
+        # Check that undefined variables do not break caching
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_undefined' aaa %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_undefined' bbb %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
+        # Check that translation proxies are valid variables
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
 
 class LocationAwarenessTestCase(unittest.TestCase):
     def setUp(self):
@@ -700,5 +722,3 @@ class LocationAwarenessTestCase(unittest.TestCase):
         for obj in qs:
             if obj.distance is not None:
                 self.assertEqual(obj.location.coordinates.distance(self.ct.coordinates), obj.distance)
-        
-        
