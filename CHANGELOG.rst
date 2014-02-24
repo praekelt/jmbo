@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add functionality to periodically autosave certain fields on the change form.
+
 1.0.10
 ------
 #. Change secretballot usage so it does not hijack the objects manager anymore.

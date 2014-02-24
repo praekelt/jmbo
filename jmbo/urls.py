@@ -58,4 +58,11 @@ urlpatterns = patterns(
         'jmbo-unpublish-ajax',
     ),
 
+    (
+        r'^admin/jmbo/edit-autosave-ajax/$',
+        'jmbo.admin_views.edit_autosave_ajax',
+        {},
+        'jmbo-edit-autosave-ajax',
+    ),
+
 )
