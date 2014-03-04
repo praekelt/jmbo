@@ -4,6 +4,8 @@ Changelog
 next
 ----
 #. Add functionality to periodically autosave certain fields on the change form.
+#. Change change list ordering to be `-publish_on, -created`.
+#. Change `get_related_items` ordering to be `-publish_on, -created`.
 
 1.0.10
 ------

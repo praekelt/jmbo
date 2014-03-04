@@ -88,11 +88,13 @@ limited to one or two sentences.'),
     created = models.DateTimeField(
         _('Created Date & Time'),
         blank=True,
+        db_index=True,
         help_text=_('Date and time on which this item was created. This is \
 automatically set on creation, but can be changed subsequently.')
     )
     modified = models.DateTimeField(
         _('Modified Date & Time'),
+        db_index=True,
         editable=False,
         help_text=_('Date and time on which this item was last modified. This \
 is automatically set each time the item is saved.')
@@ -204,7 +206,7 @@ but users won't be able to add new likes."),
     vote_total = models.PositiveIntegerField(default=0, editable=False)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-publish_on', '-created')
 
     def as_leaf_class(self):
         """
@@ -491,7 +493,7 @@ but users won't be able to add new likes."),
             ids_reverse = ids.values_list('source_object_id', flat=True)
 
             ids = [i for i in ids_forward] + [i for i in ids_reverse]
-            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
 
         elif direction == 'forward':
             ids = Relation.objects.filter(
@@ -501,7 +503,7 @@ but users won't be able to add new likes."),
             if name:
                 ids = ids.filter(name=name)
             ids = ids.values_list('target_object_id', flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
 
         elif direction == 'reverse':
             ids = Relation.objects.filter(
@@ -511,7 +513,7 @@ but users won't be able to add new likes."),
             if name:
                 ids = ids.filter(name=name)
             ids = ids.values_list('source_object_id', flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by('-modified')
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
 
         else:
             return ModelBase.permitted.none()
