@@ -28,6 +28,7 @@ setup(
         'django-sites-groups',
         'south',
         'django-tastypie<0.10',
+        'django-celery',
     ],
     include_package_data=True,
     tests_require=[
