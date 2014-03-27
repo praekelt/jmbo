@@ -16,7 +16,7 @@ We need to add an extra submit button called "Save and publish".
             var data = $('form:first').serializeArray();
 
             // Jmbo uses Ckeditor for richtext so handle the content
-            if  (CKEDITOR != undefined){
+            if  (typeof CKEDITOR != 'undefined'){
                 for (var editor_name in CKEDITOR.instances){
                     var name = $('#'+editor_name).attr('name');
                     data.push({'name': name, 'value': CKEDITOR.instances[editor_name].getData()});
