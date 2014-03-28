@@ -3,6 +3,7 @@ from copy import deepcopy
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
 from django import forms
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
@@ -10,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -84,6 +86,12 @@ the cropping takes place. This is useful to prevent peoples' heads from being \
 chopped off."""
 
         self.fields['effect'].help_text = """Apply an effect to the image."""
+
+        try:
+            default_anon_comments = settings.ALLOW_ANON_COMMENTS_BY_DEFAULT
+        except AttributeError:
+            default_anon_comments = True
+        self.fields['anonymous_comments'].initial = default_anon_comments
 
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
