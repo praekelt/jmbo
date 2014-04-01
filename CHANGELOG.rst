@@ -7,6 +7,7 @@ next
 #. Change change list ordering to be `-publish_on, -created`.
 #. Change `get_related_items` ordering to be `-publish_on, -created`.
 #. Use a celery task to publish content.
+#. Permalink now links to all sites.
 
 1.0.10
 ------
