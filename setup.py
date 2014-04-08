@@ -14,6 +14,7 @@ setup(
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.8.praekelt#egg=django-photologue-2.8.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.8.praekelt#egg=django-photologue-2.9.praekelt',
     ],
     install_requires = [
         'Pillow',
@@ -22,7 +23,7 @@ setup(
         'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
-        'django-photologue>=2.6.praekelt',
+        'django-photologue>=2.9.praekelt',
         'django-preferences',
         'django-publisher',
         'django-sites-groups',
