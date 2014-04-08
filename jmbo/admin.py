@@ -1,4 +1,5 @@
 from copy import deepcopy
+from PIL import Image
 
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
@@ -108,6 +109,19 @@ It is your responsibility to select the correct items."
                     name=name
                 )
                 self.fields[name].initial = [o.target for o in initial]
+
+
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        if image:
+            im = Image.open(image)
+            try:
+                im.load()
+            except IOError:
+                raise forms.ValidationError(
+                    "The image is either invalid or unsupported."
+                )
+        return image
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -258,7 +272,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def _get_absolute_url(self, obj):
         url = obj.get_absolute_url()
-        return '<a href="%s" target="public">%s</a>' % (url, url)
+        result = '<ul>'
+        for site in Site.objects.all():
+            result += '<li><a href="http://%s%s" target="public">%s</a></li>' % (site.domain, url, site.domain)
+        result += '</ul>'
+        return result
     _get_absolute_url.short_description = 'Permalink'
     _get_absolute_url.allow_tags = True
 

@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0.11
+------
+#. Add functionality to periodically autosave certain fields on the change form.
+#. Change change list ordering to be `-publish_on, -created`.
+#. Change `get_related_items` ordering to be `-publish_on, -created`.
+#. Use a celery task to publish content.
+#. Permalink now links to all sites.
+
 1.0.10
 ------
 #. Change secretballot usage so it does not hijack the objects manager anymore.
