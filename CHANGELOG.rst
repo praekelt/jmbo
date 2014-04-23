@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.0.13
+------
+#. Fix a broken find link in `setup.py`.
+
 1.0.12
 ------
 #. Fix incorrect file permissions.
