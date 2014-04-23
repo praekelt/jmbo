@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='1.0.12',
+    version='1.0.13',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -14,7 +14,7 @@ setup(
         'http://github.com/praekelt/django-photologue/tarball/2.6.praekelt#egg=django-photologue-2.6.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.7.praekelt#egg=django-photologue-2.7.praekelt',
         'http://github.com/praekelt/django-photologue/tarball/2.8.praekelt#egg=django-photologue-2.8.praekelt',
-        'http://github.com/praekelt/django-photologue/tarball/2.8.praekelt#egg=django-photologue-2.9.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.9.praekelt#egg=django-photologue-2.9.praekelt',
     ],
     install_requires = [
         'Pillow',
