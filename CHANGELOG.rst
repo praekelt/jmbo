@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.12
+------
 #. Fix incorrect file permissions.
 
 1.0.11
