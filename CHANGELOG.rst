@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add `rel="nofollow"` on view modifier links.
+
 1.0.13
 ------
 #. Fix a broken find link in `setup.py`.
