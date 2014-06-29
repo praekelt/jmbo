@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load jmbo_inclusion_tags jmbo_template_tags %} 
+{% load jmbo_inclusion_tags jmbo_template_tags %}
 
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
@@ -17,7 +17,7 @@
         {% if object.image %}
             <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
         {% endif %}
-        <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />    
+        <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
     {% endjmbocache %}
 {% endblock %}
 
@@ -25,14 +25,14 @@
     <div class="page section_news object-detail {{ object.class_name.lower }}-detail">
 
         {% if view_modifier %}
-    	    <div class="title">
-	    	    {{ title }}
-		    </div>      
+            <div class="title">
+                {{ title }}
+		    </div>
             {% view_modifier view_modifier %}
         {% endif %}
 
         {% with object.as_leaf_class as object %}
-            {% object_header object %}         
+            {% object_header object %}
             {% render_object object "detail" %}
             {% object_footer object %}
             {% object_comments object %}
