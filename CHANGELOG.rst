@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+1.0.14
+------
 #. Add `rel="nofollow"` on view modifier links.
 #. Fix `render_object` where context was copied instead of using push and pop.
 #. Simplify sharing link creation.
