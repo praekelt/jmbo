@@ -11,7 +11,7 @@ setup(
     url='http://www.jmbo.org',
     packages = find_packages(),
     dependency_links = [
-        'http://github.com/praekelt/django-photologue/tarball/2.9.praekelt#egg=django-photologue-2.10.praekelt',
+        'http://github.com/praekelt/django-photologue/tarball/2.10.praekelt#egg=django-photologue-2.10.praekelt',
     ],
     install_requires = [
         'Pillow',
