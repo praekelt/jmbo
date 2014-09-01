@@ -3,24 +3,35 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.db import connection
+from django.db.utils import DatabaseError
+
+from jmbo import USE_GIS
 
 
 class Migration(SchemaMigration):
-
-    depends_on = ( 
-        ("atlas", "0003_auto__chg_field_location_city"),
-    ) 
+    
+    if USE_GIS:
+        depends_on = ( 
+            ("atlas", "0003_auto__chg_field_location_city"),
+        ) 
 
     def forwards(self, orm):
-        # Adding field 'ModelBase.location'
-        db.add_column('jmbo_modelbase', 'location',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['atlas.Location'], null=True, blank=True),
-                      keep_default=False)
+        if USE_GIS:
+            # Adding field 'ModelBase.location'
+            db.add_column('jmbo_modelbase', 'location',
+                        self.gf('django.db.models.fields.related.ForeignKey')(to=orm['atlas.Location'], null=True, blank=True),
+                        keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'ModelBase.location'
-        db.delete_column('jmbo_modelbase', 'location_id')
+        try:
+            # check that the location field exists
+            connection.cursor().execute("SELECT location_id FROM jmbo_modelbase;")
+            # Deleting field 'ModelBase.location'
+            db.delete_column('jmbo_modelbase', 'location_id')
+        except DatabaseError:
+            pass
 
 
     models = {
