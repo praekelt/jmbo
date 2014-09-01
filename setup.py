@@ -23,7 +23,7 @@ setup(
         'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
-        'django-photologue>=2.9.praekelt',
+        'django-photologue>=2.10.praekelt',
         'django-preferences',
         'django-publisher',
         'django-sites-groups',
