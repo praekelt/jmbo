@@ -2,6 +2,10 @@ Jmbo
 ====
 **The Jmbo base product introduces a content type and various tools required to build Jmbo products.**
 
+.. figure:: https://travis-ci.org/praekelt/jmbo.svg?branch=develop
+   :align: center
+   :alt: Travis
+
 .. contents:: Contents
     :depth: 5
 
@@ -31,19 +35,19 @@ called Trivial Content.
     If you have two items with the same title (a common case in multilingual sites)
     then add extra text in the subtitle to distinguish between the items.
 
-3.  Description is an optional field. It is good practice to set it since 
+3.  Description is an optional field. It is good practice to set it since
     sites like Facebook read it when content is shared.
 
 4. See below.
 
 5. See below.
 
-6.  You should always attempt to set an image since sites look dull without them! 
-    All popular formats up to 1MB in size are supported. An aspect ratio of 4:3 
-    is preferred but an attempt is made to convert the uploaded image into 
+6.  You should always attempt to set an image since sites look dull without them!
+    All popular formats up to 1MB in size are supported. An aspect ratio of 4:3
+    is preferred but an attempt is made to convert the uploaded image into
     a 4:3 format. Applications may override this aspect ratio as they wish.
 
-    `Crop from` and `Effect` are for advanced use. `Crop from` is used when the 
+    `Crop from` and `Effect` are for advanced use. `Crop from` is used when the
     default cropping algorithm is eg. chopping a person's head off.
 
 7. See below.
@@ -54,7 +58,7 @@ called Trivial Content.
     converted behind the scenes into potentially many sizes. If the algorithm
     produces undesirable results you can override each size as required.
 
-10. `Save and publish` saves the item and makes it publicly accessible.    
+10. `Save and publish` saves the item and makes it publicly accessible.
 
 11. `Save and add another` saves the item. You are redirected to a screen to
     add a new trivial content item.
@@ -78,20 +82,20 @@ called Trivial Content.
     it empty you must unpublish the item manually, eg. by clicking `Save and
     unpublish`.
 
-4.  Publishers is marked for deprecation. The idea was to publish an item to eg. Facebook. Unfortunately 
+4.  Publishers is marked for deprecation. The idea was to publish an item to eg. Facebook. Unfortunately
     those platforms often have unstable API's, making it impractical.
-   
+
 .. image:: https://raw.github.com/praekelt/jmbo/develop/images/meta.png
 
-1.  Jmbo uses categories from `django-category`. Categorizing an item enables 
-    you to display it in a certain context. An example is a listing (as defined by 
+1.  Jmbo uses categories from `django-category`. Categorizing an item enables
+    you to display it in a certain context. An example is a listing (as defined by
     `jmbo-foundry`) of all items in a category.
-2.  The primary category is considered the most important category. Once again it enables 
+2.  The primary category is considered the most important category. Once again it enables
     you do display the item in a certain context.
 3.  Freeform tagging of an item allows more ways of searching for it.
 4.  `Created date and time` is when the item was created. If you leave it
     empty it is automatically set to the current time.
-5.  The owner of the item. The dropdown may change into an autocomplete field 
+5.  The owner of the item. The dropdown may change into an autocomplete field
     if there are many people to choose from.
 
 .. image:: https://raw.github.com/praekelt/jmbo/develop/images/commenting-liking.png
