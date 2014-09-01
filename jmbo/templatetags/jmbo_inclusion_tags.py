@@ -155,8 +155,8 @@ class RenderObjectNode(template.Node):
         obj = self.obj.resolve(context)
         type = self.type.resolve(context)
 
-        # update context
-        context = copy(context)
+        # Update context
+        context.push()
         context['object'] = obj
 
         # Generate template name from obj app label, model and type.
@@ -179,6 +179,8 @@ class RenderObjectNode(template.Node):
                             'fallback': fallback_template_name})
                 else:
                     response = ''
+        finally:
+            context.pop()
 
         return response
 

@@ -1,30 +1,27 @@
-{% load likes_inclusion_tags i18n %}
+{% load likes_inclusion_tags i18n jmbo_template_tags %}
 
-<div class="object-header">    
+<div class="object-header">
     <div class="title">
 	    {{ object.title }}
     </div>
 
 	<div class="meta">
 
-        {% comment %}
-        <div class="byline">
-            {% blocktrans %}By{% endblocktrans %} <a href="{{ object.owner.get_absolute_url }}">{{ object.owner }}</a> {% blocktrans %}on{% endblocktrans %} {{ object.created|date:"j F Y" }}
-        </div>
-        {% endcomment %}
-
         {% if object.comments_enabled %}
-        <div class="comments">
-            {% with object.comment_count as total %}
-                ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }}) 
-            {% endwith %}
-        </div>
+            {% jmbocache 3600 'object-header-comments' object.id object.comment_count %}
+                <div class="comments">
+                    {% with object.comment_count as total %}
+                        ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }})
+                    {% endwith %}
+                </div>
+            {% endjmbocache %}
         {% endif %}
 
+        {% comment %}Likes cannot be cached here because of complex rules{% endcomment %}
         {% if object.likes_enabled %}
-        <div class="likes">
-            {% likes object %}
-        </div>
+            <div class="likes">
+                {% likes object %}
+            </div>
         {% endif %}
 
     </div>

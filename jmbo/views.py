@@ -9,8 +9,11 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class ObjectDetail(GenericObjectDetail):
+
     def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted
+        return ModelBase.permitted.get_query_set(
+            for_user=getattr(getattr(self, 'request', None), 'user', None)
+        )
 
     def get_template_name(self, *args, **kwargs):
         return 'jmbo/modelbase_detail.html'
@@ -29,7 +32,7 @@ class ObjectList(GenericObjectList):
         return ModelBase.permitted.filter(
             content_type__app_label=kwargs['app_label'],
             content_type__model=kwargs['model']
-        ).order_by('-id')
+        ).order_by('-publish_on', '-created')
 
     def get_template_name(self, *args, **kwargs):
         return 'jmbo/modelbase_list.html'
@@ -105,7 +108,7 @@ class CategoryObjectList(GenericObjectList):
             'title': self.category.title,
             'pinned_object_list': ModelBase.permitted.filter(
                 pin__category=self.category
-            ).order_by('-created'),
+            ).order_by('-publish_on', '-created'),
             'category': self.category,
             'url_callable': self.get_url_callable()
         }

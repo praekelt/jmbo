@@ -17,6 +17,9 @@ from django.template.defaultfilters import slugify
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.gis.geos import fromstr
+from django.utils import timezone
+from django.core.management import call_command
+from django.utils.translation import ugettext as _
 
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
@@ -113,14 +116,14 @@ class UtilsTestCase(unittest.TestCase):
 
 class ModelBaseTestCase(unittest.TestCase):
     def test_save(self):
-        before_save = datetime.now()
+        before_save = timezone.now()
 
         # created field should be set on save
         obj = ModelBase(title='title')
         obj.save()
 
         # created field should be set to current datetime on save
-        after_save = datetime.now()
+        after_save = timezone.now()
         self.failIf(obj.created > after_save or obj.created < before_save)
 
         # If a user supplies a created date use that
@@ -131,10 +134,10 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failIf(obj.created != test_datetime)
 
         # modified should be set to current datetime on each save
-        before_save = datetime.now()
+        before_save = timezone.now()
         obj = ModelBase(title='title')
         obj.save()
-        after_save = datetime.now()
+        after_save = timezone.now()
         self.failIf(obj.modified > after_save or obj.modified < before_save)
 
         # leaf class content type should be set on save
@@ -178,6 +181,7 @@ class ModelBaseTestCase(unittest.TestCase):
         obj.add_vote("token3", 1)
 
         # vote_total should return an integer
+        obj = ModelBase.objects.get(id=obj.id)
         result = obj.vote_total
         self.failUnlessEqual(result.__class__, int)
 
@@ -309,11 +313,13 @@ class ModelBaseTestCase(unittest.TestCase):
         # should be 1 since we've created 1 comment.
         comment_obj = comment_model(content_object=obj, site_id=1)
         comment_obj.save()
+        obj = ModelBase.objects.get(id=obj.id)
         self.failUnless(obj.comment_count == 1)
 
         # Return 0 if no comments exist.
         dummy_obj = DummyModel()
         dummy_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.comment_count == 0)
 
         # Return the number of comments if comments exist on the
@@ -324,6 +330,7 @@ class ModelBaseTestCase(unittest.TestCase):
             site_id=1
         )
         comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.modelbase_obj.comment_count == 1)
 
         # If a comment was made on the ModelBase object it should
@@ -334,6 +341,7 @@ class ModelBaseTestCase(unittest.TestCase):
         # is 2 for both the dummy object and its modelbase object.
         comment_obj = comment_model(content_object=dummy_obj, site_id=1)
         comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
         self.failUnless(dummy_obj.comment_count == 2)
         self.failUnless(dummy_obj.modelbase_obj.comment_count == 2)
 
@@ -385,6 +393,19 @@ class ModelBaseTestCase(unittest.TestCase):
         )
         obj.save()
         self.failUnless(obj.can_comment(request)[0])
+
+    def test_publishing_timezone_awareness(self):
+        obj_naive = ModelBase.objects.create(
+            title="Obj1",
+            publish_on=datetime.now() - timedelta(hours=1)
+        )
+        obj_aware = ModelBase.objects.create(
+            title="Obj2",
+            publish_on=timezone.now() - timedelta(hours=1)
+        )
+        call_command('jmbo_publish')
+        self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, 'published')
+        self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, 'published')
 
 
 class ModelBaseAdminTestCase(unittest.TestCase):
@@ -615,6 +636,11 @@ class TemplateTagsTestCase(unittest.TestCase):
             'url_callable': CallableURL(),
         })
 
+    @classmethod  
+    def setUpClass(cls):
+        # Add an extra site
+        site, dc = Site.objects.get_or_create(name='another', domain='another.com')
+
     def test_smart_url(self):
         # return method call with result based on object provided
         t = Template("{% load jmbo_template_tags %}\
@@ -622,6 +648,54 @@ class TemplateTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         self.failUnlessEqual(result, 'Test URL method using object TestModel')
 
+    def test_jmbocache(self):
+        # Caching on same site
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
+        # Caching on different sites
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        settings.SITE_ID = 2
+        Site.objects.clear_cache()
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache' %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        settings.SITE_ID = 2
+        Site.objects.clear_cache()
+        self.failIfEqual(result1, result2)
+
+        # Check that undefined variables do not break caching
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_undefined' aaa %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_undefined' bbb %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
+        # Check that translation proxies are valid variables
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_xlt' _('aaa') %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
 
 class LocationAwarenessTestCase(unittest.TestCase):
     def setUp(self):
@@ -648,5 +722,3 @@ class LocationAwarenessTestCase(unittest.TestCase):
         for obj in qs:
             if obj.distance is not None:
                 self.assertEqual(obj.location.coordinates.distance(self.ct.coordinates), obj.distance)
-        
-        

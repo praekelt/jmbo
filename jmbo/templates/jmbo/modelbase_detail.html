@@ -1,31 +1,42 @@
 {% extends "base.html" %}
-{% load jmbo_inclusion_tags %} 
+{% load jmbo_inclusion_tags jmbo_template_tags %}
+
+{% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    <meta property="og:title" content="{{ object.title }}" />
-    <meta property="og:type" content="article"/>
-    <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
-    <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
-    <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
+    {% jmbocache 1200 'object-detail' object.id object.modified %}
+        <meta name="description" content="{{ object.description|default_if_none:'' }}" />
+        {% with object.tags.all as tags %}
+            {% if tags %}
+                <meta name="keywords" content="{{ tags|join:", " }}" />
+            {% endif %}
+        {% endwith %}
+        <meta property="og:title" content="{{ object.title }}" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.get_absolute_url }}" />
+        {% if object.image %}
+            <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{{ object.image_detail_url }}" />
+        {% endif %}
+        <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
+    {% endjmbocache %}
 {% endblock %}
 
 {% block content %}
     <div class="page section_news object-detail {{ object.class_name.lower }}-detail">
 
         {% if view_modifier %}
-    	    <div class="title">
-	    	    {{ title }}
-		    </div>      
+            <div class="title">
+                {{ title }}
+		    </div>
             {% view_modifier view_modifier %}
         {% endif %}
 
-        {% object_header object %}
-      
-        {% render_object object.as_leaf_class "detail" %}
+        {% with object.as_leaf_class as object %}
+            {% object_header object %}
+            {% render_object object "detail" %}
+            {% object_footer object %}
+            {% object_comments object %}
+        {% endwith %}
 
-        {% object_footer object %}
-
-        {% object_comments object %}
-
-	</div><!--/page-->
+	</div>
 {% endblock %}

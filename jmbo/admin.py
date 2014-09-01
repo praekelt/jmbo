@@ -1,4 +1,5 @@
 from copy import deepcopy
+from PIL import Image
 
 from django.db.models import Q
 from django.db.models.fields import FieldDoesNotExist
@@ -74,6 +75,19 @@ class ModelBaseAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
 
+        self.fields['image'].help_text = """An image can be in format JPG, \
+PNG or GIF. Images are scaled to the appropriate size when people browse to \
+the site on mobile browsers, so always upload an image that will look good on \
+normal web browsers. In general an image with an aspect ratio of 4:3 will \
+yield best results."""
+
+        self.fields['crop_from'].help_text = """If you upload an image in an \
+aspect ratio that may require it to be cropped then you can adjust from where \
+the cropping takes place. This is useful to prevent peoples' heads from being \
+chopped off."""
+
+        self.fields['effect'].help_text = """Apply an effect to the image."""
+
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
@@ -99,45 +113,85 @@ It is your responsibility to select the correct items."
                 self.fields[name].initial = [o.target for o in initial]
 
 
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        if image:
+            im = Image.open(image)
+            try:
+                im.load()
+            except IOError:
+                raise forms.ValidationError(
+                    "The image is either invalid or unsupported."
+                )
+        return image
+
+
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
     change_form_template = 'admin/jmbo/extras/change_form.html'
 
     actions = [make_published, make_unpublished]
-    inlines = [ImageOverrideInline, ]
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
 
-    list_filter = ('state', 'created', CategoriesListFilter,)
+    list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'subtitle', 'description', )}),
-        ('Publishing', {'fields': ('sites', 'publish_on', \
-                'retract_on', 'publishers'),
-                    'classes': ('collapse',),
-        }),
-        ('Meta', {'fields': None,
-                    'classes': ('collapse',),
-        }),
-        ('Image', {'fields': ('image', 'crop_from', 'effect'),
-                    'classes': (),
-        }),
-        ('Commenting', {'fields': ('comments_enabled', 'anonymous_comments', \
-                'comments_closed'),
-                    'classes': ('collapse',),
-        }),
-        ('Liking', {'fields': ('likes_enabled', 'anonymous_likes', \
-                'likes_closed'),
-                    'classes': ('collapse',),
-        }),
+        (None, {'fields': ('title', 'subtitle', 'description')}),
+        (
+            'Image',
+            {
+                'fields': ('image', 'crop_from', 'image_attribution'),
+                'classes': ()
+            }
+        ),
+        (
+            'Publishing',
+            {
+                'fields': ('sites', 'publish_on', 'retract_on'),
+                'classes': (),
+            }
+        ),
+        (
+            'Metadata',
+            {
+                'fields': ('categories', 'primary_category', 'tags',
+                    'created', 'owner', 'owner_override',
+                 ),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Commenting',
+            {
+                'fields': ('comments_enabled', 'anonymous_comments',
+                    'comments_closed'
+                ),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Liking',
+            {
+                'fields': ('likes_enabled', 'anonymous_likes', 'likes_closed'),
+                'classes': ('collapse',)
+            }
+        ),
+        (
+            'Advanced',
+            {
+                'fields': ('effect',),
+                'classes': ('collapse',)
+            }
+        ),
     )
     if USE_GIS:
         fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'location')
+            'created', 'owner', 'owner_override', 'location')
     else:
         fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
-            'created', 'owner')
+            'created', 'owner', 'owner_override')
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
@@ -226,7 +280,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def _get_absolute_url(self, obj):
         url = obj.get_absolute_url()
-        return '<a href="%s" target="public">%s</a>' % (url, url)
+        result = '<ul>'
+        for site in Site.objects.all():
+            result += '<li><a href="http://%s%s" target="public">%s</a></li>' % (site.domain, url, site.domain)
+        result += '</ul>'
+        return result
     _get_absolute_url.short_description = 'Permalink'
     _get_absolute_url.allow_tags = True
 

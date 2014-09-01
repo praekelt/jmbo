@@ -1,6 +1,75 @@
 Changelog
 =========
 
+1.0.14
+------
+#. Add `rel="nofollow"` on view modifier links.
+#. Fix `render_object` where context was copied instead of using push and pop.
+#. Simplify sharing link creation.
+
+1.0.13
+------
+#. Fix a broken find link in `setup.py`.
+
+1.0.12
+------
+#. Fix incorrect file permissions.
+
+1.0.11
+------
+#. Add functionality to periodically autosave certain fields on the change form.
+#. Change change list ordering to be `-publish_on, -created`.
+#. Change `get_related_items` ordering to be `-publish_on, -created`.
+#. Use a celery task to publish content.
+#. Permalink now links to all sites.
+
+1.0.10
+------
+#. Change secretballot usage so it does not hijack the objects manager anymore.
+#. Add `owner_override` and `image_attribution` fields.
+
+1.0.9
+-----
+#. Change permitted manager and generic object detail so staff can preview unpublished content.
+#. Aggregate total comments and likes onto `ModelBase` to prevent expensive queries.
+
+1.0.8
+-----
+#. Add caching template tag `jmbocache` which automatically adds the `SITE_ID` as part of the cache key.
+
+1.0.7
+-----
+#. Generic caching on detail templates.
+#. Share on Google.
+
+1.0.6
+-----
+#. Add a list filter in admin to filter `ModelBase` objects by site and site group.
+#. `ModelBase.__unicode__` includes the site name - non-admin templates that rely on __unicode__ will have to be updated.
+#. Set title, description and keywords meta tags on detail page.
+#. `comment_count` is now aware that multiple sites may comprise a logical site.
+
+1.0.5
+-----
+#. Make `jmbo_publish` command timezone-aware, ensuring that it works with old, naive timestamps.
+
+1.0.4
+-----
+#. Restore crop from field to a more prominent position.
+
+1.0.3
+-----
+#. Simplify the change form. Move advanced fields into their own section.
+
+1.0.2
+-----
+#. Ensure the leaf object is passed to template tags in `modelbase_detail.html`.
+#. `get_related_items` parameter `name` is now optional. The sorting has changed to reverse on modified (our default sorting).
+
+1.0.1
+-----
+#. `as_leaf_class` method would break if two models had the same name. Fixed.
+
 1.0
 ---
 #. Jmbo is now location aware. This requires a manual upgrade of libraries and existing databases. DO NOT UPGRADE to 1.0 without preparation. If you are on Ubuntu then it is as simple as running the interactive ``convert_to_geodb_ubuntu.sh`` script.

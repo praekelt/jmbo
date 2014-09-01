@@ -88,11 +88,13 @@ limited to one or two sentences.'),
     created = models.DateTimeField(
         _('Created Date & Time'),
         blank=True,
+        db_index=True,
         help_text=_('Date and time on which this item was created. This is \
 automatically set on creation, but can be changed subsequently.')
     )
     modified = models.DateTimeField(
         _('Modified Date & Time'),
+        db_index=True,
         editable=False,
         help_text=_('Date and time on which this item was last modified. This \
 is automatically set each time the item is saved.')
@@ -101,6 +103,13 @@ is automatically set each time the item is saved.')
         User,
         blank=True,
         null=True,
+    )
+    owner_override = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("If the author is not a registered user then set it here, \
+eg. Reuters.")
     )
     content_type = models.ForeignKey(
         ContentType,
@@ -142,6 +151,7 @@ is automatically set each time the item is saved.')
         'publisher.Publisher',
         blank=True,
         null=True,
+        editable=False,
         help_text=_(
             'Makes item eligible to be published on selected platform.'
         ),
@@ -188,9 +198,17 @@ but users won't be able to add new likes."),
             null=True,
             help_text=_("A location that can be used for content filtering."),
         )
+    image_attribution = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("Attribution for the canonical image, eg. Shutterstock.")
+    )
+    comment_count = models.PositiveIntegerField(default=0, editable=False)
+    vote_total = models.PositiveIntegerField(default=0, editable=False)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('-publish_on', '-created')
 
     def as_leaf_class(self):
         """
@@ -200,7 +218,7 @@ but users won't be able to add new likes."),
         """
         try:
             instance = self.__getattribute__(self.class_name.lower())
-        except AttributeError:
+        except (AttributeError, self.DoesNotExist):
             content_type = self.content_type
             model = content_type.model_class()
             if(model == ModelBase):
@@ -259,7 +277,9 @@ but users won't be able to add new likes."),
             self.created = now
 
         # set modified to now on each save.
-        self.modified = now
+        set_modified = kwargs.pop('set_modified', True)
+        if set_modified:
+            self.modified = now
 
         # set leaf class content type
         if not self.content_type:
@@ -276,10 +296,12 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
+        sites = ', '.join([s.name for s in self.sites.all()])
+        sites = sites if sites else 'no sites'
         if self.subtitle:
-            return '%s (%s)' % (self.title, self.subtitle)
+            return '%s - %s (%s)' % (self.title, self.subtitle, sites)
         else:
-            return self.title
+            return '%s (%s)' % (self.title, sites)
 
     @property
     def is_permitted(self):
@@ -310,7 +332,7 @@ but users won't be able to add new likes."),
             '''
             link_name = self._meta.get_ancestor_link(ModelBase).name
             return getattr(self, link_name)
-            
+
 
     def can_vote(self, request):
         """
@@ -362,7 +384,7 @@ but users won't be able to add new likes."),
         return True, 'can_comment'
 
     @property
-    def vote_total(self):
+    def _vote_total(self):
         """
         Calculates vote total (+1 for upvote and -1 for downvote). We are
         adding a method here instead of relying on django-secretballot's
@@ -373,7 +395,7 @@ but users won't be able to add new likes."),
         return votes if votes else 0
 
     @property
-    def comment_count(self):
+    def _comment_count(self):
         """
         Counts total number of comments on ModelBase object.
         Comments should always be recorded on ModelBase objects.
@@ -386,11 +408,16 @@ but users won't be able to add new likes."),
             model="modelbase"
         )
 
+        # Compute site id range. This is a slight pollution from jmbo-foundry
+        # but we don't want to monkey patch Jmbo itself.
+        i = settings.SITE_ID / 10
+        site_ids = range(i * 10 + 1, (i + 1) * 10)
+
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(
             content_type__in=[self.content_type, modelbase_content_type],
             object_pk=smart_unicode(self.pk),
-            site__pk=settings.SITE_ID,
+            site__pk__in = site_ids,
         )
 
         # The is_public and is_removed fields are implementation details of the
@@ -441,33 +468,59 @@ but users won't be able to add new likes."),
         else:
             return getattr(self, 'get_modelbase_list_url')()
 
-    def get_related_items(self, name, direction='forward'):
+    def get_related_items(self, name=None, direction='forward'):
         """If direction is forward get items self points to by name name. If
-        direction is reverse get items pointing to self to by name name."""
-        if direction == 'forward':
+        direction is reverse get items pointing to self to by name name.
+
+        There is no logical value in having a large amount of relations on
+        an object. This nature of the data makes the use of the ids iterators
+        safe.
+        """
+
+        if direction == 'both':
             ids = Relation.objects.filter(
                 source_content_type=self.content_type,
-                source_object_id=self.id,
-                name=name
-            ).order_by('-target_object_id').values_list(
-                'target_object_id', flat=True
+                source_object_id=self.id
             )
-            return ModelBase.permitted.filter(id__in=ids)
+            if name:
+                ids = ids.filter(name=name)
+            ids_forward = ids.values_list('target_object_id', flat=True)
+
+            ids = Relation.objects.filter(
+                target_content_type=self.content_type,
+                target_object_id=self.id
+            )
+            if name:
+                ids = ids.filter(name=name)
+            ids_reverse = ids.values_list('source_object_id', flat=True)
+
+            ids = [i for i in ids_forward] + [i for i in ids_reverse]
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
+
+        elif direction == 'forward':
+            ids = Relation.objects.filter(
+                source_content_type=self.content_type,
+                source_object_id=self.id
+            )
+            if name:
+                ids = ids.filter(name=name)
+            ids = ids.values_list('target_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
 
         elif direction == 'reverse':
             ids = Relation.objects.filter(
                 target_content_type=self.content_type,
-                target_object_id=self.id,
-                name=name
-            ).order_by('-source_object_id').values_list(
-                'source_object_id', flat=True
+                target_object_id=self.id
             )
-            return ModelBase.permitted.filter(id__in=ids)
+            if name:
+                ids = ids.filter(name=name)
+            ids = ids.values_list('source_object_id', flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
 
         else:
             return ModelBase.permitted.none()
 
-    def get_permitted_related_items(self, name, direction='forward'):
+    def get_permitted_related_items(self, name=None, direction='forward'):
         return self.get_related_items(name, direction)
 
     def natural_key(self):
@@ -555,5 +608,6 @@ SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=doma
 # so ModelBase's vote_total method is not overwritten
 secretballot.enable_voting_on(
     ModelBase,
-    total_name="secretballot_added_vote_total"
+    manager_name='secretballot_objects',
+    total_name='secretballot_added_vote_total'
 )
