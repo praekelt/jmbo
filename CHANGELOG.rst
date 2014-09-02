@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1
+---
+#. Location aware functionality now only takes effect if both 'django-atlas` and `django.contrib.gis` are installed.
+#. `django-photologue` 2.10 is now the minimum version.
+
 1.0.14
 ------
 #. Add `rel="nofollow"` on view modifier links.
