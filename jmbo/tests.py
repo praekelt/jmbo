@@ -21,14 +21,17 @@ from django.utils import timezone
 from django.core.management import call_command
 from django.utils.translation import ugettext as _
 
+from photologue.models import PhotoSize
+from secretballot.models import Vote
+
 from jmbo.admin import ModelBaseAdmin
 from jmbo.models import ModelBase
 from jmbo.utils.tests import RequestFactory
 from jmbo.management.commands import jmbo_publish
+from jmbo import USE_GIS
 
-from photologue.models import PhotoSize
-from secretballot.models import Vote
-from atlas.models import Location, City, Country
+if USE_GIS:
+    from atlas.models import Location, City, Country
 
 
 class DummyRelationalModel1(models.Model):
@@ -636,7 +639,7 @@ class TemplateTagsTestCase(unittest.TestCase):
             'url_callable': CallableURL(),
         })
 
-    @classmethod  
+    @classmethod
     def setUpClass(cls):
         # Add an extra site
         site, dc = Site.objects.get_or_create(name='another', domain='another.com')
@@ -697,28 +700,30 @@ class TemplateTagsTestCase(unittest.TestCase):
         result2 = t.render(self.context)
         self.failUnlessEqual(result1, result2)
 
-class LocationAwarenessTestCase(unittest.TestCase):
-    def setUp(self):
-        country = Country(name="South Africa", country_code="ZA")
-        country.save()
-        self.ct = City(
-            name="Cape Town",
-            country=country,
-            coordinates=fromstr('POINT(18.423218 -33.925839)', srid=4326)
-        )
-        self.ct.save()
-        loc1 = Location(
-            city=self.ct,
-            country=country,
-            coordinates=fromstr('POINT(18.41 -33.91)', srid=4326),
-            name='loc1'
-        )
-        loc1.save()
-        self.model = ModelBase(title="title1", location=loc1)
-        self.model.save()
 
-    def test_distance_calculation(self):
-        qs = ModelBase.objects.distance(self.ct.coordinates)
-        for obj in qs:
-            if obj.distance is not None:
-                self.assertEqual(obj.location.coordinates.distance(self.ct.coordinates), obj.distance)
+if USE_GIS:
+    class LocationAwarenessTestCase(unittest.TestCase):
+        def setUp(self):
+            country = Country(name="South Africa", country_code="ZA")
+            country.save()
+            self.ct = City(
+                name="Cape Town",
+                country=country,
+                coordinates=fromstr('POINT(18.423218 -33.925839)', srid=4326)
+            )
+            self.ct.save()
+            loc1 = Location(
+                city=self.ct,
+                country=country,
+                coordinates=fromstr('POINT(18.41 -33.91)', srid=4326),
+                name='loc1'
+            )
+            loc1.save()
+            self.model = ModelBase(title="title1", location=loc1)
+            self.model.save()
+
+        def test_distance_calculation(self):
+            qs = ModelBase.objects.distance(self.ct.coordinates)
+            for obj in qs:
+                if obj.distance is not None:
+                    self.assertEqual(obj.location.coordinates.distance(self.ct.coordinates), obj.distance)
