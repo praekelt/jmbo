@@ -7,7 +7,7 @@ DATABASES = {
 #        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'jmbo',
-        'USER': 'test',
+        'USER': 'postgres',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
