@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.1
+-----
+#. Add a template `base.html` so unit tests that render detail pages work.
+#. Reshuffle the test layout.
+
 1.1
 ---
 #. Location aware functionality now only takes effect if both 'django-atlas` and `django.contrib.gis` are installed.
