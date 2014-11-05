@@ -290,8 +290,9 @@ but users won't be able to add new likes."),
         if not self.class_name:
             self.class_name = self.__class__.__name__
 
-        # set title as slug uniquely
-        self.slug = generate_slug(self, self.title)
+        # set title as slug uniquely exactly once
+        if not self.slug:
+            self.slug = generate_slug(self, self.title)
 
         super(ModelBase, self).save(*args, **kwargs)
 
