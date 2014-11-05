@@ -93,10 +93,10 @@ class UtilsTestCase(unittest.TestCase):
         obj = ModelBase(title='utils test case title 1')
         obj.save()
 
-        # in case an object title is updated, the slug should also be updated
+        # in case an object title is updated, the slug not be updated
         obj.title = "updated title"
         obj.save()
-        self.failUnless(obj.slug == slugify(obj.title))
+        self.failIf(obj.slug == slugify(obj.title))
 
         # In case an object is updated, without the title being changed
         # the slug should remain unchanged.
