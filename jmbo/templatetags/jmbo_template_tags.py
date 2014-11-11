@@ -1,5 +1,6 @@
 from datetime import datetime
 import hashlib
+import logging
 
 from django import template
 from django.utils.translation import ugettext as _
@@ -13,6 +14,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 register = template.Library()
+logger = logging.getLogger(__name__)
 
 
 @register.simple_tag
@@ -219,6 +221,7 @@ class JmboCacheNode(CacheNode):
             raise template.TemplateSyntaxError(
                 '"cache" tag got a non-integer timeout value: %r' % expire_time
             )
+
         # Build a unicode key for this fragment and all vary-on's.
         resolved = []
         for var in self.vary_on:
@@ -232,11 +235,20 @@ class JmboCacheNode(CacheNode):
                 resolved.append(r)
 
         args = hashlib.md5(u':'.join([urlquote(r) for r in resolved]))
-        cache_key = 'template.cache.%s.%s' % (self.fragment_name, args.hexdigest())
+        cache_key = 'template.cache.%s.%s' % (
+            self.fragment_name, args.hexdigest()
+        )
         value = cache.get(cache_key)
         if value is None:
             value = self.nodelist.render(context)
             cache.set(cache_key, value, expire_time)
+
+        # log if the cache is less than 4 bytes
+        if len(value) <= 4:
+            logger.error("JMBO Cache return an unusual value. Value is: %s" % (
+                value
+            ))
+
         return value
 
 
