@@ -245,8 +245,8 @@ class JmboCacheNode(CacheNode):
 
         # log if the cache is less than 4 bytes
         if len(value) <= 4:
-            logger.error("JMBO Cache return an unusual value. Value is: %s" % (
-                value
+            logger.error("JMBO Cache Error. Fragment Name: %s, Value: %s" % (
+                self.fragment_name, value
             ))
 
         return value
