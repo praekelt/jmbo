@@ -12,8 +12,6 @@ from django.template.base import VariableDoesNotExist
 from django.core.cache import cache
 from django.conf import settings
 
-from jmbo.models import Relation
-
 register = template.Library()
 
 
@@ -43,8 +41,10 @@ class SmartQueryStringNode(template.Node):
     def __init__(self, addition_pairs):
         self.addition_pairs = []
         for key, value in addition_pairs:
-            self.addition_pairs.append((template.Variable(key) if key \
-                    else None, template.Variable(value) if value else None))
+            self.addition_pairs.append((
+                template.Variable(key) if key else None,
+                template.Variable(value) if value else None
+            ))
 
     def render(self, context):
         q = dict([(k, v) for k, v in context['request'].GET.items()])
@@ -65,7 +65,7 @@ def humanize_time_diff(parser, token):
     bits = token.split_contents()
     if len(bits) < 3:
         raise template.TemplateSyntaxError, \
-                    "%s requires at least two argument" % bits[0]
+            "%s requires at least two argument" % bits[0]
 
     return HumanizeTimeDifference(*bits[1:])
 
@@ -74,8 +74,8 @@ class HumanizeTimeDifference(template.Node):
     """
     Adapted from Django Snippet 412
 
-    Returns a humanized string representing time difference
-    between now() and the input timestamp.
+    Returns a humanized string representing time difference between now() and
+    the input timestamp.
 
     The output rounds up to days, hours, minutes, or seconds.
     4 days 5 hours returns '4 days'
@@ -208,11 +208,17 @@ class JmboCacheNode(CacheNode):
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:
-            raise TemplateSyntaxError('"cache" tag got an unknown variable: %r' % self.expire_time_var.var)
+            raise template.TemplateSyntaxError(
+                '"cache" tag got an unknown variable: %r' % (
+                    self.expire_time_var.var
+                )
+            )
         try:
             expire_time = int(expire_time)
         except (ValueError, TypeError):
-            raise TemplateSyntaxError('"cache" tag got a non-integer timeout value: %r' % expire_time)
+            raise template.TemplateSyntaxError(
+                '"cache" tag got a non-integer timeout value: %r' % expire_time
+            )
         # Build a unicode key for this fragment and all vary-on's.
         resolved = []
         for var in self.vary_on:
@@ -224,7 +230,7 @@ class JmboCacheNode(CacheNode):
                 if isinstance(r, Promise):
                     r = unicode(r)
                 resolved.append(r)
-        #import pdb;pdb.set_trace()
+
         args = hashlib.md5(u':'.join([urlquote(r) for r in resolved]))
         cache_key = 'template.cache.%s.%s' % (self.fragment_name, args.hexdigest())
         value = cache.get(cache_key)
@@ -241,5 +247,7 @@ def do_jmbocache(parser, token):
     parser.delete_first_token()
     tokens = token.contents.split()
     if len(tokens) < 3:
-        raise template.TemplateSyntaxError(u"'%r' tag requires at least 2 arguments." % tokens[0])
+        raise template.TemplateSyntaxError(
+            u"'%r' tag requires at least 2 arguments." % tokens[0]
+        )
     return JmboCacheNode(nodelist, tokens[1], tokens[2], tokens[3:])
