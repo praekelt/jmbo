@@ -1,9 +1,13 @@
 Changelog
 =========
 
-next
-----
+1.1.3
+-----
 #. Fix modelbase editing where location field was added to wrong fieldset.
+
+1.1.2
+-----
+#. Add logging to `jmbocache` template tag.
 
 1.1.1
 -----
