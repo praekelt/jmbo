@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Fix modelbase editing where location field was added to wrong fieldset.
+
 1.1.1
 -----
 #. Add a template `base.html` so unit tests that render detail pages work.

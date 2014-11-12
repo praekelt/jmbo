@@ -187,11 +187,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
         ),
     )
     if USE_GIS:
-        fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'owner_override', 'location')
-    else:
-        fieldsets[2][1]['fields'] = ('categories', 'primary_category', 'tags', \
-            'created', 'owner', 'owner_override')
+        fieldsets[3][1]['fields'] = tuple(list(fieldsets[3][1]['fields']) + ['location'])
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
