@@ -71,8 +71,8 @@ class ModelBaseAdminForm(forms.ModelForm):
     set_slug = forms.ModelChoiceField(
             ModelBase.objects.all().order_by('title', 'subtitle'),
             required=False,
-            label="Set url to",
-            help_text="Set the URL (slug) the same as a similar piece of content on another site."
+            label=_("Set url to"),
+            help_text=_("Set the URL (slug) the same as a similar piece of content on another site."),
             )
 
     class Meta:
@@ -119,8 +119,9 @@ It is your responsibility to select the correct items."
                 )
                 self.fields[name].initial = [o.target for o in initial]
 
-        set_slug_qs = ModelBase.objects.filter(content_type=content_type)\
-                .order_by('title', 'subtitle')
+        set_slug_qs = ModelBase.objects.filter(
+            content_type=content_type
+            ).order_by('title', 'subtitle')
         if instance is not None:
             set_slug_qs = set_slug_qs.exclude(id__exact=instance.id)
 
@@ -155,7 +156,7 @@ It is your responsibility to select the correct items."
         existing_obs = ModelBase.objects.filter(sites__in=sites).filter(slug=slug)
 
         if self.instance:
-                existing_obs = existing_obs.exclude(id=self.instance.id)
+            existing_obs = existing_obs.exclude(id=self.instance.id)
 
         if existing_obs.exists():
             # Show error in the appropriate place
