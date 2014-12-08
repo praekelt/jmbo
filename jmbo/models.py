@@ -65,7 +65,6 @@ change to 'unpublished')."),
         editable=False,
         max_length=255,
         db_index=True,
-        unique=True,
     )
     title = models.CharField(
         _("Title"),
