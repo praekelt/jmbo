@@ -163,6 +163,39 @@ class ModelBaseTestCase(unittest.TestCase):
         # retained over base class' class name.
         self.failUnless(base.class_name == DummyModel.__name__)
 
+    def test_unique_slugs(self):
+        # create 2 sites
+        site_1 = Site(domain="site1.example.com")
+        site_1.save()
+        site_2 = Site(domain="site2.example.com")
+        site_2.save()
+
+        # Create an object for site 1
+        obj_1 = ModelBase(title='object for site 1')
+        obj_1.save()
+        obj_1.sites.add(site_1)
+        obj_1.slug = 'generic_slug'
+        obj_1.save()
+
+        # Create an object for site 2
+        obj_2 = ModelBase(title='object for site 2')
+        obj_2.save()
+        obj_2.sites.add(site_2)
+        obj_2.slug = 'generic_slug'
+        obj_2.save()
+
+        with self.assertRaises(RuntimeError):
+            obj_2.sites.add(site_1)
+            obj_2.save()
+
+        obj_2.slug = 'generic_slug_2'
+        obj_2.sites.add(site_1)
+        obj_2.save()
+
+        with self.assertRaises(RuntimeError):
+            obj_2.slug = 'generic_slug'
+            obj_2.save()
+
     def test_as_leaf_class(self):
         obj = LeafModel(title='title')
         obj.save()
