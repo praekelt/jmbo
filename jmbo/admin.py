@@ -68,13 +68,6 @@ make_unpublished.short_description = "Mark selected items as unpublished"
 class ModelBaseAdminForm(forms.ModelForm):
     """Helper form for ModelBaseAdmin"""
 
-    set_slug = forms.ModelChoiceField(
-            ModelBase.objects.all().order_by('title', 'subtitle'),
-            required=False,
-            label=_("Set url to"),
-            help_text=_("Set the URL (slug) the same as a similar piece of content on another site."),
-            )
-
     class Meta:
         model = ModelBase
         widgets = {'sites': SitesGroupsWidget}
@@ -119,14 +112,6 @@ It is your responsibility to select the correct items."
                 )
                 self.fields[name].initial = [o.target for o in initial]
 
-        set_slug_qs = ModelBase.objects.filter(
-            content_type=content_type
-            ).order_by('title', 'subtitle')
-        if instance is not None:
-            set_slug_qs = set_slug_qs.exclude(id__exact=instance.id)
-
-        self.fields['set_slug'].queryset = set_slug_qs
-
     def clean_image(self):
         image = self.cleaned_data['image']
         if image:
@@ -141,35 +126,20 @@ It is your responsibility to select the correct items."
 
     def clean(self):
         """
-        Slug must be unique on site. Show sensible errors when this is not the
-        case.
+        Slug must be unique per site. Show sensible errors when not.
         """
-        cleaned_data = super(ModelBaseAdminForm, self).clean()
-        set_slug = self.cleaned_data.get('set_slug')
-        if set_slug:
-            slug = set_slug.slug
-        elif self.instance:
-            slug = self.instance.slug
-        sites = self.cleaned_data.get('sites')
-
+        slug = self.cleaned_data['slug']
         # Check if any combination of slug and site exists.
-        existing_obs = ModelBase.objects.filter(sites__in=sites).filter(slug=slug)
-
-        if self.instance:
-            existing_obs = existing_obs.exclude(id=self.instance.id)
-
-        if existing_obs.exists():
-            # Show error in the appropriate place
-            if set_slug:
-                self._errors['set_slug'] = self.error_class(
-                        ['This URL(slug) is already used on the given sites.'])
-            else:
-                self._errors['sites'] = self.error_class(
-                        ['Another object with the same slug is already used on the given sites.'])
-        else:
-            # Change the slug
-            self.instance.slug = slug
-        return cleaned_data
+        for site in self.cleaned_data['sites']:
+            q = ModelBase.objects.filter(sites=site, slug=slug)
+            if self.instance:
+                q = q.exclude(id=self.instance.id)
+            if q.exists():
+                raise forms.ValidationError(_(
+                    "The slug is already in use by item %s.  To use the same \
+                    slug the items may not have overlapping sites." % q[0]
+                ))
+        return self.cleaned_data
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -184,7 +154,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'subtitle', 'description')}),
+        (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
             'Image',
             {
@@ -227,13 +197,14 @@ class ModelBaseAdmin(admin.ModelAdmin):
         (
             'Advanced',
             {
-                'fields': ('effect', 'set_slug'),
+                'fields': ('effect',),
                 'classes': ('collapse',)
             }
         ),
     )
     if USE_GIS:
         fieldsets[3][1]['fields'] = tuple(list(fieldsets[3][1]['fields']) + ['location'])
+    prepopulated_fields = {'slug': ('title',)}
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
