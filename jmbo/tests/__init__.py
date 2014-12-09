@@ -184,13 +184,17 @@ class ModelBaseTestCase(unittest.TestCase):
         obj_2.slug = 'generic_slug'
         obj_2.save()
 
-        obj_2.sites.add(site_1)
-        obj_2.save()
+        # Trying to add site_1 should raise an error.
+        with self.assertRaises(RuntimeError):
+            obj_2.sites.add(site_1)
+            obj_2.save()
 
+        # When the slugs differ, you can add site_1.
         obj_2.slug = 'generic_slug_2'
         obj_2.sites.add(site_1)
         obj_2.save()
 
+        # Trying to change the slug to an existing one should raise an error.
         with self.assertRaises(RuntimeError):
             obj_2.slug = 'generic_slug'
             obj_2.save()
