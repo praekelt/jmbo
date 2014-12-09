@@ -184,9 +184,8 @@ class ModelBaseTestCase(unittest.TestCase):
         obj_2.slug = 'generic_slug'
         obj_2.save()
 
-        with self.assertRaises(RuntimeError):
-            obj_2.sites.add(site_1)
-            obj_2.save()
+        obj_2.sites.add(site_1)
+        obj_2.save()
 
         obj_2.slug = 'generic_slug_2'
         obj_2.sites.add(site_1)
