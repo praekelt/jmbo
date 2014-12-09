@@ -62,7 +62,6 @@ change to 'published')."),
 change to 'unpublished')."),
     )
     slug = models.SlugField(
-        editable=False,
         max_length=255,
         db_index=True,
     )
