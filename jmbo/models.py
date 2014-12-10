@@ -292,6 +292,16 @@ but users won't be able to add new likes."),
         if not self.slug:
             self.slug = generate_slug(self, self.title)
 
+        # Raise an error if the slug is not unique per site.
+        if self.id:
+            for site in self.sites.all():
+                q = jmbo.models.ModelBase.objects.filter(
+                        slug=self.slug, sites=site).exclude(id=self.id)
+                if q.exists():
+                    raise RuntimeError(
+                        "The slug %s is already in use for site %s by %s" %
+                        (self.slug, site.domain, q[0].title))
+
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
