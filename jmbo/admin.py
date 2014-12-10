@@ -112,7 +112,6 @@ It is your responsibility to select the correct items."
                 )
                 self.fields[name].initial = [o.target for o in initial]
 
-
     def clean_image(self):
         image = self.cleaned_data['image']
         if image:
@@ -124,6 +123,23 @@ It is your responsibility to select the correct items."
                     "The image is either invalid or unsupported."
                 )
         return image
+
+    def clean(self):
+        """
+        Slug must be unique per site. Show sensible errors when not.
+        """
+        slug = self.cleaned_data['slug']
+        # Check if any combination of slug and site exists.
+        for site in self.cleaned_data['sites']:
+            q = ModelBase.objects.filter(sites=site, slug=slug)
+            if self.instance:
+                q = q.exclude(id=self.instance.id)
+            if q.exists():
+                raise forms.ValidationError(_(
+                    "The slug is already in use by item %s.  To use the same \
+                    slug the items may not have overlapping sites." % q[0]
+                ))
+        return self.cleaned_data
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -138,7 +154,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
     search_fields = ('title', 'description', 'state', 'created')
     fieldsets = (
-        (None, {'fields': ('title', 'subtitle', 'description')}),
+        (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
             'Image',
             {
@@ -188,6 +204,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     )
     if USE_GIS:
         fieldsets[3][1]['fields'] = tuple(list(fieldsets[3][1]['fields']) + ['location'])
+    prepopulated_fields = {'slug': ('title',)}
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)

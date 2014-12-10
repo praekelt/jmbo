@@ -1,5 +1,5 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.contrib.comments.models import Comment
 
 from likes.signals import likes_enabled_test, can_vote_test
@@ -41,3 +41,18 @@ def on_vote_post_save(sender, **kwargs):
     if isinstance(obj, jmbo.models.ModelBase):
         obj.vote_total = obj._vote_total
         obj.save(set_modified=False)
+
+
+@receiver(m2m_changed)
+def check_slug(sender, instance, **kwargs):
+    """Slug must be unique per site"""
+    if isinstance(instance, jmbo.models.ModelBase) \
+            and (kwargs['action'] == 'post_add') \
+            and sender.__name__.endswith('_sites'):
+        for site in instance.sites.all():
+            q = jmbo.models.ModelBase.objects.filter(
+                    slug=instance.slug, sites=site).exclude(id=instance.id)
+            if q.exists():
+                raise RuntimeError(
+                    "The slug %s is already in use for site %s by %s" %
+                    (instance.slug, site.domain, q[0].title))
