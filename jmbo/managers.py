@@ -5,7 +5,7 @@ from jmbo import USE_GIS
 
 
 class BaseManager(models.Manager):
-        pass
+    pass
 
 
 if USE_GIS:
@@ -56,9 +56,8 @@ class PermittedManager(BaseManager):
         if not getattr(settings, 'STAGING', False):
             queryset = queryset.exclude(state='staging')
 
-        # Filter objects for current site is user is not staff
-        if not is_staff:
-            queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
+        # Filter objects for current site
+        queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
 
         return queryset
 
