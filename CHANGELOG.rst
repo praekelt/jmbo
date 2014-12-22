@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.1.5
+-----
+#. Ignore result of celery tasks as appropriate.
+
+1.1.4
+-----
+#. Relax uniqueness constraint on slugs.
+
 1.1.3
 -----
 #. Fix modelbase editing where location field was added to wrong fieldset.

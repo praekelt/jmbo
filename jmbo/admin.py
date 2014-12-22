@@ -136,7 +136,7 @@ It is your responsibility to select the correct items."
                 q = q.exclude(id=self.instance.id)
             if q.exists():
                 raise forms.ValidationError(_(
-                    "The slug is already in use by item %s.  To use the same \
+                    "The slug is already in use by item %s. To use the same \
                     slug the items may not have overlapping sites." % q[0]
                 ))
         return self.cleaned_data
