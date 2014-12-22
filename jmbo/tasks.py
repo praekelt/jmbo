@@ -8,7 +8,7 @@ from celery.decorators import periodic_task
 from jmbo.models import ModelBase
 
 
-@periodic_task(run_every=crontab(hour='*', minute='*/10', day_of_week='*'))
+@periodic_task(run_every=crontab(hour='*', minute='*/10', day_of_week='*'), ignore_result=True)
 def publish_scheduled_content():
     now = timezone.now()
     q1 = Q(publish_on__lte=now, retract_on__isnull=True)

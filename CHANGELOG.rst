@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Ignore result of celery tasks as appropriate.
+
 1.1.3
 -----
 #. Fix modelbase editing where location field was added to wrong fieldset.
