@@ -11,6 +11,7 @@ from django.templatetags.cache import CacheNode
 from django.template import resolve_variable
 from django.template.base import VariableDoesNotExist
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
 
 register = template.Library()
@@ -200,44 +201,33 @@ class RelationListNode(template.Node):
 
 class JmboCacheNode(CacheNode):
     """Based on Django's default cache template tag. Add SITE_ID as implicit
-    vary on parameter and allow unresolvable variables."""
-
-    def __init__(self, *args, **kwargs):
-        super(JmboCacheNode, self).__init__(*args, **kwargs)
-        self.vary_on.append(str(settings.SITE_ID))
+    vary on parameter. Allow unresolvable variables. Allow translated strings."""
 
     def render(self, context):
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:
-            raise template.TemplateSyntaxError(
-                '"cache" tag got an unknown variable: %r' % (
-                    self.expire_time_var.var
-                )
+            raise TemplateSyntaxError(
+                '"cache" tag got an unknown variable: %r' % self.expire_time_var.var
             )
         try:
             expire_time = int(expire_time)
         except (ValueError, TypeError):
-            raise template.TemplateSyntaxError(
+            raise TemplateSyntaxError(
                 '"cache" tag got a non-integer timeout value: %r' % expire_time
             )
 
-        # Build a unicode key for this fragment and all vary-on's.
-        resolved = []
+        vary_on = [str(settings.SITE_ID)]
         for var in self.vary_on:
             try:
-                r = resolve_variable(var, context)
+                r = var.resolve(context)
             except VariableDoesNotExist:
                 pass
-            else:
-                if isinstance(r, Promise):
-                    r = unicode(r)
-                resolved.append(r)
+            if isinstance(r, Promise):
+                r = unicode(r)
+            vary_on.append(r)
 
-        args = hashlib.md5(u':'.join([urlquote(r) for r in resolved]))
-        cache_key = 'template.cache.%s.%s' % (
-            self.fragment_name, args.hexdigest()
-        )
+        cache_key = make_template_fragment_key(self.fragment_name, vary_on)
         value = cache.get(cache_key)
         if value is None:
             value = self.nodelist.render(context)
@@ -245,7 +235,7 @@ class JmboCacheNode(CacheNode):
 
         # log if the cache is less than 4 bytes
         if len(value) <= 4:
-            logger.error("JMBO Cache Error. Fragment Name: %s, Value: %s" % (
+            logger.error("Jmbo cache error. Fragment name: %s, Value: %s" % (
                 self.fragment_name, value
             ))
 
@@ -257,9 +247,10 @@ def do_jmbocache(parser, token):
     """Based on Django's default cache template tag"""
     nodelist = parser.parse(('endjmbocache',))
     parser.delete_first_token()
-    tokens = token.contents.split()
+    tokens = token.split_contents()
     if len(tokens) < 3:
-        raise template.TemplateSyntaxError(
-            u"'%r' tag requires at least 2 arguments." % tokens[0]
-        )
-    return JmboCacheNode(nodelist, tokens[1], tokens[2], tokens[3:])
+        raise TemplateSyntaxError("'%r' tag requires at least 2 arguments." % tokens[0])
+    return JmboCacheNode(nodelist,
+        parser.compile_filter(tokens[1]),
+        tokens[2], # fragment_name can't be a variable.
+        [parser.compile_filter(token) for token in tokens[3:]])
