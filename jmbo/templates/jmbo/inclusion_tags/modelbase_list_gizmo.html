@@ -2,6 +2,6 @@
 
 <div class="widget_item">
     <a href="{% smart_url url_callable object %}"><img src="{{ object.get_content_list_gizmo_url }}" width="77" height="43" alt="" /></a> <p>
-	<h2><a href="{% smart_url url_callable object %}">{{ object.title }}</a> <span>{{ object.vote_total }} Likes | <a href="{% smart_url url_callable object %}#contribute">{{ object.comment_count }} Comments</a> | <a href="{% url object_peek object.slug %}?height=450&amp;width=600" class="thickbox">Peek &raquo;</a></span></h2>
+	<h2><a href="{% smart_url url_callable object %}">{{ object.title }}</a> <span>{{ object.vote_total }} Likes | <a href="{% smart_url url_callable object %}#contribute">{{ object.comment_count }} Comments</a> | <a href="{% url "object_peek" object.slug %}?height=450&amp;width=600" class="thickbox">Peek &raquo;</a></span></h2>
 	<p>{{ object.description|truncatewords:"8" }}</p>
 </div>

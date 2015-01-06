@@ -8,7 +8,8 @@ from django.shortcuts import render_to_response
 from django.template import loader
 from django.template import RequestContext
 from django.utils.translation import ugettext
-from django.views.generic import list_detail
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 
 class DefaultURL(object):
@@ -130,11 +131,10 @@ class GenericObjectList(GenericBase):
         del view.params['queryset']
 
         # return object list generic view
-        return list_detail.object_list(
-            request,
+        return ListView(
             queryset=queryset,
             **view.params
-        )
+        ).get(request)
 
 generic_object_list = GenericObjectList()
 
@@ -160,11 +160,10 @@ class GenericObjectFilterList(GenericObjectList):
                         view.params['extra_context'][field.name]}))
 
         # return object list generic view
-        return list_detail.object_list(
-            request,
+        return DetailView(
             queryset=queryset,
             **view.params
-        )
+        ).get(request)
 
 generic_object_filter_list = GenericObjectFilterList()
 

@@ -25,7 +25,7 @@ We need to add an extra submit button called "Save and publish".
 
             data.push({'name': 'id', 'value': {{ adminform.form.instance.id }}});
             $.ajax({
-                url: '{% url jmbo-edit-autosave-ajax %}',
+                url: '{% url "jmbo-edit-autosave-ajax" %}',
                 data: data,
                 type: 'POST',
                 cache: false,

@@ -16,7 +16,7 @@ setup(
     install_requires = [
         'Pillow',
         'pytz',
-        'django>=1.4,<1.5',
+        'django>=1.4,<1.7',
         'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
@@ -25,7 +25,7 @@ setup(
         'django-publisher',
         'django-sites-groups',
         'south',
-        'django-tastypie<0.10',
+        'django-tastypie>=0.10',
         'django-celery',
     ],
     include_package_data=True,
