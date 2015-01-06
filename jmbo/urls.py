@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 
 from tastypie.api import Api
 
+from jmbo.views import ObjectDetail, ObjectList
 from jmbo.api import ModelBaseResource
 
 
@@ -14,33 +15,13 @@ urlpatterns = patterns(
 
     url(
         r'^content/detail/(?P<slug>[\w-]+)/$',
-        'jmbo.views.object_detail',
-        {},
+        ObjectDetail.as_view(),
         name='object_detail'
     ),
     url(
         r'^content/list/(?P<app_label>[\w-]+)/(?P<model>[\w-]+)/$',
-        'jmbo.views.object_list',
-        {},
+        ObjectList.as_view(),
         name='object_list'
-    ),
-    url(
-        r'^content/peek/(?P<slug>[\w-]+)/$',
-        'jmbo.views.object_peek',
-        {},
-        name='object_peek'
-    ),
-    url(
-        r'^content/(?P<category_slug>[\w-]+)/list/$',
-        'jmbo.views.category_object_list',
-        {},
-        name='category_object_list'
-    ),
-    url(
-        r'^content/(?P<category_slug>[\w-]+)/(?P<slug>[\w-]+)/$',
-        'jmbo.views.category_object_detail',
-        {},
-        name='category_object_detail'
     ),
 
     # Admin ajax urls
