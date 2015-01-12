@@ -1,6 +1,11 @@
 Changelog
 =========
 
+next
+----
+#. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.4.x.
+#. Add `Clone this item` button to change forms.
+
 1.1.5
 -----
 #. Ignore result of celery tasks as appropriate.
