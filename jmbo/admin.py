@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-
 from category.models import Category
 from category.admin import CategoryAdmin
 from publisher.models import Publisher
@@ -153,6 +152,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
     search_fields = ('title', 'description', 'state', 'created')
+    save_as = True
     fieldsets = (
         (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
