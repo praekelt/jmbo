@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% load jmbo_inclusion_tags %} 
+{% load jmbo_inclusion_tags %}
 
 {% block content %}
-    <div class="page section_news object-list {{ model.lower }}-list">
-        
+    <div class="object-list {{ model.lower }}-list">
+
         {% if view_modifier %}
-    	    <div class="title">
-	    	    {{ title }}
-		    </div>      
+            <div class="title">
+                {{ title }}
+		    </div>
             {% view_modifier view_modifier %}
         {% endif %}
 
