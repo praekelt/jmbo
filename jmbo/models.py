@@ -559,11 +559,6 @@ but users won't be able to add new likes."),
         )
 
 
-class Pin(models.Model):
-    content = models.ForeignKey(ModelBase)
-    category = models.ForeignKey('category.Category')
-
-
 class Relation(models.Model):
     """Generic relation between two objects"""
     # todo: this code is too generic and makes querying slow. Refactor to

@@ -5,6 +5,8 @@ next
 ----
 #. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.4.x.
 #. Add `Clone this item` button to change forms.
+#. Deprecate gizmo, "wide" template, Pin class.
+#. Deprecate own class based generic views in favour of Django's equivalent.
 
 1.1.5
 -----
