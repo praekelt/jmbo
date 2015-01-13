@@ -25,7 +25,7 @@ setup(
         'django-publisher',
         'django-sites-groups',
         'south',
-        'django-tastypie>=0.10',
+        'django-tastypie>=0.10,<0.12',  # 0.12 requires Django 1.7
         'django-celery',
     ],
     include_package_data=True,
