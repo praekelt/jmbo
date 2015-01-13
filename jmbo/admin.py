@@ -17,7 +17,7 @@ from publisher.models import Publisher
 from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Pin, Relation
+from jmbo.models import ModelBase, Relation
 from jmbo import USE_GIS
 
 
@@ -320,26 +320,11 @@ Unpublish</a><br />''' % (url, url)
     _actions.allow_tags = True
 
 
-class PinInline(admin.TabularInline):
-    model = Pin
-
-
-class CategoryJmboAdmin(CategoryAdmin):
-    inlines = [
-        PinInline,
-    ]
-
-
 class RelationAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'source_content_type', 'source_object_id', 'target_content_type',
         'target_object_id', 'name'
     )
 
-try:
-    admin.site.register(Category, CategoryJmboAdmin)
-except AlreadyRegistered:
-    admin.site.unregister(Category)
-    admin.site.register(Category, CategoryJmboAdmin)
 
 admin.site.register(Relation, RelationAdmin)
