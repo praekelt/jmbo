@@ -28,6 +28,7 @@ setup(
         'django-tastypie>=0.10,<0.12',  # 0.12 requires Django 1.7
         'django-celery',
         'django-generate',
+        'django-pagination',
     ],
     include_package_data=True,
     tests_require=[
