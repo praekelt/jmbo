@@ -1,5 +1,5 @@
 addons:
-    postgresql: "9.1"
+    postgresql: "9.3"
 
 language: python
 
@@ -7,7 +7,7 @@ python:
   - "2.7"
 
 env:
-  - DJANGO=Django==1.4.10
+  - DJANGO=Django==1.6.9
 
 install:
   - pip install -q $DJANGO --use-mirrors
@@ -16,13 +16,13 @@ install:
 # Django 1.4 requires a template_postgis, so install old way
 before_script:
     - sudo apt-get install libgeoip-dev
-    - createdb -U postgres -E UTF8 template_postgis
-    - psql -U postgres -d postgres -c "UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';"
-    - psql -U postgres -d template_postgis -f /usr/share/postgresql/9.2/contrib/postgis-2.1/postgis.sql
-    - psql -U postgres -d template_postgis -f /usr/share/postgresql/9.2/contrib/postgis-2.1/spatial_ref_sys.sql
-    - psql -U postgres -d template_postgis -c "GRANT ALL ON geometry_columns TO PUBLIC;"
-    - psql -U postgres -d template_postgis -c "GRANT ALL ON spatial_ref_sys TO PUBLIC;"
-    - psql -U postgres -d template_postgis -c "GRANT ALL ON geography_columns TO PUBLIC;"
-    - psql -U postgres -c "create database jmbo encoding 'UTF8' template template_postgis"
+    #- createdb -U postgres -E UTF8 template_postgis
+    #- psql -U postgres -d postgres -c "UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';"
+    #- psql -U postgres -d template_postgis -f /usr/share/postgresql/9.2/contrib/postgis-2.1/postgis.sql
+    #- psql -U postgres -d template_postgis -f /usr/share/postgresql/9.2/contrib/postgis-2.1/spatial_ref_sys.sql
+    #- psql -U postgres -d template_postgis -c "GRANT ALL ON geometry_columns TO PUBLIC;"
+    #- psql -U postgres -d template_postgis -c "GRANT ALL ON spatial_ref_sys TO PUBLIC;"
+    #- psql -U postgres -d template_postgis -c "GRANT ALL ON geography_columns TO PUBLIC;"
+    #- psql -U postgres -c "create database jmbo encoding 'UTF8' template template_postgis"
 
 script: python setup.py test
