@@ -233,39 +233,22 @@ but users won't be able to add new likes."),
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
         # 'post_object_detail'.
+
+        # Special case if leaf is actually a ModelBase
+        as_leaf_class = self.as_leaf_class()
+        if as_leaf_class.__class__ ==  ModelBase:
+            return reverse('object_detail', args=[self.slug])
+
+        # Typical case
         try:
             return reverse(
                 '%s_object_detail' \
-                    % self.as_leaf_class().__class__.__name__.lower(),
+                    % as_leaf_class.__class__.__name__.lower(),
                 kwargs={'slug': self.slug}
             )
         except NoReverseMatch:
             # Fallback
             return reverse('object_detail', args=[self.slug])
-
-    def get_absolute_category_url(self):
-        """Category aware absolute url"""
-        if self.primary_category:
-            category_slug = self.primary_category.slug
-        elif self.categories.all().exists():
-            category_slug = self.categories.all()[0].slug
-
-        if category_slug:
-            try:
-                return reverse(
-                    '%s_category_object_detail' \
-                        % self.as_leaf_class().__class__.__name__.lower(),
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
-            except NoReverseMatch:
-                # Fallback
-                return reverse(
-                    'category_object_detail',
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
-
-        # Sane fallback if no category
-        return self.get_absolute_url()
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -336,7 +319,7 @@ but users won't be able to add new likes."),
             return self
         else:
             '''
-            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since 
+            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since
             the name of the link could be different
             '''
             link_name = self._meta.get_ancestor_link(ModelBase).name

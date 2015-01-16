@@ -737,6 +737,28 @@ class TemplateTagsTestCase(unittest.TestCase):
         self.failUnlessEqual(result1, result2)
 
 
+class ViewsTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.request = RequestFactory()
+        cls.client = Client()
+
+        cls.obj = ModelBase.objects.create(title="title1", state="published")
+        cls.obj.sites = Site.objects.all()
+        cls.obj.save()
+
+    def test_detail_view(self):
+        response = self.client.get(self.obj.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_view(self):
+        url = reverse("object_list", args=["jmbo", "modelbase"])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)
+
+
 if USE_GIS:
     class LocationAwarenessTestCase(unittest.TestCase):
         def setUp(self):
