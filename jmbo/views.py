@@ -7,11 +7,32 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 class ObjectDetail(DetailView):
     template_name = "jmbo/modelbase_detail.html"
+    view_modifier = None
+    # Shim so legacy view modifiers do not break
+    params = {"extra_context": {"view_modifier": None}}
 
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.get_query_set(
+    def get_queryset(self):
+        qs = ModelBase.permitted.get_query_set(
             for_user=getattr(getattr(self, "request", None), "user", None)
         )
+
+        # Push self through view modifier
+        for k, v in self.kwargs.items():
+            self.params[k] = v
+        if self.view_modifier:
+            self.params["extra_context"]["view_modifier"] = self.view_modifier
+            if callable(self.view_modifier):
+                self.view_modifier = self.view_modifier(request=self.request, **self.kwargs)
+            self.params["queryset"] = qs
+            dc = self.view_modifier.modify(self)
+            return self.params["queryset"]
+
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super(ObjectDetail, self).get_context_data(**kwargs)
+        context["view_modifier"] = self.view_modifier
+        return context
 
     def get_template_name_field(self, *args, **kwargs):
         """This hook allows the model to specify a detail template. When we
@@ -22,28 +43,25 @@ class ObjectDetail(DetailView):
 class ObjectList(ListView):
     template_name = "jmbo/modelbase_list.html"
     params = {}
-    _view_modifier = None
+    view_modifier = DefaultViewModifier
+    # Shim so legacy view modifiers do not break
+    params = {"extra_context": {"view_modifier": DefaultViewModifier}}
 
     def get_queryset(self):
-        # Must resolve modifier here. get_context_data is called too late.
-        self._view_modifier = self.kwargs.get(
-            "view_modifier",
-            DefaultViewModifier(self.request, *self.args, **self.kwargs)
-        )
-
         qs =  ModelBase.permitted.filter(
             content_type__app_label=self.kwargs["app_label"],
             content_type__model=self.kwargs["model"]
         )
 
-        # Push self through view modifier. Use params dictionary shim so legacy
-        # view modifiers do not break.
-        view_modifier = self._view_modifier
-        if view_modifier:
-            if callable(view_modifier):
-                view_modifier = view_modifier(request=request,*args, **kwargs)
+        # Push self through view modifier
+        for k, v in self.kwargs.items():
+            self.params[k] = v
+        if self.view_modifier:
+            self.params["extra_context"]["view_modifier"] = self.view_modifier
+            if callable(self.view_modifier):
+                self.view_modifier = self.view_modifier(request=self.request, **self.kwargs)
             self.params["queryset"] = qs
-            dc = view_modifier.modify(self)
+            dc = self.view_modifier.modify(self)
             return self.params["queryset"]
 
         return qs
@@ -52,5 +70,5 @@ class ObjectList(ListView):
         context = super(ObjectList, self).get_context_data(**kwargs)
         context["paginate_by"] = self.kwargs.get("paginate_by", 10)
         context["title"] = self.kwargs.get("title", "Items")
-        context["view_modifier"] = self._view_modifier
+        context["view_modifier"] = self.view_modifier
         return context
