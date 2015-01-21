@@ -243,17 +243,19 @@ class ModelBaseAdmin(admin.ModelAdmin):
         result = super(ModelBaseAdmin, self).get_fieldsets(request, obj)
         result = list(result)
 
-        content_type = ContentType.objects.get_for_model(self.model)
-        q = Relation.objects.filter(source_content_type=content_type)
-        if q.exists():
-            result.append(
-                ('Related',
-                    {
-                        'fields': set([o.name for o in q]),
-                        'classes': ('collapse',),
-                    }
+        if hasattr(request, "_gfs_marker"):
+            content_type = ContentType.objects.get_for_model(self.model)
+            q = Relation.objects.filter(source_content_type=content_type)
+            if q.exists():
+                result.append(
+                    ('Related',
+                        {
+                            'fields': set([o.name for o in q]),
+                            'classes': ('collapse',),
+                        }
+                    )
                 )
-            )
+        setattr(request, "_gfs_marker", 1)
 
         return tuple(result)
 
