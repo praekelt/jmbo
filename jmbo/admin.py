@@ -322,11 +322,32 @@ Unpublish</a><br />''' % (url, url)
     _actions.allow_tags = True
 
 
+class RelationAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Relation
+
+    def __init__(self, *args, **kwargs):
+        super(RelationAdminForm, self).__init__(*args, **kwargs)
+
+        # Limit to subclasses of ModelBase
+        limit = Q(app_label="_does_not_exist_")
+        for ct in ContentType.objects.all():
+            model_class = ct.model_class()
+            if model_class and (model_class != ModelBase) \
+                and issubclass(model_class, ModelBase):
+                limit = limit | Q(app_label=ct.app_label, model=ct.model)
+        qs = ContentType.objects.filter(limit)
+        self.fields["source_content_type"].queryset = qs
+        self.fields["target_content_type"].queryset = qs
+
+
 class RelationAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'source_content_type', 'source_object_id', 'target_content_type',
         'target_object_id', 'name'
     )
+    form = RelationAdminForm
 
 
 admin.site.register(Relation, RelationAdmin)

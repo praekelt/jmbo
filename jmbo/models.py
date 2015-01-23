@@ -543,19 +543,18 @@ but users won't be able to add new likes."),
 
 
 class Relation(models.Model):
-    """Generic relation between two objects"""
-    # todo: this code is too generic and makes querying slow. Refactor to
-    # only relate ModelBase to ModelBase. Migration management command will be
-    # required.
+    """Generic relation between two objects""" 
     source_content_type = models.ForeignKey(
-        ContentType, related_name='relation_source_content_type'
+        ContentType,
+        related_name='relation_source_content_type',
     )
     source_object_id = models.PositiveIntegerField()
     source = generic.GenericForeignKey(
         'source_content_type', 'source_object_id'
     )
     target_content_type = models.ForeignKey(
-        ContentType, related_name='relation_target_content_type'
+        ContentType,
+        related_name='relation_target_content_type',
     )
     target_object_id = models.PositiveIntegerField()
     target = generic.GenericForeignKey(

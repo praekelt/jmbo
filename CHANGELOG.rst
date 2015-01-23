@@ -8,6 +8,7 @@ next
 #. Deprecate gizmo, "wide" template, Pin class.
 #. Deprecate own class based generic views in favour of Django's equivalent.
 #. Deprecate views related to show objects per category. `jmbio-foundry` offers a much more powerful solution and scales better.
+#. Limit Relation change form to only ModelBase subclasses.
 
 1.1.5
 -----
