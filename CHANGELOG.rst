@@ -9,6 +9,7 @@ next
 #. Deprecate own class based generic views in favour of Django's equivalent.
 #. Deprecate views related to show objects per category. `jmbio-foundry` offers a much more powerful solution and scales better.
 #. Limit Relation change form to only ModelBase subclasses.
+#. Deprecate smart_url template tag because Django url template tag does the same now.
 
 1.1.5
 -----

@@ -18,11 +18,6 @@ register = template.Library()
 logger = logging.getLogger(__name__)
 
 
-@register.simple_tag
-def smart_url(url_callable, obj):
-    return url_callable(obj)
-
-
 @register.tag
 def smart_query_string(parser, token):
     """

@@ -680,13 +680,6 @@ class TemplateTagsTestCase(unittest.TestCase):
         # Add an extra site
         site, dc = Site.objects.get_or_create(name='another', domain='another.com')
 
-    def test_smart_url(self):
-        # return method call with result based on object provided
-        t = Template("{% load jmbo_template_tags %}\
-{% smart_url url_callable object %}")
-        result = t.render(self.context)
-        self.failUnlessEqual(result, 'Test URL method using object TestModel')
-
     def test_jmbocache(self):
         # Caching on same site
         t = Template("{% load jmbo_template_tags %}\
