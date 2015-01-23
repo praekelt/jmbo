@@ -90,20 +90,19 @@ chopped off."""
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
-        names = set([o.name for o in relations])
-        for name in names:
+        for relation in relations:
+            name = relation.name
             if name not in self.fields:
                 self.fields[name] = forms.ModelMultipleChoiceField(
-                    ModelBase.objects.all().order_by('title', 'subtitle'),
+                    ModelBase.objects.filter(content_type=relation.target_content_type).order_by('title', 'subtitle'),
                     required=False,
                     label=forms.forms.pretty_name(name),
-                    help_text="This field does not perform any validation. \
-It is your responsibility to select the correct items."
                 )
 
         instance = kwargs.get('instance', None)
         if instance is not None:
-            for name in names:
+            for relation in relations:
+                name = relation.name
                 initial = Relation.objects.filter(
                     source_content_type=instance.content_type,
                     source_object_id=instance.id,
