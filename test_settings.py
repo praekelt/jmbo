@@ -55,6 +55,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 SITE_ID = 1
 
+STATIC_URL = '/static/'
+
 # Disable celery
 CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = 'memory'

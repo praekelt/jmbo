@@ -14,7 +14,6 @@ from django.core.urlresolvers import reverse
 from category.models import Category
 from category.admin import CategoryAdmin
 from publisher.models import Publisher
-from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Relation
