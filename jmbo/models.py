@@ -22,6 +22,7 @@ from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
 import jmbo.signals
 from jmbo import USE_GIS
+from jmbo import monkey
 
 
 class JmboPreferences(Preferences):

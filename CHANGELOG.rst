@@ -7,9 +7,10 @@ next
 #. Add `Clone this item` button to change forms.
 #. Deprecate gizmo, "wide" template, Pin class.
 #. Deprecate own class based generic views in favour of Django's equivalent.
-#. Deprecate views related to show objects per category. `jmbio-foundry` offers a much more powerful solution and scales better.
+#. Deprecate views related to show objects per category. `jmbo-foundry` offers a much more powerful solution and scales better.
 #. Limit Relation change form to only ModelBase subclasses.
 #. Deprecate smart_url template tag because Django url template tag does the same now.
+#. Move back to mainline `django-photologue`.
 
 1.1.5
 -----

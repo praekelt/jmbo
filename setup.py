@@ -10,9 +10,6 @@ setup(
     license='BSD',
     url='http://www.jmbo.org',
     packages = find_packages(),
-    dependency_links = [
-        'http://github.com/praekelt/django-photologue/tarball/2.10.praekelt#egg=django-photologue-2.10.praekelt',
-    ],
     install_requires = [
         'Pillow',
         'pytz',
@@ -20,7 +17,6 @@ setup(
         'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
-        'django-photologue>=2.10.praekelt',
         'django-preferences',
         'django-publisher',
         'django-sites-groups',
