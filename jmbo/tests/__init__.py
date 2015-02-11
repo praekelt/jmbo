@@ -729,6 +729,17 @@ class TemplateTagsTestCase(unittest.TestCase):
         result2 = t.render(self.context)
         self.failUnlessEqual(result1, result2)
 
+        # Check that large integer variables do not break caching
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_large' 565417614189797377 %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_large' 565417614189797377 %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
 
 class ViewsTestCase(unittest.TestCase):
 
