@@ -281,8 +281,6 @@ class JmboCacheNode(CacheNode):
                 r = unicode(r)
             vary_on.append(r)
 
-        if '_large' in self.fragment_name:
-            import pdb;pdb.set_trace()
         cache_key = make_template_fragment_key(self.fragment_name, vary_on)
         value = cache.get(cache_key)
         if value is None:
