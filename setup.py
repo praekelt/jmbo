@@ -18,18 +18,18 @@ setup(
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
         'django-preferences',
-        'django-publisher',
+        'django-publisher',             # legacy, required by migrations
         'django-sites-groups',
-        'south',
         'django-tastypie>=0.10,<0.12',  # 0.12 requires Django 1.7
         'django-celery',
         'django-generate',
         'django-pagination',
+        'south',
     ],
     include_package_data=True,
     tests_require=[
-        'pysqlite>=2.5',
-        'django-setuptest>=0.1.2',
+        'psycopg2',
+        'django-setuptest>=0.1.4',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
