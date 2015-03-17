@@ -293,8 +293,10 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def _get_absolute_url(self, obj):
         url = obj.get_absolute_url()
+        if not url:
+            return 'N/A'
         result = '<ul>'
-        for site in Site.objects.all():
+        for site in obj.sites.all():
             result += '<li><a href="http://%s%s" target="public">%s</a></li>' % (site.domain, url, site.domain)
         result += '</ul>'
         return result
