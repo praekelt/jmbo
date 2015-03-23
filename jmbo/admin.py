@@ -141,7 +141,10 @@ chopped off."""
 
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
-    change_form_template = 'admin/jmbo/extras/change_form.html'
+    # ModelBase is typically subclassed so normal app/model/change_form.html
+    # based lookups fail in subclasses. Explicitly set the change form
+    # template.
+    change_form_template = 'admin/jmbo/change_form.html'
 
     actions = [make_published, make_unpublished]
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
