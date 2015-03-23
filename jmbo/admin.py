@@ -123,19 +123,22 @@ chopped off."""
 
     def clean(self):
         """
-        Slug must be unique per site. Show sensible errors when not.
+        Slug must be unique per site. Show sensible errors when not. Can only
+        check in clean method because sites need to be available in
+        cleaned_data.
         """
-        slug = self.cleaned_data['slug']
-        # Check if any combination of slug and site exists.
-        for site in self.cleaned_data['sites']:
-            q = ModelBase.objects.filter(sites=site, slug=slug)
-            if self.instance:
-                q = q.exclude(id=self.instance.id)
-            if q.exists():
-                raise forms.ValidationError(_(
-                    "The slug is already in use by item %s. To use the same \
-                    slug the items may not have overlapping sites." % q[0]
-                ))
+        slug = self.cleaned_data.get('slug')
+        if slug:
+            # Check if any combination of slug and site exists.
+            for site in self.cleaned_data['sites']:
+                q = ModelBase.objects.filter(sites=site, slug=slug)
+                if self.instance:
+                    q = q.exclude(id=self.instance.id)
+                if q.exists():
+                    msg = "The slug is already in use by item %s. To use the \
+                        same slug the items may not have overlapping \
+                        sites." % q[0]
+                    self._errors["slug"] = self.error_class([msg])
         return self.cleaned_data
 
 
