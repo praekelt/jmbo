@@ -251,6 +251,7 @@ but users won't be able to add new likes."),
         the get_absolute_category_url method in that we don't provide
         different sets of templates.
         """
+        category_slug = None
         if self.primary_category:
             category_slug = self.primary_category.slug
         elif self.categories.all().exists():
@@ -273,6 +274,7 @@ but users won't be able to add new likes."),
 
     def get_absolute_category_url(self):
         """Category aware absolute url"""
+        category_slug = None
         if self.primary_category:
             category_slug = self.primary_category.slug
         elif self.categories.all().exists():
