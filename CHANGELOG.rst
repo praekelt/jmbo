@@ -11,6 +11,7 @@ next
 #. Limit Relation change form to only ModelBase subclasses.
 #. Deprecate smart_url template tag because Django url template tag does the same now.
 #. Move back to mainline `django-photologue`.
+#. API now includes image detail url.
 
 1.1.5
 -----
