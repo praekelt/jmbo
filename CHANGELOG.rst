@@ -1,6 +1,15 @@
 Changelog
 =========
 
+1.1.7
+-----
+#. Bump to resolve missing version bump in setup.py.
+
+1.1.6
+-----
+#. API now includes image detail url.
+#. URL pattern to resolve detail page through category.
+
 1.1.5
 -----
 #. Ignore result of celery tasks as appropriate.
