@@ -5,6 +5,7 @@
 
 {% block extrameta %}
     {% jmbocache 1200 'object-detail' object.id object.modified %}
+        <link rel="canonical" href="{{ object.get_absolute_url }}" />
         <meta name="description" content="{{ object.description|default_if_none:'' }}" />
         {% with object.tags.all as tags %}
             {% if tags %}

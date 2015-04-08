@@ -3,7 +3,7 @@
 <img src="{{ object.get_thumbnail_url }}" alt="{{ object.title }}" />
 
 <div class="title">
-    <a href="{{ object.get_absolute_url }}">{{ object.title|truncatewords_html:10 }}</a>
+    <a href="{{ object.get_absolute_url_categorized }}">{{ object.title|truncatewords_html:10 }}</a>
 </div>
 
 {{ object.description|truncatewords_html:10 }}
