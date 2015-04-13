@@ -14,7 +14,6 @@ setup(
         'Pillow',
         'pytz',
         'django>=1.4,<1.7',
-        'django-atlas',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
         'django-preferences',
@@ -24,11 +23,13 @@ setup(
         'django-celery',
         'django-generate',
         'django-pagination',
+        'django-photologue>=3.1',
         'south',
     ],
     include_package_data=True,
     tests_require=[
-        'psycopg2',
+        'psycopg2',                     # we need a proper database
+        #'django-atlas',                # todo - test suite to use geos 
         'django-setuptest>=0.1.4',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
