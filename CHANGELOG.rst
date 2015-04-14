@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.2.0
+-----
+#. Use renamed django-photologue-praekelt.
+#. SEO optimizations in templates.
+#. Make it possible to reach a detail page through a category.
+
 1.1.7
 -----
 #. Bump to resolve missing version bump in setup.py.
