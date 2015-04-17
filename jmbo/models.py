@@ -251,6 +251,33 @@ but users won't be able to add new likes."),
             # Fallback
             return reverse('object_detail', args=[self.slug])
 
+    def get_absolute_url_categorized(self):
+        """Absolute url with category.
+
+        Provides a hook to get an url for an object, connected to a category,
+        but just reusing the get_absolute_url templates etc.
+        """
+        category_slug = None
+        if self.primary_category:
+            category_slug = self.primary_category.slug
+        elif self.categories.all().exists():
+            category_slug = self.categories.all()[0].slug
+
+        if category_slug:
+            try:
+                return reverse(
+                    '%s_categorized_object_detail' \
+                        % self.as_leaf_class().__class__.__name__.lower(),
+                    kwargs={'category_slug': category_slug, 'slug': self.slug}
+                )
+            except NoReverseMatch:
+                # No generic modelbase fallback: Allow get_absolute_url to
+                # take over.
+                pass
+
+        # Sane fallback if no category
+        return self.get_absolute_url()
+
     def save(self, *args, **kwargs):
         now = timezone.now()
 
