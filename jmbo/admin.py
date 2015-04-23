@@ -1,4 +1,6 @@
+import os
 from copy import deepcopy
+import struct
 from PIL import Image
 
 from django.db.models import Q
@@ -11,6 +13,9 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.core.files import File
+from django.conf import settings
+
 from category.models import Category
 from category.admin import CategoryAdmin
 from publisher.models import Publisher
@@ -86,6 +91,9 @@ chopped off."""
 
         self.fields['effect'].help_text = """Apply an effect to the image."""
 
+        # We want image to be optional, unlike photologue
+        self.fields['image'].required = False
+
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
@@ -119,6 +127,14 @@ chopped off."""
                 raise forms.ValidationError(
                     "The image is either invalid or unsupported."
                 )
+        else:
+            # Set a default image since photologue requires an image
+            filename = os.path.join(
+                os.path.dirname(__file__),
+                'static', 'jmbo', 'images', 'clear.gif'
+            )
+            image = File( open(filename, 'rb'))
+            image.name = 'default.gif'
         return image
 
     def clean(self):
@@ -139,6 +155,7 @@ chopped off."""
                         same slug the items may not have overlapping \
                         sites." % q[0]
                     self._errors["slug"] = self.error_class([msg])
+
         return self.cleaned_data
 
 

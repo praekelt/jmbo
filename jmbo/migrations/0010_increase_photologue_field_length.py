@@ -11,6 +11,10 @@ class Migration(SchemaMigration):
     """Photologue has a field size that is smaller than the field we had in the
     old Praekelt fork, thus breakign existing installations."""
 
+    depends_on = (
+        ("photologue", "0009_auto__del_galleryupload"),
+    )
+
     def forwards(self, orm):
         db.alter_column(u'photologue_photosize', 'name', self.gf('django.db.models.fields.CharField')(max_length=64))
 
