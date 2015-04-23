@@ -13,8 +13,6 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from django.core.files import File
-from django.conf import settings
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -127,14 +125,6 @@ chopped off."""
                 raise forms.ValidationError(
                     "The image is either invalid or unsupported."
                 )
-        else:
-            # Set a default image since photologue requires an image
-            filename = os.path.join(
-                os.path.dirname(__file__),
-                'static', 'jmbo', 'images', 'clear.gif'
-            )
-            image = File( open(filename, 'rb'))
-            image.name = 'default.gif'
         return image
 
     def clean(self):
