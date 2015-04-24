@@ -64,5 +64,6 @@ class PermittedManager(BaseManager):
 
 class DefaultManager(BaseManager):
 
+    # todo: mix in sites here. Needs computed field to work.
     def get_by_natural_key(self, slug):
         return self.get(slug=slug)

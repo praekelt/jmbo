@@ -44,6 +44,17 @@ class DummyRelationalModel2(models.Model):
 models.register_models('jmbo', DummyRelationalModel2)
 
 
+class DummyTargetModelBase(ModelBase):
+    pass
+models.register_models('jmbo', DummyTargetModelBase)
+
+
+class DummySourceModelBase(ModelBase):
+    points_to = models.ForeignKey('DummyModel')
+    points_to_many = models.ManyToManyField('DummyModel', related_name='to_many')
+models.register_models('jmbo', DummySourceModelBase)
+
+
 class DummyModel(ModelBase):
     test_editable_field = models.CharField(max_length=32)
     test_non_editable_field = models.CharField(max_length=32, editable=False)
@@ -52,7 +63,27 @@ class DummyModel(ModelBase):
         blank=True,
         null=True
     )
+    test_foreign_published = models.ForeignKey(
+        'DummyTargetModelBase',
+        blank=True,
+        null=True,
+        related_name='foreign_published'
+    )
+    test_foreign_unpublished = models.ForeignKey(
+        'DummyTargetModelBase',
+        blank=True,
+        null=True,
+        related_name='foreign_unpublished'
+    )
     test_many_field = models.ManyToManyField('DummyRelationalModel2')
+    test_many_published = models.ManyToManyField(
+        'DummyTargetModelBase', related_name='many_published',
+        blank=True, null=True
+    )
+    test_many_unpublished = models.ManyToManyField(
+        'DummyTargetModelBase', related_name='many_unpublished',
+        blank=True, null=True
+    )
     test_member = True
 models.register_models('jmbo', DummyModel)
 
@@ -623,6 +654,60 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(obj in queryset)
 
+    def test_related_permitted_query(self):
+        # Targets for DummyModel to point to
+        dtmb_p = DummyTargetModelBase(title='dtmb_p', state='published')
+        dtmb_p.save()
+        dtmb_p.sites.add(self.web_site)
+        dtmb_p.save()
+        dtmb_up = DummyTargetModelBase(title='dtmb_up')
+        dtmb_up.save()
+        dtmb_up.sites.add(self.web_site)
+        dtmb_up.save()
+
+        # Dummy model - published
+        dm_p = DummyModel(
+            title='title',
+            state='published',
+            test_foreign_published=dtmb_p,
+            test_foreign_unpublished=dtmb_up,
+        )
+        dm_p.save()
+        dm_p.test_many_published.add(dtmb_p)
+        dm_p.test_many_unpublished.add(dtmb_up)
+        dm_p.save()
+
+        # Dummy model - unpublished
+        dm_up = DummyModel(
+            title='title',
+        )
+        dm_up.save()
+
+        # Source models that point at DummyModel
+        # Published, points to published DummyModel
+        dsmb_p = DummySourceModelBase(
+            title='dsmb_p', points_to=dm_p, state='published'
+        )
+        dsmb_p.save()
+        dsmb_p.sites.add(self.web_site)
+        dsmb_p.save()
+
+        # Unpublished, points to published DummyModel
+        dsmb_up = DummySourceModelBase(
+            title='dsmb_up', points_to=dm_p,
+        )
+        dsmb_up.save()
+        dsmb_up.sites.add(self.web_site)
+        dsmb_up.save()
+
+        # Published, points to unpublished DummyModel
+        dsmb_p2 = DummySourceModelBase(
+            title='dsmb_p2', points_to=dm_up, state='published'
+        )
+        dsmb_p2.save()
+        dsmb_p2.sites.add(self.web_site)
+        dsmb_p2.save()
+
 
 class InclusionTagsTestCase(unittest.TestCase):
     def setUp(self):
@@ -680,13 +765,6 @@ class TemplateTagsTestCase(unittest.TestCase):
         # Add an extra site
         site, dc = Site.objects.get_or_create(name='another', domain='another.com')
 
-    def test_smart_url(self):
-        # return method call with result based on object provided
-        t = Template("{% load jmbo_template_tags %}\
-{% smart_url url_callable object %}")
-        result = t.render(self.context)
-        self.failUnlessEqual(result, 'Test URL method using object TestModel')
-
     def test_jmbocache(self):
         # Caching on same site
         t = Template("{% load jmbo_template_tags %}\
@@ -735,6 +813,39 @@ class TemplateTagsTestCase(unittest.TestCase):
         )
         result2 = t.render(self.context)
         self.failUnlessEqual(result1, result2)
+
+        # Check that large integer variables do not break caching
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_large' 565417614189797377 %}1{% endjmbocache %}"
+        )
+        result1 = t.render(self.context)
+        t = Template("{% load jmbo_template_tags %}\
+            {% jmbocache 1200 'test_jmbocache_large' 565417614189797377 %}2{% endjmbocache %}"
+        )
+        result2 = t.render(self.context)
+        self.failUnlessEqual(result1, result2)
+
+
+class ViewsTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.request = RequestFactory()
+        cls.client = Client()
+
+        cls.obj = ModelBase.objects.create(title="title1", state="published")
+        cls.obj.sites = Site.objects.all()
+        cls.obj.save()
+
+    def test_detail_view(self):
+        response = self.client.get(self.obj.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_view(self):
+        url = reverse("object_list", args=["jmbo", "modelbase"])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)
 
 
 if USE_GIS:
