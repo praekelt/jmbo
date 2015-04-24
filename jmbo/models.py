@@ -251,11 +251,14 @@ but users won't be able to add new likes."),
             # Fallback
             return reverse('object_detail', args=[self.slug])
 
+
     def get_absolute_url_categorized(self):
         """Absolute url with category.
 
         Provides a hook to get an url for an object, connected to a category,
-        but just reusing the get_absolute_url templates etc.
+        but just reusing the get_absolute_url templates etc. This differs from
+        the get_absolute_category_url method in that we don't provide
+        different sets of templates.
         """
         category_slug = None
         if self.primary_category:

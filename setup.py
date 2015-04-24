@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='1.1.5',
+    version='1.2.0',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -29,7 +29,7 @@ setup(
     include_package_data=True,
     tests_require=[
         'psycopg2',                     # we need a proper database
-        #'django-atlas',                # todo - test suite to use geos 
+        #'django-atlas',                # todo - test suite to use geos
         'django-setuptest>=0.1.4',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
