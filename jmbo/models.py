@@ -22,6 +22,7 @@ from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
 import jmbo.signals
 from jmbo import USE_GIS
+from jmbo import monkey
 
 
 class JmboPreferences(Preferences):
@@ -233,15 +234,23 @@ but users won't be able to add new likes."),
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
         # 'post_object_detail'.
+
+        # Special case if leaf is actually a ModelBase
+        as_leaf_class = self.as_leaf_class()
+        if as_leaf_class.__class__ ==  ModelBase:
+            return reverse('object_detail', args=[self.slug])
+
+        # Typical case
         try:
             return reverse(
                 '%s_object_detail' \
-                    % self.as_leaf_class().__class__.__name__.lower(),
+                    % as_leaf_class.__class__.__name__.lower(),
                 kwargs={'slug': self.slug}
             )
         except NoReverseMatch:
             # Fallback
             return reverse('object_detail', args=[self.slug])
+
 
     def get_absolute_url_categorized(self):
         """Absolute url with category.
@@ -268,31 +277,6 @@ but users won't be able to add new likes."),
                 # No generic modelbase fallback: Allow get_absolute_url to
                 # take over.
                 pass
-
-        # Sane fallback if no category
-        return self.get_absolute_url()
-
-    def get_absolute_category_url(self):
-        """Category aware absolute url"""
-        category_slug = None
-        if self.primary_category:
-            category_slug = self.primary_category.slug
-        elif self.categories.all().exists():
-            category_slug = self.categories.all()[0].slug
-
-        if category_slug:
-            try:
-                return reverse(
-                    '%s_category_object_detail' \
-                        % self.as_leaf_class().__class__.__name__.lower(),
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
-            except NoReverseMatch:
-                # Fallback
-                return reverse(
-                    'category_object_detail',
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
 
         # Sane fallback if no category
         return self.get_absolute_url()
@@ -366,7 +350,7 @@ but users won't be able to add new likes."),
             return self
         else:
             '''
-            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since 
+            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since
             the name of the link could be different
             '''
             link_name = self._meta.get_ancestor_link(ModelBase).name
@@ -589,25 +573,19 @@ but users won't be able to add new likes."),
         )
 
 
-class Pin(models.Model):
-    content = models.ForeignKey(ModelBase)
-    category = models.ForeignKey('category.Category')
-
-
 class Relation(models.Model):
-    """Generic relation between two objects"""
-    # todo: this code is too generic and makes querying slow. Refactor to
-    # only relate ModelBase to ModelBase. Migration management command will be
-    # required.
+    """Generic relation between two objects""" 
     source_content_type = models.ForeignKey(
-        ContentType, related_name='relation_source_content_type'
+        ContentType,
+        related_name='relation_source_content_type',
     )
     source_object_id = models.PositiveIntegerField()
     source = generic.GenericForeignKey(
         'source_content_type', 'source_object_id'
     )
     target_content_type = models.ForeignKey(
-        ContentType, related_name='relation_target_content_type'
+        ContentType,
+        related_name='relation_target_content_type',
     )
     target_object_id = models.PositiveIntegerField()
     target = generic.GenericForeignKey(

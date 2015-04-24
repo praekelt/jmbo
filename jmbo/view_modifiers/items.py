@@ -170,22 +170,7 @@ class MostRecentItem(GetItem):
 class MostLikedItem(GetItem):
     def modify(self, view):
         queryset = view.params['queryset']
-        view.params['queryset'] = queryset.extra(
-            select={
-                'vote_score': '(SELECT COUNT(*) from %s WHERE vote=1 AND \
-object_id=%s.%s AND content_type_id=%s) - (SELECT COUNT(*) from %s WHERE \
-vote=-1 AND object_id=%s.%s AND content_type_id=%s)' % (
-                    Vote._meta.db_table,
-                    queryset.model._meta.db_table,
-                    queryset.model._meta.pk.attname,
-                    ContentType.objects.get_for_model(queryset.model).id,
-                    Vote._meta.db_table,
-                    queryset.model._meta.db_table,
-                    queryset.model._meta.pk.attname,
-                    ContentType.objects.get_for_model(queryset.model).id
-                )
-            }
-        ).order_by('-vote_score')
+        view.params['queryset'] = queryset.order_by('-vote_total')
         return view
 
 

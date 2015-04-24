@@ -3,36 +3,23 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.db import connection
-from django.db.utils import DatabaseError
 
 from jmbo import USE_GIS
 
 
 class Migration(SchemaMigration):
-    
-    if USE_GIS:
-        depends_on = ( 
-            ("atlas", "0003_auto__chg_field_location_city"),
-        ) 
+    """Photologue has a field size that is smaller than the field we had in the
+    old Praekelt fork, thus breakign existing installations."""
+
+    depends_on = (
+        ("photologue", "0009_auto__del_galleryupload"),
+    )
 
     def forwards(self, orm):
-        if USE_GIS:
-            # Adding field 'ModelBase.location'
-            db.add_column('jmbo_modelbase', 'location',
-                        self.gf('django.db.models.fields.related.ForeignKey')(to=orm['atlas.Location'], null=True, blank=True),
-                        keep_default=False)
-
+        db.alter_column(u'photologue_photosize', 'name', self.gf('django.db.models.fields.CharField')(max_length=64))
 
     def backwards(self, orm):
-        try:
-            # check that the location field exists
-            connection.cursor().execute("SELECT location_id FROM jmbo_modelbase;")
-            # Deleting field 'ModelBase.location'
-            db.delete_column('jmbo_modelbase', 'location_id')
-        except DatabaseError:
-            pass
-
+        db.alter_column(u'photologue_photosize', 'name', self.gf('django.db.models.fields.CharField')(max_length=40))
 
     models = {
         'auth.group': {
@@ -68,7 +55,9 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "('title',)", 'object_name': 'Category'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'parent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['category.Category']", 'null': 'True', 'blank': 'True'}),
+            'sites': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['sites.Site']", 'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255'}),
+            'subtitle': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'})
         },
         'category.tag': {
@@ -87,35 +76,39 @@ class Migration(SchemaMigration):
         },
         'jmbo.modelbase': {
             'Meta': {'ordering': "('-created',)", 'object_name': 'ModelBase'},
-            'anonymous_comments': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'anonymous_comments': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'anonymous_likes': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'categories': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['category.Category']", 'null': 'True', 'blank': 'True'}),
             'class_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
+            'comment_count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'comments_closed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'comments_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'blank': 'True'}),
             'crop_from': ('django.db.models.fields.CharField', [], {'default': "'center'", 'max_length': '10', 'blank': 'True'}),
             'date_taken': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'effect': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'modelbase_related'", 'null': 'True', 'to': "orm['photologue.PhotoEffect']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'blank': 'True'}),
+            'image_attribution': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
             'likes_closed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'likes_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'modified': ('django.db.models.fields.DateTimeField', [], {}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
+            'owner_override': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
             'primary_category': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'primary_modelbase_set'", 'null': 'True', 'to': "orm['category.Category']"}),
             'publish_on': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
             'publishers': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['publisher.Publisher']", 'null': 'True', 'blank': 'True'}),
             'retract_on': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
             'sites': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['sites.Site']", 'null': 'True', 'blank': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '255'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255'}),
             'state': ('django.db.models.fields.CharField', [], {'default': "'unpublished'", 'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'subtitle': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'tags': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['category.Tag']", 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
-            'view_count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
+            'view_count': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
+            'vote_total': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'})
         },
         'jmbo.pin': {
             'Meta': {'object_name': 'Pin'},
@@ -158,7 +151,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
             'reflection_size': ('django.db.models.fields.FloatField', [], {'default': '0'}),
-            'reflection_strength': ('django.db.models.fields.FloatField', [], {'default': '0.59999999999999998'}),
+            'reflection_strength': ('django.db.models.fields.FloatField', [], {'default': '0.6'}),
             'sharpness': ('django.db.models.fields.FloatField', [], {'default': '1.0'}),
             'transpose_method': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'})
         },

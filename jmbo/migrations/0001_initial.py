@@ -6,12 +6,13 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
-    depends_on = ( 
+    depends_on = (
         ("category", "0001_initial"),
-    ) 
+        ("photologue", "0009_auto__del_galleryupload"),
+    )
 
     def forwards(self, orm):
-        
+
         # Adding model 'ModelBase'
         db.create_table('jmbo_modelbase', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),

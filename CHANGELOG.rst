@@ -1,6 +1,18 @@
 Changelog
 =========
 
+2.0.0a1
+-------
+#. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.x.
+#. Add `Clone this item` button to change forms.
+#. Deprecate gizmo, "wide" template, Pin class.
+#. Deprecate own class based generic views in favour of Django's equivalent.
+#. Deprecate views related to show objects per category. `jmbo-foundry` offers a much more powerful solution and scales better.
+#. Limit Relation change form to only ModelBase subclasses.
+#. Deprecate smart_url template tag because Django url template tag does the same now.
+#. Move back to mainline `django-photologue`.
+#. API now includes image detail url.
+
 1.2.0
 -----
 #. Use renamed django-photologue-praekelt.
@@ -15,6 +27,7 @@ Changelog
 -----
 #. API now includes image detail url.
 #. URL pattern to resolve detail page through category.
+>>>>>>> develop
 
 1.1.5
 -----

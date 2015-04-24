@@ -2,8 +2,9 @@ from django.conf import settings
 
 
 USE_GIS = False
-if 'atlas' and 'django.contrib.gis' in settings.INSTALLED_APPS and \
-        settings.DATABASES['default']['ENGINE'].startswith('django.contrib.gis.db.backends.'):
+if ('atlas' in settings.INSTALLED_APPS) \
+    and ('django.contrib.gis' in settings.INSTALLED_APPS) \
+    and settings.DATABASES['default']['ENGINE'].startswith('django.contrib.gis.db.backends.'):
     USE_GIS = True
 
 

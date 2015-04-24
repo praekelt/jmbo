@@ -17,7 +17,7 @@ from django.utils.itercompat import is_iterable
 register = template.Library()
 
 
-# Base the inclusion_tag decorator on Django's default register tag. We want 
+# Base the inclusion_tag decorator on Django's default register tag. We want
 # to be able to dynamically compute a list of templates suitable for rendering.
 def inclusion_tag(register, context_class=Context, takes_context=False, name=None):
     def dec(func):
@@ -27,7 +27,7 @@ def inclusion_tag(register, context_class=Context, takes_context=False, name=Non
 
             def render(self, context):
                 resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
-                
+
                 # Only this line has been changed from the default
                 # register_tag
                 file_name, _dict = func(*resolved_args, **resolved_kwargs)
@@ -68,13 +68,6 @@ def inclusion_tag(register, context_class=Context, takes_context=False, name=Non
     return dec
 
 
-@register.inclusion_tag('jmbo/inclusion_tags/content_list_gizmo.html', \
-        takes_context=True)
-def content_list_gizmo(context, object_list):
-    context.update({'object_list': object_list})
-    return context
-
-
 @inclusion_tag(register, takes_context=True)
 def object_comments(context, obj):
     ctype = obj.content_type
@@ -104,34 +97,6 @@ def object_header(context, obj):
 def object_footer(context, obj):
     context.update({'object': obj})
     return context
-
-
-@register.tag
-def pager(parser, token):
-    """
-    Output pagination links.
-    """
-    try:
-        tag_name, page_obj = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError(
-            'pager tag requires 1 argument (page_obj), %s given' \
-                    % (len(token.split_contents()) - 1)
-            )
-    return PagerNode(page_obj)
-
-
-class PagerNode(template.Node):
-    def __init__(self, page_obj):
-        self.page_obj = template.Variable(page_obj)
-
-    def render(self, context):
-        page_obj = self.page_obj.resolve(context)
-        context = {
-            'request': context['request'],
-            'page_obj': page_obj,
-        }
-        return render_to_string('jmbo/inclusion_tags/pager.html', context)
 
 
 @register.tag

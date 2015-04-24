@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='1.2.0',
+    version='2.0.0a1',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -13,22 +13,24 @@ setup(
     install_requires = [
         'Pillow',
         'pytz',
-        'django>=1.4,<1.5',
-        'django-atlas',
+        'django>=1.4,<1.7',
         'django-category>=0.0.5',
         'django-likes>=0.0.8',
-        'django-photologue-praekelt',
         'django-preferences',
-        'django-publisher',
+        'django-publisher',             # legacy, required by migrations
         'django-sites-groups',
-        'south',
-        'django-tastypie<0.10',
+        'django-tastypie>=0.10,<0.12',  # 0.12 requires Django 1.7
         'django-celery',
+        'django-generate',
+        'django-pagination',
+        'django-photologue>=3.1',
+        'south',
     ],
     include_package_data=True,
     tests_require=[
-        'pysqlite>=2.5',
-        'django-setuptest>=0.1.2',
+        'psycopg2',                     # we need a proper database
+        #'django-atlas',                # todo - test suite to use geos
+        'django-setuptest>=0.1.4',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
