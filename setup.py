@@ -27,8 +27,8 @@ setup(
     ],
     include_package_data=True,
     tests_require=[
-        'pysqlite>=2.5',
         'django-setuptest>=0.1.2',
+        'psycopg2',
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
