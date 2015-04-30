@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.2.1
+-----
+#. Pin `django-atlas` to use < 0.1.
+
 1.2.0
 -----
 #. Use renamed django-photologue-praekelt.
