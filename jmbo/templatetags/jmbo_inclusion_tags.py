@@ -101,9 +101,9 @@ def object_header(context, obj):
 def object_footer(context, obj):
     ctype = obj.content_type
     template_name = [
-        "%s/inclusion_tags/%s/object_header.html" % (ctype.app_label, ctype.model),
-        "%s/inclusion_tags/object_header.html" % ctype.app_label,
-        "jmbo/inclusion_tags/object_header.html"
+        "%s/inclusion_tags/%s/object_footer.html" % (ctype.app_label, ctype.model),
+        "%s/inclusion_tags/object_footer.html" % ctype.app_label,
+        "jmbo/inclusion_tags/object_footer.html"
     ]
     context.update({'object': obj})
     return template_name, context
