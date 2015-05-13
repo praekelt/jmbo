@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Allow per content type customization of object header and footer.
+
 2.0.0a1
 -------
 #. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.x.

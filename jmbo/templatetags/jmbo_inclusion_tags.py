@@ -72,8 +72,8 @@ def inclusion_tag(register, context_class=Context, takes_context=False, name=Non
 def object_comments(context, obj):
     ctype = obj.content_type
     template_name = [
-        "jmbo/inclusion_tags/%s/%s/object_comments.html" % (ctype.app_label, ctype.model),
-        "jmbo/inclusion_tags/%s/object_comments.html" % ctype.app_label,
+        "%s/inclusion_tags/%s/object_comments.html" % (ctype.app_label, ctype.model),
+        "%s/inclusion_tags/object_comments.html" % ctype.app_label,
         "jmbo/inclusion_tags/object_comments.html"
     ]
     can_comment, code = obj.can_comment(context['request'])
@@ -85,18 +85,28 @@ def object_comments(context, obj):
     return template_name, context
 
 
-@register.inclusion_tag('jmbo/inclusion_tags/object_header.html', \
-        takes_context=True)
+@inclusion_tag(register, takes_context=True)
 def object_header(context, obj):
+    ctype = obj.content_type
+    template_name = [
+        "%s/inclusion_tags/%s/object_header.html" % (ctype.app_label, ctype.model),
+        "%s/inclusion_tags/object_header.html" % ctype.app_label,
+        "jmbo/inclusion_tags/object_header.html"
+    ]
     context.update({'object': obj})
-    return context
+    return template_name, context
 
 
-@register.inclusion_tag('jmbo/inclusion_tags/object_footer.html', \
-        takes_context=True)
+@inclusion_tag(register, takes_context=True)
 def object_footer(context, obj):
+    ctype = obj.content_type
+    template_name = [
+        "%s/inclusion_tags/%s/object_header.html" % (ctype.app_label, ctype.model),
+        "%s/inclusion_tags/object_header.html" % ctype.app_label,
+        "jmbo/inclusion_tags/object_header.html"
+    ]
     context.update({'object': obj})
-    return context
+    return template_name, context
 
 
 @register.tag
