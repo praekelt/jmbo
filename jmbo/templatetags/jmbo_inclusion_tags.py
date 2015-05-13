@@ -72,7 +72,7 @@ def inclusion_tag(register, context_class=Context, takes_context=False, name=Non
 def object_comments(context, obj):
     ctype = obj.content_type
     template_name = [
-        "%s/inclusion_tags/%s/object_comments.html" % (ctype.app_label, ctype.model),
+        "%s/%s/inclusion_tags/object_comments.html" % (ctype.app_label, ctype.model),
         "%s/inclusion_tags/object_comments.html" % ctype.app_label,
         "jmbo/inclusion_tags/object_comments.html"
     ]
@@ -89,7 +89,7 @@ def object_comments(context, obj):
 def object_header(context, obj):
     ctype = obj.content_type
     template_name = [
-        "%s/inclusion_tags/%s/object_header.html" % (ctype.app_label, ctype.model),
+        "%s/%s/inclusion_tags/object_header.html" % (ctype.app_label, ctype.model),
         "%s/inclusion_tags/object_header.html" % ctype.app_label,
         "jmbo/inclusion_tags/object_header.html"
     ]
@@ -101,7 +101,7 @@ def object_header(context, obj):
 def object_footer(context, obj):
     ctype = obj.content_type
     template_name = [
-        "%s/inclusion_tags/%s/object_footer.html" % (ctype.app_label, ctype.model),
+        "%s/%s/inclusion_tags/object_footer.html" % (ctype.app_label, ctype.model),
         "%s/inclusion_tags/object_footer.html" % ctype.app_label,
         "jmbo/inclusion_tags/object_footer.html"
     ]
