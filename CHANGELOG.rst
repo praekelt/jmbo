@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Allow per content type customization of object header and footer.
+#. Select all sites initially for new items.
 
 2.0.0a1
 -------
@@ -31,7 +32,6 @@ next
 -----
 #. API now includes image detail url.
 #. URL pattern to resolve detail page through category.
->>>>>>> develop
 
 1.1.5
 -----

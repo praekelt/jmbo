@@ -106,6 +106,7 @@ chopped off."""
 
         instance = kwargs.get('instance', None)
         if instance is not None:
+            # Set relations
             for relation in relations:
                 name = relation.name
                 initial = Relation.objects.filter(
@@ -114,6 +115,10 @@ chopped off."""
                     name=name
                 )
                 self.fields[name].initial = [o.target for o in initial]
+
+        if (instance is None) and not self.is_bound:
+            # Select all sites initially
+            self.fields['sites'].initial = Site.objects.all()
 
     def clean_image(self):
         image = self.cleaned_data['image']
