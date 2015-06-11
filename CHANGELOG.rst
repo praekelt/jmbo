@@ -5,6 +5,7 @@ next
 ----
 #. Allow per content type customization of object header and footer.
 #. Select all sites initially for new items.
+#. The API now dereferences resource URI to the leaf class if possible.
 
 2.0.0a1
 -------
