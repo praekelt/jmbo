@@ -1,6 +1,13 @@
 Changelog
 =========
 
+2.0.0
+-----
+#. Allow per content type customization of object header and footer.
+#. Select all sites initially for new items.
+#. The API now dereferences resource URI to the leaf class if possible.
+#. Ensure image field is optional on ModelBase database table as well.
+
 2.0.0a1
 -------
 #. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.x.
@@ -27,7 +34,6 @@ Changelog
 -----
 #. API now includes image detail url.
 #. URL pattern to resolve detail page through category.
->>>>>>> develop
 
 1.1.5
 -----
