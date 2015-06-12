@@ -6,6 +6,7 @@ next
 #. Allow per content type customization of object header and footer.
 #. Select all sites initially for new items.
 #. The API now dereferences resource URI to the leaf class if possible.
+#. Ensure image field is optional on ModelBase database table as well.
 
 2.0.0a1
 -------
