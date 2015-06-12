@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.0
+-----
 #. Allow per content type customization of object header and footer.
 #. Select all sites initially for new items.
 #. The API now dereferences resource URI to the leaf class if possible.
