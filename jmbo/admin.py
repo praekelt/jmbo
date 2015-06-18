@@ -173,7 +173,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     except KeyError:
         has_oracle = False
     if has_oracle:
-        list_filter = ('state', 'created', CategoriesListFilter, 'sites')
+        list_filter = ('state', 'created', CategoriesListFilter)
     else:
         list_filter = ('state', 'created', CategoriesListFilter,
             'sites__sitesgroup', 'sites'
