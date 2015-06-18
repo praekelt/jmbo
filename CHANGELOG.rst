@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.1
+-----
 #. Disable advanced admin change list filtering if Oracle is the database. The Oracle adapter is buggy.
 
 2.0.0
