@@ -13,6 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from category.models import Category
 from category.admin import CategoryAdmin
@@ -166,7 +167,18 @@ class ModelBaseAdmin(admin.ModelAdmin):
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
 
-    list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
+    # The Oracle database adapter is buggy and can't handle sites__sitesgroup
+    try:
+        has_oracle = 'oracle' in settings.DATABASES['default']['ENGINE']
+    except KeyError:
+        has_oracle = False
+    if has_oracle:
+        list_filter = ('state', 'created', CategoriesListFilter, 'sites')
+    else:
+        list_filter = ('state', 'created', CategoriesListFilter,
+            'sites__sitesgroup', 'sites'
+        )
+
     search_fields = ('title', 'description', 'state', 'created')
     save_as = True
     fieldsets = (

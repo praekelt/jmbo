@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Disable advanced admin change list filtering if Oracle is the database. The Oracle adapter is buggy.
+
 2.0.0
 -----
 #. Allow per content type customization of object header and footer.
