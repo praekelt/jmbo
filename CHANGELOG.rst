@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.2
+-----
 #. Disable more filters so Oracle can work.
 
 2.0.1
