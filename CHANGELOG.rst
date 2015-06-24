@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.4
+-----
 #. Patch ImageModel delete to handle null image.
 
 2.0.3
