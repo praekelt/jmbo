@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.3
+-----
+#. Limit photologue to <3.2 because they have stopped supporting Django 1.6.
+
 2.0.2
 -----
 #. Disable more filters so Oracle can work.

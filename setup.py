@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='2.0.2',
+    version='2.0.3',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Foundation',
@@ -23,7 +23,7 @@ setup(
         'django-celery',
         'django-generate',
         'django-pagination',
-        'django-photologue>=3.1',
+        'django-photologue>=3.1,<3.2',
         'south',
     ],
     include_package_data=True,
