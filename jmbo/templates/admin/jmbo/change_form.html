@@ -11,14 +11,15 @@ Add autosave javascript.
     {% if not request.GET.no_autosave %}
     {% if adminform.form.instance.id %}
     <script type="text/javascript">
-    $(document).ready(function(){
+    (function($) {
+    $(document).ready(function() {
 
-        (function autosave(){
+        (function autosave() {
             var data = $('form:first').serializeArray();
 
             // Jmbo uses Ckeditor for richtext so handle the content
             if  (typeof CKEDITOR != 'undefined'){
-                for (var editor_name in CKEDITOR.instances){
+                for (var editor_name in CKEDITOR.instances) {
                     var name = $('#'+editor_name).attr('name');
                     data.push({'name': name, 'value': CKEDITOR.instances[editor_name].getData()});
                 }
@@ -30,7 +31,7 @@ Add autosave javascript.
                 data: data,
                 type: 'POST',
                 cache: false,
-                complete: function(){
+                complete: function() {
                     setTimeout(autosave, 30000)
                 }
             });
@@ -38,6 +39,7 @@ Add autosave javascript.
         })();
 
     });
+    })(django.jQuery)
     </script>
     {% endif %}
     {% endif %}

@@ -5,6 +5,7 @@ next
 ----
 #. Gracefully handle missing images in the API.
 #. Change the site information in the unicode method to be less overwhelming.
+#. Use built-in jQuery for autosave function.
 
 2.0.4
 -----
