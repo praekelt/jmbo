@@ -477,6 +477,18 @@ class ModelBaseTestCase(unittest.TestCase):
         self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, 'published')
         self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, 'published')
 
+    def test_unicode(self):
+        obj = TestModel(title='Title', state='published')
+        obj.save()
+        obj.sites = Site.objects.all()
+        obj.save()
+        self.assertEqual(unicode(obj), u'Title (all sites)')
+        obj = TestModel(title='Title', state='published')
+        obj.save()
+        obj.sites = [1]
+        obj.save()
+        self.assertEqual(unicode(obj), u'Title (example.com)')
+
 
 class ModelBaseAdminTestCase(unittest.TestCase):
     def setUp(self):

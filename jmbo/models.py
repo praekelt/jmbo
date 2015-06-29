@@ -13,6 +13,7 @@ from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes import generic
 from django.utils import timezone
+from django.core.cache import cache
 
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -319,25 +320,32 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
+        # This method gets called repeatedly in admin so cache
+        key = 'jmbo-mb-uc-%s-%s' % \
+            (self.pk, self.modified and int(self.modified.strftime('%s')) or 0)
+        cached = cache.get(key, None)
+        if cached is not None:
+            return cached
+
         # Append site(s) information intelligently
-        s = ''
+        suffix = ''
         sites = self.sites.all()
         if not sites:
-            s = ' (%s)' % ugettext("no sites")
+            suffix = ' (%s)' % ugettext("no sites")
         else:
-            # Until performance issues are encountered this will do. Sites are
-            # not added through the CMS so a module level cache will do nicely.
             all_sites = Site.objects.all()
             len_all_sites = len(all_sites)
             if len_all_sites > 1:
                 if len(sites) == len_all_sites:
-                    s = ' (%s)' % ugettext("all sites")
+                    suffix = ' (%s)' % ugettext("all sites")
                 else:
-                    s = ' (%s)' % ', '.join([s.name for s in sites])
+                    suffix = ' (%s)' % ', '.join([s.name for s in sites])
         if self.subtitle:
-            return '%s - %s%s' % (self.title, self.subtitle, s)
+            result = '%s - %s%s' % (self.title, self.subtitle, suffix)
         else:
-            return '%s%s' % (self.title, s)
+            result = '%s%s' % (self.title, suffix)
+        cache.set(key, result, 300)
+        return result
 
     @property
     def is_permitted(self):
