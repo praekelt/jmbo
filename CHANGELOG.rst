@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Gracefully handle missing images in the API.
+#. Do not include sites in model string representation if all sites are select for an object.
 
 2.0.4
 -----
