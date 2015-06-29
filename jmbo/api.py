@@ -31,8 +31,10 @@ class ModelBaseResource(ModelResource):
 
     def dehydrate(self, bundle):
         bundle.data['permalink'] = bundle.obj.get_absolute_url()
-        try:
-            bundle.data['image_detail_url'] = bundle.obj.image_detail_url
-        except AttributeError:
-            bundle.data['image_detail_url'] = ''
+        bundle.data['image_detail_url'] = ''
+        if bundle.obj.image:
+            try:
+                bundle.data['image_detail_url'] = bundle.obj.image_detail_url
+            except AttributeError:
+                pass
         return bundle

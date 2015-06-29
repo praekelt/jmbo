@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Gracefully handle missing images in the API.
+
 2.0.4
 -----
 #. Patch ImageModel delete to handle null image.
