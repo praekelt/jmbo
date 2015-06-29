@@ -4,7 +4,7 @@ Changelog
 next
 ----
 #. Gracefully handle missing images in the API.
-#. Do not include sites in model string representation if all sites are select for an object.
+#. Change the site information in the unicode method to be less overwhelming.
 
 2.0.4
 -----
