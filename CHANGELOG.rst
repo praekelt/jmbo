@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.5
+-----
 #. Gracefully handle missing images in the API.
 #. Change the site information in the unicode method to be less overwhelming.
 #. Use built-in jQuery for autosave function.
