@@ -1,3 +1,6 @@
+import os
+
+
 USE_TZ = True
 
 TIME_ZONE = 'Africa/Johannesburg'
@@ -60,6 +63,11 @@ STATIC_URL = '/static/'
 # Disable celery
 CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = 'memory'
+
+TEMPLATE_DIRS = (
+    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/templates/',
+    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/tests/templates/',
+)
 
 # xxx: get tests to pass with migrations
 SOUTH_TESTS_MIGRATE = False

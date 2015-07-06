@@ -134,28 +134,36 @@ class RenderObjectNode(template.Node):
         context.push()
         context['object'] = obj
 
-        # Generate template name from obj app label, model and type.
-        obj_type = ContentType.objects.get_for_model(obj)
-        template_name = "%s/inclusion_tags/%s_%s.html" % (obj_type.app_label, \
-                obj_type.model, type)
-        # Create response from template. if template is not found for obj type
-        # use default content template. If default content template is not
-        # found for type return empty response.
-        try:
-            response = render_to_string(template_name, context)
-        except TemplateDoesNotExist:
-            fallback_template_name = "jmbo/inclusion_tags/modelbase_%s.html" \
-                    % type
+        # Template names follow typical Django naming convention but also
+        # provides legacy handling.
+        ctype = ContentType.objects.get_for_model(obj)
+        template_names = (
+            "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type),
+            "%s/%s/inclusion_tags/object_%s.html" % (ctype.app_label, ctype.model, type),
+            "%s/inclusion_tags/object_%s.html" % (ctype.app_label, type),
+            "jmbo/inclusion_tags/object_%s.html" % type,
+            "jmbo/inclusion_tags/modelbase_%s.html" % type
+        )
+        rendered = False
+        for template_name in template_names:
             try:
-                response = render_to_string(fallback_template_name, context)
+                response = render_to_string(template_name, context)
+                rendered = True
+                break
             except TemplateDoesNotExist:
-                if settings.TEMPLATE_DEBUG:
-                    raise TemplateDoesNotExist({'resolved': template_name, \
-                            'fallback': fallback_template_name})
-                else:
-                    response = ''
-        finally:
-            context.pop()
+                pass
+
+        context.pop()
+
+        if not rendered:
+            if settings.TEMPLATE_DEBUG:
+                raise TemplateDoesNotExist({
+                    'content_type': ctype.app_label,
+                    'model': ctype.model,
+                    'type': type
+                })
+            else:
+                response = ''
 
         return response
 

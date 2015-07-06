@@ -1,6 +1,11 @@
 Changelog
 =========
 
+next
+----
+#. Make object detail template resolution follow the standard Django naming conventions. Backward compatibility is preserved.
+#. Move test templates into tests directory.
+
 2.0.5
 -----
 #. Gracefully handle missing images in the API.

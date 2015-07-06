@@ -722,31 +722,40 @@ class PermittedManagerTestCase(unittest.TestCase):
 
 
 class InclusionTagsTestCase(unittest.TestCase):
-    def setUp(self):
-        obj = TestModel(title='title', state='published')
-        obj.save()
-        self.context = template.Context({'object': obj})
 
     def test_render_tag(self):
-        # load correct template for provided object and type
+        obj1 = TestModel(title='title', state='published')
+        obj1.save()
+        obj2 = BranchModel(title='title', state='published')
+        obj2.save()
+        obj3 = LeafModel(title='title', state='published')
+        obj3.save()
+
+        # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
+        self.context = template.Context({'object': obj1})
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'test_block' %}")
         result = t.render(self.context)
-        expected_result = u'Test string for testing purposes\n'
-        self.failUnlessEqual(result, expected_result)
+        expected = u'TestModel block\n'
+        self.failUnlessEqual(result, expected)
 
-        # If template is not available for object
-        # fall back to default content template.
-        obj = BranchModel(title='title', state='published')
-        obj.save()
-        self.context = template.Context({'object': obj})
+        # "%s/%s/inclusion_tags/object_%s.html" % (ctype.app_label, ctype.model, type),
+        self.context = template.Context({'object': obj2})
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'test_block' %}")
         result = t.render(self.context)
-        self.failUnless(result)
+        expected = u'BranchModel block\n'
+        self.failUnless(result, expected)
 
-        # Return the empty string if no template can be found for the given
-        # type for either obj or content.
+        # "jmbo/inclusion_tags/modelbase_%s.html" % type
+        self.context = template.Context({'object': obj3})
+        t = Template("{% load jmbo_inclusion_tags %}\
+{% render_object object 'test_block' %}")
+        result = t.render(self.context)
+        expected = u'ModelBase block\n'
+        self.failUnlessEqual(result, expected)
+
+        # No template was found
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'foobar' %}")
         result = t.render(self.context)
@@ -852,8 +861,9 @@ class ViewsTestCase(unittest.TestCase):
     def test_detail_view(self):
         response = self.client.get(self.obj.get_absolute_url())
         self.assertEqual(response.status_code, 200)
+        self.failUnless('<div class="object-detail' in response.content)
 
-    def test_detail_view(self):
+    def test_list_view(self):
         url = reverse("object_list", args=["jmbo", "modelbase"])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
