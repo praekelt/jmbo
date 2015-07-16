@@ -764,27 +764,25 @@ class InclusionTagsTestCase(unittest.TestCase):
 
 
 class TemplateTagsTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.request = RequestFactory()
+        cls.request.method = 'GET'
+        cls.request._path = '/'
+        cls.request.get_full_path = lambda: cls.request._path
+        cls.client = Client()
+
+        # Add an extra site
+        site, dc = Site.objects.get_or_create(name='another', domain='another.com')
+
     def setUp(self):
-
-        def url_callable(obj):
-            return 'Test URL method using object %s' % obj.__class__.__name__
-
-        class CallableURL(object):
-
-            def __call__(self):
-                return url_callable
-
         obj = TestModel(title='title', state='published')
         obj.save()
         self.context = template.Context({
             'object': obj,
-            'url_callable': CallableURL(),
+            'request': self.request
         })
-
-    @classmethod
-    def setUpClass(cls):
-        # Add an extra site
-        site, dc = Site.objects.get_or_create(name='another', domain='another.com')
 
     def test_jmbocache(self):
         # Caching on same site

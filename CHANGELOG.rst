@@ -5,6 +5,7 @@ next
 ----
 #. Make object detail template resolution follow the standard Django naming conventions. Backward compatibility is preserved.
 #. Move test templates into tests directory.
+#. Add dependency on ``django-ultracache`` and defer ``jmbocache`` template tag to ``ultracache`` template tag.
 
 2.0.5
 -----

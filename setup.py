@@ -24,6 +24,7 @@ setup(
         'django-generate',
         'django-pagination',
         'django-photologue>=3.1,<3.2',
+        'django-ultracache',
         'south',
     ],
     include_package_data=True,
