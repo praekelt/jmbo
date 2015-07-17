@@ -6,7 +6,7 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class ObjectDetail(DetailView):
-    template_name = "jmbo/modelbase_detail.html"
+    template_name = "jmbo/object_detail.html"
     view_modifier = None
     # Shim so legacy view modifiers do not break
     params = {"extra_context": {"view_modifier": None}}
@@ -41,7 +41,7 @@ class ObjectDetail(DetailView):
 
 
 class ObjectList(ListView):
-    template_name = "jmbo/modelbase_list.html"
+    template_name = "jmbo/object_list.html"
     params = {}
     view_modifier = DefaultViewModifier
     # Shim so legacy view modifiers do not break

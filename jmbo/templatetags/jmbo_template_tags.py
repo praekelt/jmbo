@@ -1,6 +1,7 @@
 from datetime import datetime
 import hashlib
 import logging
+import warnings
 
 from django import template
 from django.utils.translation import ugettext as _
@@ -13,6 +14,7 @@ from django.template.base import VariableDoesNotExist
 from django.core.cache import cache
 from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
+
 
 register = template.Library()
 logger = logging.getLogger(__name__)
@@ -258,6 +260,15 @@ class JmboCacheNode(CacheNode):
     vary on parameter. Allow unresolvable variables. Allow translated strings."""
 
     def render(self, context):
+        # Raise warning here so as not to overwhelm log with spam. As we get
+        # closer to deprecation we'll move thewarning to the template tag.
+        warnings.warn(
+            "jmbo.templatetags.jmbocache will be deprecated in jmbo 3.0; \
+            use ultracache instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:
@@ -304,7 +315,12 @@ def do_jmbocache(parser, token):
     tokens = token.split_contents()
     if len(tokens) < 3:
         raise TemplateSyntaxError("'%r' tag requires at least 2 arguments." % tokens[0])
-    return JmboCacheNode(nodelist,
+    try:
+        from ultracache.templatetags.ultracache_tags import UltraCacheNode as \
+            CacheNode
+    except ImportError:
+        CacheNode = JmboCacheNode
+    return CacheNode(nodelist,
         parser.compile_filter(tokens[1]),
         tokens[2], # fragment_name can't be a variable.
         [parser.compile_filter(token) for token in tokens[3:]])
