@@ -1,17 +1,62 @@
-.. jmbo-docs documentation master file, created by
-   sphinx-quickstart on Mon Jul 20 15:47:48 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Documentation
+=============
 
-jmbo
-=====================================
+**Jmbo is a lightweight and unobtrusive CMS geared towards the publishing industry. Jmbo introduces an extensible base model
+and provides segmented templates that are easy to customize.**.
 
-.. image:: praekelt_logo.png
+This documentation covers version |version| of |jmbo|.
 
-Description:
-============
-jmbo base
+.. note::
+    |jmbo| |version| requires Django 1.6. More on :ref:`versions`.
 
-Contents:
+Installation & Setup
+--------------------
 
 .. toctree::
+   :maxdepth: 2
+   
+   quickstart
+   customization
+
+Dashboard
+---------
+
+.. toctree::
+   :maxdepth: 2
+   
+   dashboard_setup
+   dashboard_api
+
+Internals
+---------
+
+.. toctree::
+   :maxdepth: 2
+   
+   internals
+
+Help
+----
+
+.. toctree::
+   :maxdepth: 2
+   
+   help
+   contributing
+   changelog
+
+Code
+----
+
+https://github.com/praekelt/jmbo
+
+.. _versions:
+
+Versions and Compatibility
+--------------------------
+
+**Jmbo is currently developed against the previous stable version of Django.**
+
+* Jmbo 2.x: Compatible with Django 1.6
+* Jmbo 1.x: Compatible with Django 1.4
+
