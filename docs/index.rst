@@ -32,6 +32,7 @@ Internals
    
    models
    templates
+   customize_templates
 
 Help
 ----
