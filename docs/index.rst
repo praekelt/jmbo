@@ -2,30 +2,27 @@ Documentation
 =============
 
 **Jmbo is a lightweight and unobtrusive CMS geared towards the publishing industry. Jmbo introduces an extensible base model
-and provides segmented templates that are easy to customize.**.
+and provides segmented templates that are easy to customize.**
 
 This documentation covers version |version| of |jmbo|.
 
 .. note::
     |jmbo| |version| requires Django 1.6. More on :ref:`versions`.
 
-Installation & Setup
---------------------
+Overview
+--------
 
-.. toctree::
-   :maxdepth: 2
-   
-   quickstart
-   customization
+Jmbo is a CMS built on Django enabling you to rapidly build multilingual web
+and mobi sites with the minimum amount of code and customization.
 
-Dashboard
----------
+The Jmbo base product introduces abstract models and concepts that are used in
+Jmbo products.
 
-.. toctree::
-   :maxdepth: 2
-   
-   dashboard_setup
-   dashboard_api
+Installation
+------------
+
+Jmbo itself is just a Django product and can be installed as such. An easier approach is to follow
+http://jmbo-skeleton.readthedocs.org/ to get a fully working environment.
 
 Internals
 ---------
@@ -33,16 +30,15 @@ Internals
 .. toctree::
    :maxdepth: 2
    
-   internals
+   models
+   templates
 
 Help
 ----
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    
-   help
-   contributing
    changelog
 
 Code
