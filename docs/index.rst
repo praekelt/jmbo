@@ -29,7 +29,7 @@ Internals
 
 .. toctree::
    :maxdepth: 2
-   
+
    models
    templates
    customize_templates
@@ -39,7 +39,7 @@ Help
 
 .. toctree::
    :maxdepth: 1
-   
+
    changelog
 
 Code
