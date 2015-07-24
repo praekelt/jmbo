@@ -52,7 +52,7 @@ Individual models
 =================
 The template naming convention changes slightly.
 
-*   *<app name>/templates/<app name>/inclusion_tags/<model>_<type>.html*
+*   *<app name>/templates/<app name>/<model>/inclusion_tags/object_<type>.html*
 
 Instead of generic object templates, model specific templates are now used.
 
