@@ -24,7 +24,7 @@ Create template HTML files inside:
 
 Creating object templates in this folder will override all objects that extend ModelBase.
 
-Ex. creating object_header.html and editing its content will change
+Eg. creating object_header.html and editing its content will change
 what is displayed on your page headers.
 
 Default templates
