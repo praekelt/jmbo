@@ -18,13 +18,13 @@ In your app folder you require the following folder structure:
 Create templates to override
 ++++++++++++++++++++++++++++
 
-Create template html files inside:
+Create template HTML files inside:
 
 *   *<app name>/templates/jmbo/inclusion_tags/object_<type>.html*
 
 Creating object templates in this folder will override all objects that extend ModelBase.
 
-ex. creating object_header.html and editing its content will change
+Ex. creating object_header.html and editing its content will change
 what is displayed on your page headers.
 
 Default templates
@@ -43,9 +43,9 @@ The folder structure changes slightly.
 *   *<app name>/templates/<app name>/inclusion_tags/object_<type>.html*
 
 This will override all Models that extend ModelBase in the app,
-while external ModelBase objects can still be overriden seperately.
+while external ModelBase objects can still be overridden separately.
 
-Alternatively each app Model can also be overriden to use their own seperate templates.
+Alternatively each app Model can also be overridden to use their own separate templates.
 
 
 Individual models
@@ -59,7 +59,7 @@ Instead of generic object templates, model specific templates are now used.
 Template resolution
 ===================
 
-Modelbase templates get resolved in the following order:
+ModelBase templates get resolved in the following order:
 
 #.   *<app name>/inclusion_tags/<model>_<type>.html*
 #.   *<app name>/<model>/inclusion_tags/object_<type>.html*
@@ -68,4 +68,4 @@ Modelbase templates get resolved in the following order:
 
 The list from top to bottom lists the order in which templates are found and resolved.
 Paths that are higher up take priority and are rendered.
-If template is not found in any of these paths a default tempalte is used.
+If template is not found in any of these paths a default template is used.
