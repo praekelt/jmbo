@@ -65,8 +65,8 @@ CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = 'memory'
 
 TEMPLATE_DIRS = (
-    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/templates/',
     os.path.realpath(os.path.dirname(__file__)) + '/jmbo/tests/templates/',
+    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/templates/',
 )
 
 # xxx: get tests to pass with migrations

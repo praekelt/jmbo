@@ -723,16 +723,28 @@ class PermittedManagerTestCase(unittest.TestCase):
 
 class InclusionTagsTestCase(unittest.TestCase):
 
-    def test_render_tag(self):
-        obj1 = TestModel(title='title', state='published')
-        obj1.save()
-        obj2 = BranchModel(title='title', state='published')
-        obj2.save()
-        obj3 = LeafModel(title='title', state='published')
-        obj3.save()
+    @classmethod
+    def setUpClass(cls):
+        cls.request = RequestFactory()
+        cls.request.method = 'GET'
+        cls.request._path = '/'
+        cls.request.get_full_path = lambda: cls.request._path
+        class User():
+            def is_authenticated(self):
+                return False
+        cls.request.user = User()
+        cls.request.secretballot_token = 'test_token'
 
+        cls.obj1 = TestModel(title='title 1', state='published')
+        cls.obj1.save()
+        cls.obj2 = BranchModel(title='title 2', state='published')
+        cls.obj2.save()
+        cls.obj3 = LeafModel(title='title 3', state='published')
+        cls.obj3.save()
+
+    def test_render_tag(self):
         # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
-        self.context = template.Context({'object': obj1})
+        self.context = template.Context({'object': self.obj1})
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'test_block' %}")
         result = t.render(self.context)
@@ -740,7 +752,7 @@ class InclusionTagsTestCase(unittest.TestCase):
         self.failUnlessEqual(result, expected)
 
         # "%s/%s/inclusion_tags/object_%s.html" % (ctype.app_label, ctype.model, type),
-        self.context = template.Context({'object': obj2})
+        self.context = template.Context({'object': self.obj2})
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'test_block' %}")
         result = t.render(self.context)
@@ -748,7 +760,7 @@ class InclusionTagsTestCase(unittest.TestCase):
         self.failUnless(result, expected)
 
         # "jmbo/inclusion_tags/modelbase_%s.html" % type
-        self.context = template.Context({'object': obj3})
+        self.context = template.Context({'object': self.obj3})
         t = Template("{% load jmbo_inclusion_tags %}\
 {% render_object object 'test_block' %}")
         result = t.render(self.context)
@@ -761,6 +773,32 @@ class InclusionTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         expected_result = u''
         self.failUnlessEqual(result, expected_result)
+
+    def test_header_tag(self):
+        """Provide a custom object_header because default has dependencies that
+        require request to be annotated and it is hard to fake without an HTTP
+        call"""
+        self.context = template.Context({'object': self.obj1, 'request': self.request})
+        t = Template("{% load jmbo_inclusion_tags %}\
+{% object_header object %}")
+        result = t.render(self.context)
+        self.failUnless('Object header' in result)
+        self.failUnless('get_full_path = /' in result)
+        self.failUnless('title = title 1' in result)
+
+    def test_footer_tag(self):
+        self.context = template.Context({'object': self.obj1, 'request': self.request})
+        t = Template("{% load jmbo_inclusion_tags %}\
+{% object_footer object %}")
+        result = t.render(self.context)
+        self.failUnless('object-footer' in result)
+
+    def test_comments_tag(self):
+        self.context = template.Context({'object': self.obj1, 'request': self.request})
+        t = Template("{% load jmbo_inclusion_tags %}\
+{% object_comments object %}")
+        result = t.render(self.context)
+        self.failUnless('honeypot' in result)
 
 
 class TemplateTagsTestCase(unittest.TestCase):
