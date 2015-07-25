@@ -3,7 +3,6 @@ Changelog
 
 next
 ----
-#. Remove view_modifier from detail template.
 #. Simplify template inclusion tags.
 
 2.0.6

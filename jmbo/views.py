@@ -34,10 +34,16 @@ class ObjectDetail(DetailView):
         context["view_modifier"] = self.view_modifier
         return context
 
-    def get_template_name_field(self, *args, **kwargs):
-        """This hook allows the model to specify a detail template. When we
-        move to class-based generic views this magic will disappear."""
-        return 'template_name_field'
+    def get_template_names(self):
+        ctype = self.object.content_type
+        template_names = [
+            "%s/%s_detail.html" % (ctype.app_label, ctype.model),
+            "%s/%s/object_detail.html" % (ctype.app_label, ctype.model),
+            "%s/object_detail.html" % (ctype.app_label),
+            "jmbo/object_detail.html",
+            "jmbo/modelbase_detail.html"
+        ]
+        return template_names
 
 
 class ObjectList(ListView):
