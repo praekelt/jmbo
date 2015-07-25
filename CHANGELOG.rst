@@ -1,6 +1,11 @@
 Changelog
 =========
 
+next
+----
+#. Remove view_modifier from detail template.
+#. Simplify template inclusion tags.
+
 2.0.6
 -----
 #. Make object detail template resolution follow the standard Django naming conventions. Backward compatibility is preserved.
