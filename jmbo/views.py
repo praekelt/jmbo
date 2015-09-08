@@ -6,13 +6,14 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class ObjectDetail(DetailView):
+    model = ModelBase
     template_name = "jmbo/object_detail.html"
     view_modifier = None
     # Shim so legacy view modifiers do not break
     params = {"extra_context": {"view_modifier": None}}
 
     def get_queryset(self):
-        qs = ModelBase.permitted.get_query_set(
+        qs = self.model.permitted.get_query_set(
             for_user=getattr(getattr(self, "request", None), "user", None)
         )
 
@@ -34,13 +35,20 @@ class ObjectDetail(DetailView):
         context["view_modifier"] = self.view_modifier
         return context
 
-    def get_template_name_field(self, *args, **kwargs):
-        """This hook allows the model to specify a detail template. When we
-        move to class-based generic views this magic will disappear."""
-        return 'template_name_field'
+    def get_template_names(self):
+        ctype = self.object.content_type
+        template_names = [
+            "%s/%s_detail.html" % (ctype.app_label, ctype.model),
+            "%s/%s/object_detail.html" % (ctype.app_label, ctype.model),
+            "%s/object_detail.html" % (ctype.app_label),
+            "jmbo/object_detail.html",
+            "jmbo/modelbase_detail.html"
+        ]
+        return template_names
 
 
 class ObjectList(ListView):
+    model = ModelBase
     template_name = "jmbo/object_list.html"
     params = {}
     view_modifier = DefaultViewModifier
@@ -48,7 +56,7 @@ class ObjectList(ListView):
     params = {"extra_context": {"view_modifier": DefaultViewModifier}}
 
     def get_queryset(self):
-        qs =  ModelBase.permitted.filter(
+        qs =  self.model.permitted.filter(
             content_type__app_label=self.kwargs["app_label"],
             content_type__model=self.kwargs["model"]
         )

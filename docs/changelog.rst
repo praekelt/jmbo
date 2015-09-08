@@ -1,11 +1,6 @@
 Changelog
 =========
 
-2.0.7
------
-#. Simplify template inclusion tags.
-#. The detail and list views now respect the model attribute.
-
 2.0.6
 -----
 #. Make object detail template resolution follow the standard Django naming conventions. Backward compatibility is preserved.

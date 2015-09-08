@@ -585,17 +585,9 @@ but users won't be able to add new likes."),
             self.retract_on = timezone.now()
             self.save()
 
-    @property
-    def template_name_field(self):
-        """This hook allows the model to specify a detail template. When we
-        move to class-based generic views this magic will disappear."""
-        return '%s/%s_detail.html' % (
-            self.content_type.app_label, self.content_type.model
-        )
-
 
 class Relation(models.Model):
-    """Generic relation between two objects""" 
+    """Generic relation between two objects"""
     source_content_type = models.ForeignKey(
         ContentType,
         related_name='relation_source_content_type',

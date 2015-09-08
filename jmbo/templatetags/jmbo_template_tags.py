@@ -261,7 +261,7 @@ class JmboCacheNode(CacheNode):
 
     def render(self, context):
         # Raise warning here so as not to overwhelm log with spam. As we get
-        # closer to deprecation we'll move thewarning to the template tag.
+        # closer to deprecation we'll move the warning to the template tag.
         warnings.warn(
             "jmbo.templatetags.jmbocache will be deprecated in jmbo 3.0; \
             use ultracache instead.",
