@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.7
+-----
 #. Simplify template inclusion tags.
 #. The detail and list views now respect the model attribute.
 
