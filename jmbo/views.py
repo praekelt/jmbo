@@ -6,13 +6,14 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 
 class ObjectDetail(DetailView):
+    model = ModelBase
     template_name = "jmbo/object_detail.html"
     view_modifier = None
     # Shim so legacy view modifiers do not break
     params = {"extra_context": {"view_modifier": None}}
 
     def get_queryset(self):
-        qs = ModelBase.permitted.get_query_set(
+        qs = self.model.permitted.get_query_set(
             for_user=getattr(getattr(self, "request", None), "user", None)
         )
 
@@ -47,6 +48,7 @@ class ObjectDetail(DetailView):
 
 
 class ObjectList(ListView):
+    model = ModelBase
     template_name = "jmbo/object_list.html"
     params = {}
     view_modifier = DefaultViewModifier
@@ -54,7 +56,7 @@ class ObjectList(ListView):
     params = {"extra_context": {"view_modifier": DefaultViewModifier}}
 
     def get_queryset(self):
-        qs =  ModelBase.permitted.filter(
+        qs =  self.model.permitted.filter(
             content_type__app_label=self.kwargs["app_label"],
             content_type__model=self.kwargs["model"]
         )

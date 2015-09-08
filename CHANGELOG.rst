@@ -4,6 +4,7 @@ Changelog
 next
 ----
 #. Simplify template inclusion tags.
+#. The detail and list views now respect the model attribute.
 
 2.0.6
 -----
