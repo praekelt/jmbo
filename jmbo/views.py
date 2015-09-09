@@ -7,7 +7,6 @@ from jmbo.view_modifiers import DefaultViewModifier
 
 class ObjectDetail(DetailView):
     model = ModelBase
-    template_name = "jmbo/object_detail.html"
     view_modifier = None
     # Shim so legacy view modifiers do not break
     params = {"extra_context": {"view_modifier": None}}
@@ -36,14 +35,15 @@ class ObjectDetail(DetailView):
         return context
 
     def get_template_names(self):
+        template_names = super(ObjectDetail, self).get_template_names()
         ctype = self.object.content_type
-        template_names = [
+        template_names.extend([
             "%s/%s_detail.html" % (ctype.app_label, ctype.model),
             "%s/%s/object_detail.html" % (ctype.app_label, ctype.model),
             "%s/object_detail.html" % (ctype.app_label),
             "jmbo/object_detail.html",
             "jmbo/modelbase_detail.html"
-        ]
+        ])
         return template_names
 
 
