@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.8
+-----
 #. The ``ObjectDetail`` view now respects template_name set at class level.
 
 2.0.7
