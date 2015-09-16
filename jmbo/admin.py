@@ -20,7 +20,7 @@ from category.admin import CategoryAdmin
 from publisher.models import Publisher
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Relation
+from jmbo.models import ModelBase, Relation, ImageOverride
 from jmbo import USE_GIS
 
 
@@ -155,6 +155,23 @@ chopped off."""
         return self.cleaned_data
 
 
+class ImageOverrideInlineForm(forms.ModelForm):
+
+    class Meta:
+        model = ImageOverride
+        exclude = ("effect", "crop_from")
+
+    def __init__(self, *args, **kwargs):
+        super(ImageOverrideInlineForm, self).__init__(*args, **kwargs)
+        self.fields["photosize"].queryset = self.fields["photosize"].queryset.order_by("name")
+
+
+class ImageOverrideInline(admin.TabularInline):
+    form = ImageOverrideInlineForm
+    model = ImageOverride
+    exclude = ("effect", "crop_from")
+
+
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
     # ModelBase is typically subclassed so normal app/model/change_form.html
@@ -166,6 +183,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
+    inlines = [ImageOverrideInline]
 
     # The Oracle database adapter is buggy and can't handle sites__sitesgroup
     try:
