@@ -618,6 +618,20 @@ blog_galleries. Once set it is typically never changed."
         ),)
 
 
+class ImageOverride(ImageModel):
+    """Model that allows a specific curated image to override a scale that
+    would normally be generated."""
+
+    target = models.ForeignKey(ModelBase, editable=False)
+    photosize = models.ForeignKey("photologue.PhotoSize")
+
+    class Meta:
+        verbose_name = _("Image override")
+        verbose_name_plural = _("Image overrides")
+
+    def __unicode__(self):
+        return _("Override for %s") % self.photosize.name
+
 def set_managers(sender, **kwargs):
     """
     Make sure all classes have the appropriate managers.

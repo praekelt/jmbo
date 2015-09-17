@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.9
+-----
+#. Add a model that allows a specific curated image to override a scale that would normally be generated.
+
 2.0.8
 -----
 #. The ``ObjectDetail`` view now respects template_name set at class level.
