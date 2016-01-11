@@ -32,7 +32,7 @@ setup(
         'psycopg2',                     # we need a proper database
         #'django-atlas',                # todo - test suite to use geos
         'django-setuptest>=0.1.4',
-        'django-model-utils>2.4,<2.5'
+        'django-model-utils>=2.4,<2.5'
     ],
     test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
