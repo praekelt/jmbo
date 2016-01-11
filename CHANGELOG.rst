@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.11
+------
 #. The fix for 2.0.10 was incomplete. Fix it properly.
 
 2.0.10
