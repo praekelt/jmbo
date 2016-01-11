@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Fix missing ``USE_GIS`` in migrations. It would always try to pull in django-atlas without it.
+
 2.0.9
 -----
 #. Add a model that allows a specific curated image to override a scale that would normally be generated.
