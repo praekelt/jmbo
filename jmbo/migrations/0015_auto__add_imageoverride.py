@@ -113,7 +113,6 @@ class Migration(SchemaMigration):
             'image_attribution': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
             'likes_closed': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'likes_enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'location': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['atlas.Location']", 'null': 'True', 'blank': 'True'}),
             'modified': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'owner_override': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
