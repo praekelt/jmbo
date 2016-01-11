@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. The fix for 2.0.10 was incomplete. Fix it properly.
+
 2.0.10
 ------
 #. Fix missing ``USE_GIS`` in migrations. It would always try to pull in django-atlas without it.
