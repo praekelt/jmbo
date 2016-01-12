@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load jmbo_inclusion_tags jmbo_template_tags %}
+
+{% block extratitle %} - {{ object.title }}{% endblock %}
+
+{% block extrameta %}
+    {% jmbocache 1200 'object-detail' object.id object.modified %}
+        <link rel="canonical" href="{{ object.get_absolute_url }}" />
+        <meta name="description" content="{{ object.description|default_if_none:'' }}" />
+        {% with object.tags.all as tags %}
+            {% if tags %}
+                <meta name="keywords" content="{{ tags|join:", " }}" />
+            {% endif %}
+        {% endwith %}
+        <meta property="og:title" content="{{ object.title }}" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.get_absolute_url }}" />
+        {% if object.image %}
+            <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.image_detail_url }}" />
+        {% endif %}
+        <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
+    {% endjmbocache %}
+{% endblock %}
+
+{% block content %}
+    <div class="object-detail {{ object.class_name.lower }}-detail">
+        {% if view_modifier %}
+            {% if title %}
+                <div class="title">
+                    {{ title }}
+		        </div>
+            {% endif %}
+            {% view_modifier view_modifier %}
+        {% endif %}
+        {% with object.as_leaf_class as object %}
+            {% render_object object "header" %}
+            {% render_object object "detail" %}
+            {% render_object object "footer" %}
+            {% object_comments object %}
+        {% endwith %}
+	</div>
+{% endblock %}

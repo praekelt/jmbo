@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load jmbo_inclusion_tags pagination_tags %}
+
+{% block content %}
+    <div class="object-list {{ model.lower }}-list">
+
+        {% if view_modifier %}
+            {% if title %}
+                <div class="title">
+                    {{ title }}
+		        </div>
+            {% endif %}
+            {% view_modifier view_modifier %}
+        {% endif %}
+
+        {% autopaginate object_list paginate_by %}
+        {% for object in object_list %}
+            {% render_object object "list_item" %}
+        {% endfor %}
+        {% paginate %}
+
+	</div>
+{% endblock %}

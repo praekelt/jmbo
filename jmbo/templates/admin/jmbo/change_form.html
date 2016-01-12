@@ -1,6 +1,6 @@
 {% extends "admin/change_form.html" %}
 {% comment %}
-We need to add an extra submit button called "Save and publish".
+Add autosave javascript.
 {% endcomment %}
 
 {% load jmbo_admin_modify %}
@@ -8,16 +8,18 @@ We need to add an extra submit button called "Save and publish".
 {% block extrahead %}
     {{ block.super }}
 
+    {% if not request.GET.no_autosave %}
     {% if adminform.form.instance.id %}
     <script type="text/javascript">
-    $(document).ready(function(){
+    (function($) {
+    $(document).ready(function() {
 
-        (function autosave(){
+        (function autosave() {
             var data = $('form:first').serializeArray();
 
             // Jmbo uses Ckeditor for richtext so handle the content
             if  (typeof CKEDITOR != 'undefined'){
-                for (var editor_name in CKEDITOR.instances){
+                for (var editor_name in CKEDITOR.instances) {
                     var name = $('#'+editor_name).attr('name');
                     data.push({'name': name, 'value': CKEDITOR.instances[editor_name].getData()});
                 }
@@ -25,11 +27,11 @@ We need to add an extra submit button called "Save and publish".
 
             data.push({'name': 'id', 'value': {{ adminform.form.instance.id }}});
             $.ajax({
-                url: '{% url jmbo-edit-autosave-ajax %}',
+                url: '{% url "jmbo-edit-autosave-ajax" %}',
                 data: data,
                 type: 'POST',
                 cache: false,
-                complete: function(){
+                complete: function() {
                     setTimeout(autosave, 30000)
                 }
             });
@@ -37,7 +39,9 @@ We need to add an extra submit button called "Save and publish".
         })();
 
     });
+    })(django.jQuery)
     </script>
+    {% endif %}
     {% endif %}
 
 {% endblock %}

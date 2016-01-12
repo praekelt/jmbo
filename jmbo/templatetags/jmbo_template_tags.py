@@ -1,6 +1,7 @@
 from datetime import datetime
 import hashlib
 import logging
+import warnings
 
 from django import template
 from django.utils.translation import ugettext as _
@@ -11,15 +12,12 @@ from django.templatetags.cache import CacheNode
 from django.template import resolve_variable
 from django.template.base import VariableDoesNotExist
 from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.conf import settings
+
 
 register = template.Library()
 logger = logging.getLogger(__name__)
-
-
-@register.simple_tag
-def smart_url(url_callable, obj):
-    return url_callable(obj)
 
 
 @register.tag
@@ -198,46 +196,103 @@ class RelationListNode(template.Node):
         return ''
 
 
-class JmboCacheNode(CacheNode):
-    """Based on Django's default cache template tag. Add SITE_ID as implicit
-    vary on parameter and allow unresolvable variables."""
+@register.tag
+def get_relation_by_type_list(parser, token):
+    """Gets list of relations from object identified by a content type.
 
-    def __init__(self, *args, **kwargs):
-        super(JmboCacheNode, self).__init__(*args, **kwargs)
-        self.vary_on.append(str(settings.SITE_ID))
+    Syntax::
+
+        {% get_relation_list [content_type_app_label.content_type_model] for [object] as [varname] [direction] %}
+    """
+    tokens = token.contents.split()
+    if len(tokens) not in (6, 7):
+        raise template.TemplateSyntaxError(
+            "%r tag requires 6 arguments" % tokens[0]
+        )
+
+    if tokens[2] != 'for':
+        raise template.TemplateSyntaxError(
+            "Third argument in %r tag must be 'for'" % tokens[0]
+        )
+
+    if tokens[4] != 'as':
+        raise template.TemplateSyntaxError(
+            "Fifth argument in %r tag must be 'as'" % tokens[0]
+        )
+
+    direction = 'forward'
+    if len(tokens) == 7:
+        direction = tokens[6]
+
+    return RelationByTypeListNode(
+        name=tokens[1], obj=tokens[3], as_var=tokens[5], direction=direction
+    )
+
+
+class RelationByTypeListNode(template.Node):
+
+    def __init__(self, name, obj, as_var, direction='forward'):
+        self.name = template.Variable(name)
+        self.obj = template.Variable(obj)
+        self.as_var = template.Variable(as_var)
+        self.direction = template.Variable(direction)
 
     def render(self, context):
+        name = self.name.resolve(context)
+        content_type_app_label, content_type_model = name.split('.')
+        obj = self.obj.resolve(context)
+        as_var = self.as_var.resolve(context)
+        try:
+            direction = self.direction.resolve(context)
+        except template.VariableDoesNotExist:
+            direction = 'forward'
+        context[as_var] = obj.get_permitted_related_items(
+            direction=direction
+        ).filter(
+            content_type__app_label=content_type_app_label,
+            content_type__model=content_type_model
+        )
+        return ''
+
+
+class JmboCacheNode(CacheNode):
+    """Based on Django's default cache template tag. Add SITE_ID as implicit
+    vary on parameter. Allow unresolvable variables. Allow translated strings."""
+
+    def render(self, context):
+        # Raise warning here so as not to overwhelm log with spam. As we get
+        # closer to deprecation we'll move the warning to the template tag.
+        warnings.warn(
+            "jmbo.templatetags.jmbocache will be deprecated in jmbo 3.0; \
+            use ultracache instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:
-            raise template.TemplateSyntaxError(
-                '"cache" tag got an unknown variable: %r' % (
-                    self.expire_time_var.var
-                )
+            raise TemplateSyntaxError(
+                '"cache" tag got an unknown variable: %r' % self.expire_time_var.var
             )
         try:
             expire_time = int(expire_time)
         except (ValueError, TypeError):
-            raise template.TemplateSyntaxError(
+            raise TemplateSyntaxError(
                 '"cache" tag got a non-integer timeout value: %r' % expire_time
             )
 
-        # Build a unicode key for this fragment and all vary-on's.
-        resolved = []
+        vary_on = [str(settings.SITE_ID)]
         for var in self.vary_on:
             try:
-                r = resolve_variable(var, context)
+                r = var.resolve(context)
             except VariableDoesNotExist:
                 pass
-            else:
-                if isinstance(r, Promise):
-                    r = unicode(r)
-                resolved.append(r)
+            if isinstance(r, Promise):
+                r = unicode(r)
+            vary_on.append(r)
 
-        args = hashlib.md5(u':'.join([urlquote(r) for r in resolved]))
-        cache_key = 'template.cache.%s.%s' % (
-            self.fragment_name, args.hexdigest()
-        )
+        cache_key = make_template_fragment_key(self.fragment_name, vary_on)
         value = cache.get(cache_key)
         if value is None:
             value = self.nodelist.render(context)
@@ -245,7 +300,7 @@ class JmboCacheNode(CacheNode):
 
         # log if the cache is less than 4 bytes
         if len(value) <= 4:
-            logger.error("JMBO Cache Error. Fragment Name: %s, Value: %s" % (
+            logger.error("Jmbo cache error. Fragment name: %s, Value: %s" % (
                 self.fragment_name, value
             ))
 
@@ -257,9 +312,15 @@ def do_jmbocache(parser, token):
     """Based on Django's default cache template tag"""
     nodelist = parser.parse(('endjmbocache',))
     parser.delete_first_token()
-    tokens = token.contents.split()
+    tokens = token.split_contents()
     if len(tokens) < 3:
-        raise template.TemplateSyntaxError(
-            u"'%r' tag requires at least 2 arguments." % tokens[0]
-        )
-    return JmboCacheNode(nodelist, tokens[1], tokens[2], tokens[3:])
+        raise TemplateSyntaxError("'%r' tag requires at least 2 arguments." % tokens[0])
+    try:
+        from ultracache.templatetags.ultracache_tags import UltraCacheNode as \
+            CacheNode
+    except ImportError:
+        CacheNode = JmboCacheNode
+    return CacheNode(nodelist,
+        parser.compile_filter(tokens[1]),
+        tokens[2], # fragment_name can't be a variable.
+        [parser.compile_filter(token) for token in tokens[3:]])

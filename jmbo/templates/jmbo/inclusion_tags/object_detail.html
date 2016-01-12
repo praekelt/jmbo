@@ -1,0 +1,20 @@
+{% load jmbo_template_tags %}
+
+<div class="object-detail-inclusion {{ object.class_name.lower }}-detail-inclusion">
+    {% block content %}
+        {% jmbocache 1200 'object-detail-inclusion' object.id object.modified %}
+            {% if object.image %}
+                <img src="{{ object.image_detail_url }}" />
+                {% if object.image_attribution %}
+                    <div class="attribution">{{ object.image_attribution }}</div>
+                {% endif %}
+            {% endif %}
+            {% if object.description %}
+                <div class="description">
+                    {{ object.description|linebreaks }}
+                </div>
+            {% endif %}
+        {% endjmbocache %}
+    {% endblock %}
+    <div class="clear"></div>
+</div>

@@ -1,6 +1,97 @@
 Changelog
 =========
 
+2.0.11
+------
+#. The fix for 2.0.10 was incomplete. Fix it properly.
+
+2.0.10
+------
+#. Fix missing ``USE_GIS`` in migrations. It would always try to pull in django-atlas without it.
+
+2.0.9
+-----
+#. Add a model that allows a specific curated image to override a scale that would normally be generated.
+
+2.0.8
+-----
+#. The ``ObjectDetail`` view now respects template_name set at class level.
+
+2.0.7
+-----
+#. Simplify template inclusion tags.
+#. The detail and list views now respect the model attribute.
+
+2.0.6
+-----
+#. Make object detail template resolution follow the standard Django naming conventions. Backward compatibility is preserved.
+#. Move test templates into tests directory.
+#. Add dependency on ``django-ultracache`` and defer ``jmbocache`` template tag to ``ultracache`` template tag.
+
+2.0.5
+-----
+#. Gracefully handle missing images in the API.
+#. Change the site information in the unicode method to be less overwhelming.
+#. Use built-in jQuery for autosave function.
+
+2.0.4
+-----
+#. Patch ImageModel delete to handle null image.
+
+2.0.3
+-----
+#. Limit photologue to <3.2 because they have stopped supporting Django 1.6.
+
+2.0.2
+-----
+#. Disable more filters so Oracle can work.
+
+2.0.1
+-----
+#. Disable advanced admin change list filtering if Oracle is the database. The Oracle adapter is buggy.
+
+2.0.0
+-----
+#. Allow per content type customization of object header and footer.
+#. Select all sites initially for new items.
+#. The API now dereferences resource URI to the leaf class if possible.
+#. Ensure image field is optional on ModelBase database table as well.
+
+2.0.0a1
+-------
+#. Move to Django 1.6 support. Django 1.4 support is deprecated. For Django 1.4 use Jmbo 1.x.
+#. Add `Clone this item` button to change forms.
+#. Deprecate gizmo, "wide" template, Pin class.
+#. Deprecate own class based generic views in favour of Django's equivalent.
+#. Deprecate views related to show objects per category. `jmbo-foundry` offers a much more powerful solution and scales better.
+#. Limit Relation change form to only ModelBase subclasses.
+#. Deprecate smart_url template tag because Django url template tag does the same now.
+#. Move back to mainline `django-photologue`.
+#. API now includes image detail url.
+
+1.2.0
+-----
+#. Use renamed django-photologue-praekelt.
+#. SEO optimizations in templates.
+#. Make it possible to reach a detail page through a category.
+
+1.1.7
+-----
+#. Bump to resolve missing version bump in setup.py.
+
+1.1.6
+-----
+#. API now includes image detail url.
+#. URL pattern to resolve detail page through category.
+
+1.1.5
+-----
+#. Ignore result of celery tasks as appropriate.
+
+1.1.4
+-----
+#. Relax uniqueness constraint on slugs.
+
 1.1.3
 -----
 #. Fix modelbase editing where location field was added to wrong fieldset.

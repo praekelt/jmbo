@@ -1,158 +1,82 @@
-from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 
-from category.models import Category
-from jmbo.generic.views import GenericObjectDetail, GenericObjectList
 from jmbo.models import ModelBase
 from jmbo.view_modifiers import DefaultViewModifier
 
 
-class ObjectDetail(GenericObjectDetail):
+class ObjectDetail(DetailView):
+    model = ModelBase
+    view_modifier = None
+    # Shim so legacy view modifiers do not break
+    params = {"extra_context": {"view_modifier": None}}
 
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.get_query_set(
-            for_user=getattr(getattr(self, 'request', None), 'user', None)
+    def get_queryset(self):
+        qs = self.model.permitted.get_query_set(
+            for_user=getattr(getattr(self, "request", None), "user", None)
         )
 
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_detail.html'
+        # Push self through view modifier
+        for k, v in self.kwargs.items():
+            self.params[k] = v
+        if self.view_modifier:
+            self.params["extra_context"]["view_modifier"] = self.view_modifier
+            if callable(self.view_modifier):
+                self.view_modifier = self.view_modifier(request=self.request, **self.kwargs)
+            self.params["queryset"] = qs
+            dc = self.view_modifier.modify(self)
+            return self.params["queryset"]
 
-    def get_template_name_field(self, *args, **kwargs):
-        """This hook allows the model to specify a detail template. When we
-        move to class-based generic views this magic will disappear."""
-        return 'template_name_field'
+        return qs
 
-object_detail = ObjectDetail()
+    def get_context_data(self, **kwargs):
+        context = super(ObjectDetail, self).get_context_data(**kwargs)
+        context["view_modifier"] = self.view_modifier
+        return context
 
-
-class ObjectList(GenericObjectList):
-
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.filter(
-            content_type__app_label=kwargs['app_label'],
-            content_type__model=kwargs['model']
-        ).order_by('-publish_on', '-created')
-
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_list.html'
-
-    def get_paginate_by(self, *args, **kwargs):
-        return 10
-
-    def get_view_modifier(self, request, *args, **kwargs):
-        return DefaultViewModifier(request, *args, **kwargs)
-
-    def get_extra_context(self, *args, **kwargs):
-        # todo: use translated content type model verbose name plural
-        return {'title': 'Items', 'model': kwargs['model']}
-
-object_list = ObjectList()
+    def get_template_names(self):
+        template_names = super(ObjectDetail, self).get_template_names()
+        ctype = self.object.content_type
+        template_names.extend([
+            "%s/%s_detail.html" % (ctype.app_label, ctype.model),
+            "%s/%s/object_detail.html" % (ctype.app_label, ctype.model),
+            "%s/object_detail.html" % (ctype.app_label),
+            "jmbo/object_detail.html",
+            "jmbo/modelbase_detail.html"
+        ])
+        return template_names
 
 
-class ObjectPeek(GenericObjectDetail):
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted
+class ObjectList(ListView):
+    model = ModelBase
+    template_name = "jmbo/object_list.html"
+    params = {}
+    view_modifier = DefaultViewModifier
+    # Shim so legacy view modifiers do not break
+    params = {"extra_context": {"view_modifier": DefaultViewModifier}}
 
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_peek.html'
-
-object_peek = ObjectPeek()
-
-
-class CategoryURL(object):
-
-    def __init__(self, category):
-        self.category = category
-
-    def __call__(self, obj=None):
-        if self.category and obj:
-            return reverse(
-                'category_object_detail',
-                kwargs={'category_slug': self.category.slug, 'slug': obj.slug}
-            )
-        elif obj:
-            return obj.as_leaf_class().get_absolute_url()
-        else:
-            return self
-
-
-class CategoryObjectList(GenericObjectList):
-
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.filter(
-            Q(primary_category=self.category) | Q(categories=self.category)
-        ).exclude(pin__category=self.category)
-
-    def get_template_name(self, *args, **kwargs):
-        return 'jmbo/modelbase_category_list.html'
-
-    def get_view_modifier(self, request, *args, **kwargs):
-        return DefaultViewModifier(
-            request,
-            base_url=reverse(
-                'category_object_list',
-                kwargs={'category_slug': self.category.slug}
-            ),
-            ignore_defaults=True
+    def get_queryset(self):
+        qs =  self.model.permitted.filter(
+            content_type__app_label=self.kwargs["app_label"],
+            content_type__model=self.kwargs["model"]
         )
 
-    def get_paginate_by(self, *args, **kwargs):
-        return 10
+        # Push self through view modifier
+        for k, v in self.kwargs.items():
+            self.params[k] = v
+        if self.view_modifier:
+            self.params["extra_context"]["view_modifier"] = self.view_modifier
+            if callable(self.view_modifier):
+                self.view_modifier = self.view_modifier(request=self.request, **self.kwargs)
+            self.params["queryset"] = qs
+            dc = self.view_modifier.modify(self)
+            return self.params["queryset"]
 
-    def get_url_callable(self, *args, **kwargs):
-        return CategoryURL(category=self.category)
+        return qs
 
-    def get_extra_context(self, *args, **kwargs):
-        return {
-            'title': self.category.title,
-            'pinned_object_list': ModelBase.permitted.filter(
-                pin__category=self.category
-            ).order_by('-publish_on', '-created'),
-            'category': self.category,
-            'url_callable': self.get_url_callable()
-        }
-
-    def __call__(self, request, category_slug, *args, **kwargs):
-        self.category = get_object_or_404(Category, slug__iexact=category_slug)
-        return super(CategoryObjectList, self).__call__(
-            request,
-            *args,
-            **kwargs
-        )
-
-category_object_list = CategoryObjectList()
-
-
-class CategoryObjectDetail(GenericObjectDetail):
-    def get_queryset(self, *args, **kwargs):
-        return ModelBase.permitted.filter(categories=self.category)
-
-    def get_view_modifier(self, request, *args, **kwargs):
-        return DefaultViewModifier(
-            request,
-            base_url=reverse(
-                'category_object_list',
-                kwargs={'category_slug': self.category.slug}
-            ),
-            ignore_defaults=True
-        )
-
-    def get_extra_context(self, *args, **kwargs):
-        return {
-            'title': self.category.title,
-            'category': self.category,
-            'object': get_object_or_404(
-                ModelBase, slug__iexact=kwargs['slug']
-            ).as_leaf_class()
-        }
-
-    def __call__(self, request, category_slug, *args, **kwargs):
-        self.category = get_object_or_404(Category, slug__iexact=category_slug)
-        return super(CategoryObjectDetail, self).__call__(
-            request,
-            *args,
-            **kwargs
-        )
-
-category_object_detail = CategoryObjectDetail()
+    def get_context_data(self, **kwargs):
+        context = super(ObjectList, self).get_context_data(**kwargs)
+        context["paginate_by"] = self.kwargs.get("paginate_by", 10)
+        context["title"] = self.kwargs.get("title", "Items")
+        context["view_modifier"] = self.view_modifier
+        return context

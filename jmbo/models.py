@@ -10,9 +10,10 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models import signals, Sum
 from django.utils.encoding import smart_unicode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes import generic
 from django.utils import timezone
+from django.core.cache import cache
 
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -22,6 +23,7 @@ from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
 import jmbo.signals
 from jmbo import USE_GIS
+from jmbo import monkey
 
 
 class JmboPreferences(Preferences):
@@ -233,18 +235,33 @@ but users won't be able to add new likes."),
     def get_absolute_url(self):
         # Use jmbo naming convention, eg. we may have a view named
         # 'post_object_detail'.
+
+        # Special case if leaf is actually a ModelBase
+        as_leaf_class = self.as_leaf_class()
+        if as_leaf_class.__class__ ==  ModelBase:
+            return reverse('object_detail', args=[self.slug])
+
+        # Typical case
         try:
             return reverse(
                 '%s_object_detail' \
-                    % self.as_leaf_class().__class__.__name__.lower(),
+                    % as_leaf_class.__class__.__name__.lower(),
                 kwargs={'slug': self.slug}
             )
         except NoReverseMatch:
             # Fallback
             return reverse('object_detail', args=[self.slug])
 
-    def get_absolute_category_url(self):
-        """Category aware absolute url"""
+
+    def get_absolute_url_categorized(self):
+        """Absolute url with category.
+
+        Provides a hook to get an url for an object, connected to a category,
+        but just reusing the get_absolute_url templates etc. This differs from
+        the get_absolute_category_url method in that we don't provide
+        different sets of templates.
+        """
+        category_slug = None
         if self.primary_category:
             category_slug = self.primary_category.slug
         elif self.categories.all().exists():
@@ -253,16 +270,14 @@ but users won't be able to add new likes."),
         if category_slug:
             try:
                 return reverse(
-                    '%s_category_object_detail' \
+                    '%s_categorized_object_detail' \
                         % self.as_leaf_class().__class__.__name__.lower(),
                     kwargs={'category_slug': category_slug, 'slug': self.slug}
                 )
             except NoReverseMatch:
-                # Fallback
-                return reverse(
-                    'category_object_detail',
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
+                # No generic modelbase fallback: Allow get_absolute_url to
+                # take over.
+                pass
 
         # Sane fallback if no category
         return self.get_absolute_url()
@@ -305,12 +320,32 @@ but users won't be able to add new likes."),
         super(ModelBase, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        sites = ', '.join([s.name for s in self.sites.all()])
-        sites = sites if sites else 'no sites'
-        if self.subtitle:
-            return '%s - %s (%s)' % (self.title, self.subtitle, sites)
+        # This method gets called repeatedly in admin so cache
+        key = 'jmbo-mb-uc-%s-%s' % \
+            (self.pk, self.modified and int(self.modified.strftime('%s')) or 0)
+        cached = cache.get(key, None)
+        if cached is not None:
+            return cached
+
+        # Append site(s) information intelligently
+        suffix = ''
+        sites = self.sites.all()
+        if not sites:
+            suffix = ' (%s)' % ugettext("no sites")
         else:
-            return '%s (%s)' % (self.title, sites)
+            all_sites = Site.objects.all()
+            len_all_sites = len(all_sites)
+            if len_all_sites > 1:
+                if len(sites) == len_all_sites:
+                    suffix = ' (%s)' % ugettext("all sites")
+                else:
+                    suffix = ' (%s)' % ', '.join([s.name for s in sites])
+        if self.subtitle:
+            result = '%s - %s%s' % (self.title, self.subtitle, suffix)
+        else:
+            result = '%s%s' % (self.title, suffix)
+        cache.set(key, result, 300)
+        return result
 
     @property
     def is_permitted(self):
@@ -336,7 +371,7 @@ but users won't be able to add new likes."),
             return self
         else:
             '''
-            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since 
+            Use self._meta.get_ancestor_link instead of self.modelbase_ptr since
             the name of the link could be different
             '''
             link_name = self._meta.get_ancestor_link(ModelBase).name
@@ -550,34 +585,20 @@ but users won't be able to add new likes."),
             self.retract_on = timezone.now()
             self.save()
 
-    @property
-    def template_name_field(self):
-        """This hook allows the model to specify a detail template. When we
-        move to class-based generic views this magic will disappear."""
-        return '%s/%s_detail.html' % (
-            self.content_type.app_label, self.content_type.model
-        )
-
-
-class Pin(models.Model):
-    content = models.ForeignKey(ModelBase)
-    category = models.ForeignKey('category.Category')
-
 
 class Relation(models.Model):
     """Generic relation between two objects"""
-    # todo: this code is too generic and makes querying slow. Refactor to
-    # only relate ModelBase to ModelBase. Migration management command will be
-    # required.
     source_content_type = models.ForeignKey(
-        ContentType, related_name='relation_source_content_type'
+        ContentType,
+        related_name='relation_source_content_type',
     )
     source_object_id = models.PositiveIntegerField()
     source = generic.GenericForeignKey(
         'source_content_type', 'source_object_id'
     )
     target_content_type = models.ForeignKey(
-        ContentType, related_name='relation_target_content_type'
+        ContentType,
+        related_name='relation_target_content_type',
     )
     target_object_id = models.PositiveIntegerField()
     target = generic.GenericForeignKey(
@@ -596,6 +617,20 @@ blog_galleries. Once set it is typically never changed."
             'target_object_id', 'name'
         ),)
 
+
+class ImageOverride(ImageModel):
+    """Model that allows a specific curated image to override a scale that
+    would normally be generated."""
+
+    target = models.ForeignKey(ModelBase, editable=False)
+    photosize = models.ForeignKey("photologue.PhotoSize")
+
+    class Meta:
+        verbose_name = _("Image override")
+        verbose_name_plural = _("Image overrides")
+
+    def __unicode__(self):
+        return _("Override for %s") % self.photosize.name
 
 def set_managers(sender, **kwargs):
     """

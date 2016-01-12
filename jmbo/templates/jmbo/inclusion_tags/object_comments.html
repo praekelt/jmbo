@@ -15,7 +15,7 @@
             {% render_comment_form for object %}
         {% else %}
             {% if can_comment_code == 'auth_required' %}
-                <a href="{% url login %}?next={{ request.META.PATH_INFO }}" class="join" rel="nofollow">{% trans "Sign in to comment" %}</a>
+                <a href="{% url "login" %}?next={{ request.META.PATH_INFO }}" class="join" rel="nofollow">{% trans "Sign in to comment" %}</a>
             {% endif %}
         {% endif %}
     </div>

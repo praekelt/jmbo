@@ -1,4 +1,6 @@
+import os
 from copy import deepcopy
+import struct
 from PIL import Image
 
 from django.db.models import Q
@@ -11,14 +13,14 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from category.models import Category
 from category.admin import CategoryAdmin
 from publisher.models import Publisher
-from photologue.admin import ImageOverrideInline
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Pin, Relation
+from jmbo.models import ModelBase, Relation, ImageOverride
 from jmbo import USE_GIS
 
 
@@ -88,29 +90,36 @@ chopped off."""
 
         self.fields['effect'].help_text = """Apply an effect to the image."""
 
+        # We want image to be optional, unlike photologue
+        self.fields['image'].required = False
+
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
-        names = set([o.name for o in relations])
-        for name in names:
+        for relation in relations:
+            name = relation.name
             if name not in self.fields:
                 self.fields[name] = forms.ModelMultipleChoiceField(
-                    ModelBase.objects.all().order_by('title', 'subtitle'),
+                    ModelBase.objects.filter(content_type=relation.target_content_type).order_by('title', 'subtitle'),
                     required=False,
                     label=forms.forms.pretty_name(name),
-                    help_text="This field does not perform any validation. \
-It is your responsibility to select the correct items."
                 )
 
         instance = kwargs.get('instance', None)
         if instance is not None:
-            for name in names:
+            # Set relations
+            for relation in relations:
+                name = relation.name
                 initial = Relation.objects.filter(
                     source_content_type=instance.content_type,
                     source_object_id=instance.id,
                     name=name
                 )
                 self.fields[name].initial = [o.target for o in initial]
+
+        if (instance is None) and not self.is_bound:
+            # Select all sites initially
+            self.fields['sites'].initial = Site.objects.all()
 
     def clean_image(self):
         image = self.cleaned_data['image']
@@ -126,33 +135,70 @@ It is your responsibility to select the correct items."
 
     def clean(self):
         """
-        Slug must be unique per site. Show sensible errors when not.
+        Slug must be unique per site. Show sensible errors when not. Can only
+        check in clean method because sites need to be available in
+        cleaned_data.
         """
-        slug = self.cleaned_data['slug']
-        # Check if any combination of slug and site exists.
-        for site in self.cleaned_data['sites']:
-            q = ModelBase.objects.filter(sites=site, slug=slug)
-            if self.instance:
-                q = q.exclude(id=self.instance.id)
-            if q.exists():
-                raise forms.ValidationError(_(
-                    "The slug is already in use by item %s.  To use the same \
-                    slug the items may not have overlapping sites." % q[0]
-                ))
+        slug = self.cleaned_data.get('slug')
+        if slug:
+            # Check if any combination of slug and site exists.
+            for site in self.cleaned_data['sites']:
+                q = ModelBase.objects.filter(sites=site, slug=slug)
+                if self.instance:
+                    q = q.exclude(id=self.instance.id)
+                if q.exists():
+                    msg = "The slug is already in use by item %s. To use the \
+                        same slug the items may not have overlapping \
+                        sites." % q[0]
+                    self._errors["slug"] = self.error_class([msg])
+
         return self.cleaned_data
+
+
+class ImageOverrideInlineForm(forms.ModelForm):
+
+    class Meta:
+        model = ImageOverride
+        exclude = ("effect", "crop_from")
+
+    def __init__(self, *args, **kwargs):
+        super(ImageOverrideInlineForm, self).__init__(*args, **kwargs)
+        self.fields["photosize"].queryset = self.fields["photosize"].queryset.order_by("name")
+
+
+class ImageOverrideInline(admin.TabularInline):
+    form = ImageOverrideInlineForm
+    model = ImageOverride
+    exclude = ("effect", "crop_from")
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
     form = ModelBaseAdminForm
-    change_form_template = 'admin/jmbo/extras/change_form.html'
+    # ModelBase is typically subclassed so normal app/model/change_form.html
+    # based lookups fail in subclasses. Explicitly set the change form
+    # template.
+    change_form_template = 'admin/jmbo/change_form.html'
 
     actions = [make_published, make_unpublished]
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
+    inlines = [ImageOverrideInline]
 
-    list_filter = ('state', 'created', CategoriesListFilter, 'sites__sitesgroup', 'sites')
+    # The Oracle database adapter is buggy and can't handle sites__sitesgroup
+    try:
+        has_oracle = 'oracle' in settings.DATABASES['default']['ENGINE']
+    except KeyError:
+        has_oracle = False
+    if has_oracle:
+        list_filter = ('state', 'created', CategoriesListFilter)
+    else:
+        list_filter = ('state', 'created', CategoriesListFilter,
+            'sites__sitesgroup', 'sites'
+        )
+
     search_fields = ('title', 'description', 'state', 'created')
+    save_as = True
     fieldsets = (
         (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
@@ -243,17 +289,19 @@ class ModelBaseAdmin(admin.ModelAdmin):
         result = super(ModelBaseAdmin, self).get_fieldsets(request, obj)
         result = list(result)
 
-        content_type = ContentType.objects.get_for_model(self.model)
-        q = Relation.objects.filter(source_content_type=content_type)
-        if q.exists():
-            result.append(
-                ('Related',
-                    {
-                        'fields': set([o.name for o in q]),
-                        'classes': ('collapse',),
-                    }
+        if hasattr(request, "_gfs_marker"):
+            content_type = ContentType.objects.get_for_model(self.model)
+            q = Relation.objects.filter(source_content_type=content_type)
+            if q.exists():
+                result.append(
+                    ('Related',
+                        {
+                            'fields': set([o.name for o in q]),
+                            'classes': ('collapse',),
+                        }
+                    )
                 )
-            )
+        setattr(request, "_gfs_marker", 1)
 
         return tuple(result)
 
@@ -293,8 +341,10 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def _get_absolute_url(self, obj):
         url = obj.get_absolute_url()
+        if not url:
+            return 'N/A'
         result = '<ul>'
-        for site in Site.objects.all():
+        for site in obj.sites.all():
             result += '<li><a href="http://%s%s" target="public">%s</a></li>' % (site.domain, url, site.domain)
         result += '</ul>'
         return result
@@ -320,14 +370,24 @@ Unpublish</a><br />''' % (url, url)
     _actions.allow_tags = True
 
 
-class PinInline(admin.TabularInline):
-    model = Pin
+class RelationAdminForm(forms.ModelForm):
 
+    class Meta:
+        model = Relation
 
-class CategoryJmboAdmin(CategoryAdmin):
-    inlines = [
-        PinInline,
-    ]
+    def __init__(self, *args, **kwargs):
+        super(RelationAdminForm, self).__init__(*args, **kwargs)
+
+        # Limit to subclasses of ModelBase
+        limit = Q(app_label="_does_not_exist_")
+        for ct in ContentType.objects.all():
+            model_class = ct.model_class()
+            if model_class and (model_class != ModelBase) \
+                and issubclass(model_class, ModelBase):
+                limit = limit | Q(app_label=ct.app_label, model=ct.model)
+        qs = ContentType.objects.filter(limit)
+        self.fields["source_content_type"].queryset = qs
+        self.fields["target_content_type"].queryset = qs
 
 
 class RelationAdmin(admin.ModelAdmin):
@@ -335,11 +395,7 @@ class RelationAdmin(admin.ModelAdmin):
         'id', 'source_content_type', 'source_object_id', 'target_content_type',
         'target_object_id', 'name'
     )
+    form = RelationAdminForm
 
-try:
-    admin.site.register(Category, CategoryJmboAdmin)
-except AlreadyRegistered:
-    admin.site.unregister(Category)
-    admin.site.register(Category, CategoryJmboAdmin)
 
 admin.site.register(Relation, RelationAdmin)
