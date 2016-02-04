@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add database index to ``state``.
+
 2.0.11
 ------
 #. The fix for 2.0.10 was incomplete. Fix it properly.
