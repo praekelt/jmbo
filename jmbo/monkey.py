@@ -50,7 +50,7 @@ IMAGE_EXIF_ORIENTATION_MAP = {
 
 
 def my_create_size(self, photosize):
-    if self.size_exists(photosize):
+    if not self.image or self.size_exists(photosize):
         return
 
     # If we have an override then use it. Prevent circular import.
