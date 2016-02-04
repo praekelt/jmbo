@@ -1,6 +1,14 @@
 Changelog
 =========
 
+2.0.13
+------
+#. Add database index to ``state``.
+
+2.0.12
+------
+#. Safe handling for missing image on an object.
+
 2.0.11
 ------
 #. The fix for 2.0.10 was incomplete. Fix it properly.

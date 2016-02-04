@@ -43,6 +43,7 @@ class ModelBase(ImageModel):
         ),
         default='unpublished',
         editable=False,
+        db_index=True,
         help_text=_("Set the item state. The 'Published' state makes the item \
 visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
 item visible on staging instances."),
