@@ -1,9 +1,13 @@
 Changelog
 =========
 
-next
-----
+2.0.13
+------
 #. Add database index to ``state``.
+
+2.0.12
+------
+#. Safe handling for missing image on an object.
 
 2.0.11
 ------
