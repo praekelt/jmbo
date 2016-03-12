@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add indexes for `title` and `description` fields.
+
 2.0.13
 ------
 #. Add database index to ``state``.
