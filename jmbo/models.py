@@ -70,7 +70,9 @@ change to 'unpublished')."),
     )
     title = models.CharField(
         _("Title"),
-        max_length=200, help_text=_('A short descriptive title.'),
+        max_length=200,
+        db_index=True,
+        help_text=_('A short descriptive title.'),
     )
     subtitle = models.CharField(
         max_length=200,
@@ -85,6 +87,7 @@ UI. A subtitle makes a distinction.'),
 limited to one or two sentences.'),
         blank=True,
         null=True,
+        db_index=True
     )
     created = models.DateTimeField(
         _('Created Date & Time'),
