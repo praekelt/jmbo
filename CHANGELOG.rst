@@ -1,9 +1,9 @@
 Changelog
 =========
 
-next
-----
-#. Add indexes for `title` and `description` fields.
+2.0.14
+------
+#. Add indexes for ``title`` and ``description`` fields.
 
 2.0.13
 ------
