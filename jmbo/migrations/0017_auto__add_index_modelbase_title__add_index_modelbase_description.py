@@ -2,7 +2,7 @@
 from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import SchemaMigration
-from django.db import models
+from django.db import models, connection
 
 from jmbo import USE_GIS
 
@@ -14,12 +14,19 @@ class Migration(SchemaMigration):
         db.create_index(u'jmbo_modelbase', ['title'])
 
         # Adding index on 'ModelBase', fields ['description']
-        db.create_index(u'jmbo_modelbase', ['description'])
-
+        # Some backends can't do indexes on text fields. We can't use
+        # exceptions and roll back errors because not all databases support
+        # transactional schema updates.
+        if 'oracle' not in connection.vendor.lower():
+            db.create_index(u'jmbo_modelbase', ['description'])
 
     def backwards(self, orm):
         # Removing index on 'ModelBase', fields ['description']
-        db.delete_index(u'jmbo_modelbase', ['description'])
+        # Some backends can't do indexes on text fields. We can't use
+        # exceptions and roll back errors because not all databases support
+        # transactional schema updates.
+        if 'oracle' not in connection.vendor.lower():
+            db.delete_index(u'jmbo_modelbase', ['description'])
 
         # Removing index on 'ModelBase', fields ['title']
         db.delete_index(u'jmbo_modelbase', ['title'])

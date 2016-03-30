@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.16
+------
+#. Special migration handling for a special database - Oracle.
+
 2.0.15
 ------
 #. Move to tox for unit testing.
