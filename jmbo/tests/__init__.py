@@ -20,6 +20,7 @@ from django.contrib.gis.geos import fromstr
 from django.utils import timezone
 from django.core.management import call_command
 from django.utils.translation import ugettext as _
+from django.test.utils import override_settings
 
 from photologue.models import PhotoSize
 from secretballot.models import Vote
@@ -149,6 +150,14 @@ class UtilsTestCase(unittest.TestCase):
 
 
 class ModelBaseTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        # create website site item
+        web_site = Site(id=2, domain="web.address.com")
+        web_site.save()
+        setattr(cls, 'web_site', web_site)
+
     def test_save(self):
         before_save = timezone.now()
 
@@ -196,9 +205,9 @@ class ModelBaseTestCase(unittest.TestCase):
 
     def test_unique_slugs(self):
         # create 2 sites
-        site_1 = Site(domain="site1.example.com")
+        site_1 = Site(id=201, domain="site1.example.com")
         site_1.save()
-        site_2 = Site(domain="site2.example.com")
+        site_2 = Site(id=202, domain="site2.example.com")
         site_2.save()
 
         # Create an object for site 1
@@ -258,28 +267,24 @@ class ModelBaseTestCase(unittest.TestCase):
         # vote total is calculated as total_upvotes - total_downvotes
         self.failUnlessEqual(result, 1)
 
+    @override_settings(SITE_ID=2)
     def test_is_permitted(self):
-        # create website site item and set as current site
-        web_site = Site(domain="web.address.com")
-        web_site.save()
-        settings.SITE_ID = web_site.id
-
         # create unpublished item
         unpublished_obj = ModelBase(title='title', state='unpublished')
         unpublished_obj.save()
-        unpublished_obj.sites.add(web_site)
+        unpublished_obj.sites.add(self.web_site)
         unpublished_obj.save()
 
         # create published item
         published_obj = ModelBase(title='title', state='published')
         published_obj.save()
-        published_obj.sites.add(web_site)
+        published_obj.sites.add(self.web_site)
         published_obj.save()
 
         # create staging item
         staging_obj = ModelBase(title='title', state='staging')
         staging_obj.save()
-        staging_obj.sites.add(web_site)
+        staging_obj.sites.add(self.web_site)
         staging_obj.save()
 
         # is_permitted should be False for unpublished objects
@@ -290,6 +295,7 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # Is_permitted should be True for otherwise published objects in
         # the staging state for instances that define settings.STAGING = True.
+        from django.conf import settings
         settings.STAGING = False
         self.failIf(staging_obj.is_permitted)
         settings.STAGING = True
@@ -299,13 +305,13 @@ class ModelBaseTestCase(unittest.TestCase):
         # published for the current site.
         published_obj_web = ModelBase(state='published')
         published_obj_web.save()
-        published_obj_web.sites.add(web_site)
+        published_obj_web.sites.add(self.web_site)
         published_obj_web.save()
         self.failUnless(published_obj_web.is_permitted)
 
         # Is_permitted should be False if the object is
         # not published for the current site.
-        mobile_site = Site(domain="mobi.address.com")
+        mobile_site = Site(id=100, domain="mobi.address.com")
         mobile_site.save()
         published_obj_mobile = ModelBase(state='published')
         published_obj_mobile.save()
@@ -532,12 +538,15 @@ class ModelBaseAdminTestCase(unittest.TestCase):
 
 
 class PermittedManagerTestCase(unittest.TestCase):
-    def setUp(self):
-        # create website site item and set as current site
-        self.web_site = Site(domain="web.address.com")
-        self.web_site.save()
-        settings.SITE_ID = self.web_site.id
 
+    @classmethod
+    def setUpClass(cls):
+        # create website site item
+        web_site = Site(id=3, domain="web.address.com")
+        web_site.save()
+        setattr(cls, 'web_site', web_site)
+
+    @override_settings(SITE_ID=3)
     def test_get_query_set(self):
         # create unpublished item
         unpublished_obj = ModelBase(title='title', state='unpublished')
@@ -566,6 +575,7 @@ class PermittedManagerTestCase(unittest.TestCase):
 
         # Staging objects should only be available on instances
         # that define settings.STAGING = True.
+        from django.conf import settings
         settings.STAGING = False
         queryset = ModelBase.permitted.all()
         self.failIf(staging_obj in queryset)
@@ -582,7 +592,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         self.failUnless(published_obj_web in queryset)
 
         # queryset should not contain items for other sites
-        mobile_site = Site(domain="mobi.address.com")
+        mobile_site = Site(id=101, domain="mobi.address.com")
         mobile_site.save()
         published_obj_mobile = ModelBase(state='published')
         published_obj_mobile.save()
@@ -591,6 +601,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
 
+    @override_settings(SITE_ID=3)
     def test_publish_retract(self):
         today = datetime.today()
         yesterday = today - timedelta(days=1)
@@ -654,6 +665,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(p8 in queryset)
 
+    @override_settings(SITE_ID=3)
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')
         obj.save()
@@ -666,6 +678,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(obj in queryset)
 
+    @override_settings(SITE_ID=3)
     def test_related_permitted_query(self):
         # Targets for DummyModel to point to
         dtmb_p = DummyTargetModelBase(title='dtmb_p', state='published')
@@ -812,7 +825,7 @@ class TemplateTagsTestCase(unittest.TestCase):
         cls.client = Client()
 
         # Add an extra site
-        site, dc = Site.objects.get_or_create(name='another', domain='another.com')
+        site, dc = Site.objects.get_or_create(id=4, name='another', domain='another.com')
 
     def setUp(self):
         obj = TestModel(title='title', state='published')
@@ -823,6 +836,8 @@ class TemplateTagsTestCase(unittest.TestCase):
         })
 
     def test_jmbocache(self):
+        from django.conf import settings
+
         # Caching on same site
         t = Template("{% load jmbo_template_tags %}\
             {% jmbocache 1200 'test_jmbocache' %}1{% endjmbocache %}"

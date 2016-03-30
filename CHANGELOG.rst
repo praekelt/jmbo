@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.15
+------
+#. Move to tox for unit testing.
+
 2.0.14
 ------
 #. Add indexes for ``title`` and ``description`` fields.

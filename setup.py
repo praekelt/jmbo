@@ -2,15 +2,16 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='2.0.14',
+    version='2.0.15',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
-    author='Praekelt Foundation',
+    author='Praekelt Consulting',
     author_email='dev@praekelt.com',
     license='BSD',
     url='http://www.jmbo.org',
     packages = find_packages(),
     install_requires = [
+        # The bare minimum requirements. The tests use explicit versions.
         'Pillow',
         'pytz',
         'django>=1.4,<1.7',
@@ -28,13 +29,6 @@ setup(
         'south',
     ],
     include_package_data=True,
-    tests_require=[
-        'psycopg2',                     # we need a proper database
-        #'django-atlas',                # todo - test suite to use geos
-        'django-setuptest>=0.1.4',
-        'django-model-utils>=2.3,<2.4'
-    ],
-    test_suite="setuptest.setuptest.SetupTestSuite",
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: BSD License",
