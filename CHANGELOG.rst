@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+2.0.15
+------
 #. Move to tox for unit testing.
 
 2.0.14
