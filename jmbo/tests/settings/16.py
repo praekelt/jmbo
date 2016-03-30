@@ -7,7 +7,6 @@ TIME_ZONE = 'Africa/Johannesburg'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'jmbo',
         'USER': 'postgres',
@@ -64,10 +63,13 @@ STATIC_URL = '/static/'
 CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = 'memory'
 
-TEMPLATE_DIRS = (
-    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/tests/templates/',
-    os.path.realpath(os.path.dirname(__file__)) + '/jmbo/templates/',
-)
+SECRET_KEY = 'SECRET_KEY'
+
+STAGING = False
 
 # xxx: get tests to pass with migrations
 SOUTH_TESTS_MIGRATE = False
+
+TEMPLATE_DIRS = (
+    os.path.realpath(os.path.dirname(__file__)) + '/../templates/',
+)

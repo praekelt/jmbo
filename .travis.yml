@@ -1,20 +1,14 @@
-addons:
-    postgresql: "9.3"
+sudo: required
 
 language: python
 
-python:
-  - "2.7"
-
 env:
-  - DJANGO=Django==1.6.9
+  - TOXENV=django16
 
 install:
-  - pip install -q $DJANGO --use-mirrors
+  - pip install tox
 
 before_script:
-    - psql -U postgres -c "create database jmbo encoding 'UTF8'"
-    - psql -U postgres jmbo -c "CREATE EXTENSION postgis;"
-    - psql -U postgres jmbo -c "CREATE EXTENSION postgis_topology;"
+  - psql -U postgres -c "create database jmbo encoding 'UTF8'"
 
-script: python setup.py test
+script: tox
