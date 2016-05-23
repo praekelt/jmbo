@@ -17,19 +17,20 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
+    # Include tests because it declares models
+    'jmbo.tests',
     'jmbo',
     'photologue',
     'category',
+    'django_comments',
     'likes',
     'secretballot',
-    'pagination',
-    'publisher',
+    'pagination',  # find a replacement!
+    'preferences',
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.comments',
     'django.contrib.contenttypes',
     'django.contrib.sites',
-    'south',
 )
 
 ROOT_URLCONF = 'jmbo.tests.urls'

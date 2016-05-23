@@ -3,7 +3,6 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib import comments
 from django.contrib.sites.models import Site, SiteManager
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -11,10 +10,11 @@ from django.db import models
 from django.db.models import signals, Sum
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.utils import timezone
 from django.core.cache import cache
 
+import django_comments
 from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
@@ -150,15 +150,6 @@ eg. Reuters.")
         blank=True,
         null=True,
         help_text=_('Makes item eligible to be published on selected sites.'),
-    )
-    publishers = models.ManyToManyField(
-        'publisher.Publisher',
-        blank=True,
-        null=True,
-        editable=False,
-        help_text=_(
-            'Makes item eligible to be published on selected platform.'
-        ),
     )
     comments_enabled = models.BooleanField(
         verbose_name=_("Commenting Enabled"),
@@ -449,7 +440,7 @@ but users won't be able to add new likes."),
         Comments should always be recorded on ModelBase objects.
         """
         # Get the comment model.
-        comment_model = comments.get_model()
+        comment_model = django_comments.get_model()
 
         modelbase_content_type = ContentType.objects.get(
             app_label="jmbo",
@@ -597,7 +588,7 @@ class Relation(models.Model):
         related_name='relation_source_content_type',
     )
     source_object_id = models.PositiveIntegerField()
-    source = generic.GenericForeignKey(
+    source = GenericForeignKey(
         'source_content_type', 'source_object_id'
     )
     target_content_type = models.ForeignKey(
@@ -605,14 +596,15 @@ class Relation(models.Model):
         related_name='relation_target_content_type',
     )
     target_object_id = models.PositiveIntegerField()
-    target = generic.GenericForeignKey(
+    target = GenericForeignKey(
         'target_content_type', 'target_object_id'
     )
     name = models.CharField(
         max_length=32,
         db_index=True,
-        help_text="A name used to identify the relation. Must be of the form \
-blog_galleries. Once set it is typically never changed."
+        help_text="A name used to identify the relation. It must follow the \
+naming convention a-underscore-b, eg. blog_galleries. Once set it is \
+typically never changed."
     )
 
     class Meta:

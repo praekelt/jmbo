@@ -17,7 +17,6 @@ from django.conf import settings
 
 from category.models import Category
 from category.admin import CategoryAdmin
-from publisher.models import Publisher
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Relation, ImageOverride
@@ -72,6 +71,7 @@ class ModelBaseAdminForm(forms.ModelForm):
 
     class Meta:
         model = ModelBase
+        exclude = ['state']
         widgets = {'sites': SitesGroupsWidget}
 
     def __init__(self, *args, **kwargs):
@@ -87,8 +87,6 @@ yield best results."""
 aspect ratio that may require it to be cropped then you can adjust from where \
 the cropping takes place. This is useful to prevent peoples' heads from being \
 chopped off."""
-
-        self.fields['effect'].help_text = """Apply an effect to the image."""
 
         # We want image to be optional, unlike photologue
         self.fields['image'].required = False
@@ -159,7 +157,7 @@ class ImageOverrideInlineForm(forms.ModelForm):
 
     class Meta:
         model = ImageOverride
-        exclude = ("effect", "crop_from")
+        exclude = ("crop_from",)
 
     def __init__(self, *args, **kwargs):
         super(ImageOverrideInlineForm, self).__init__(*args, **kwargs)
@@ -169,7 +167,7 @@ class ImageOverrideInlineForm(forms.ModelForm):
 class ImageOverrideInline(admin.TabularInline):
     form = ImageOverrideInlineForm
     model = ImageOverride
-    exclude = ("effect", "crop_from")
+    exclude = ("crop_from",)
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -240,13 +238,6 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 'classes': ('collapse',)
             }
         ),
-        (
-            'Advanced',
-            {
-                'fields': ('effect',),
-                'classes': ('collapse',)
-            }
-        ),
     )
     if USE_GIS:
         fieldsets[3][1]['fields'] = tuple(list(fieldsets[3][1]['fields']) + ['location'])
@@ -267,10 +258,9 @@ class ModelBaseAdmin(admin.ModelAdmin):
             except FieldDoesNotExist:
                 continue
 
-            # don't include custom through relations
-            # custom if it has more than 3 fields
+            # Don't include through relation if it has more than 5 fields
             try:
-                if len(field.rel.through._meta.get_all_field_names()) > 3:
+                if len(field.rel.through._meta.get_all_field_names()) > 5:
                     continue
             except AttributeError:
                 pass
@@ -374,6 +364,10 @@ class RelationAdminForm(forms.ModelForm):
 
     class Meta:
         model = Relation
+        fields = (
+            'source_content_type', 'source_object_id', 'target_content_type',
+            'target_object_id', 'name'
+        )
 
     def __init__(self, *args, **kwargs):
         super(RelationAdminForm, self).__init__(*args, **kwargs)

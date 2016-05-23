@@ -41,9 +41,9 @@ if USE_GIS:
 
 class PermittedManager(BaseManager):
 
-    def get_query_set(self, for_user=None):
+    def get_queryset(self, for_user=None):
         is_staff = getattr(for_user, 'is_staff', False)
-        queryset = super(PermittedManager, self).get_query_set()
+        queryset = super(PermittedManager, self).get_queryset()
 
         # Exclude unpublished if user is not staff
         if not is_staff:

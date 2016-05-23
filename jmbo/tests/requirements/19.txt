@@ -10,8 +10,9 @@ South==1.0.2
 
 #django-celery==3.1.16
 #django-ckeditor==4.4.7
-django-pagination==1.0.7
-#django-secretballot==0.2.3
+django-contrib-comments==1.7.1
+django-pagination-fork==1.0.17
+django-secretballot==0.5
 #django-tastypie==0.11.1
 #python-dateutil==2.4.0
 #requests==2.5.1
@@ -22,6 +23,9 @@ django-export==1.9
 #django-generate==0.0.6
 #django-model-utils==2.3.1
 django-object-tools==1.9
-#django-photologue==3.1.1
+django-photologue==3.5.1
 #django-snippetscream==0.0.7
 django-ultracache==1.9
+django-preferences==0.0.2
+django-sites-groups==1.9.0
+

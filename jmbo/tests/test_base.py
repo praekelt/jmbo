@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.conf import settings
-from django.contrib import comments
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -21,6 +20,7 @@ from django.core.management import call_command
 from django.utils.translation import ugettext as _
 from django.test.utils import override_settings
 
+import django_comments
 from photologue.models import PhotoSize
 from secretballot.models import Vote
 
@@ -82,10 +82,10 @@ class ModelBaseTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # create website site item
-        web_site = Site(id=2, domain="web.address.com")
-        web_site.save()
-        setattr(cls, 'web_site', web_site)
+        cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")
+        cls.web_site.save()
+        cls.mobile_site = Site(id=2, domain="mobi.address.com")
+        cls.mobile_site.save()
 
     def test_save(self):
         before_save = timezone.now()
@@ -196,7 +196,6 @@ class ModelBaseTestCase(unittest.TestCase):
         # vote total is calculated as total_upvotes - total_downvotes
         self.failUnlessEqual(result, 1)
 
-    @override_settings(SITE_ID=2)
     def test_is_permitted(self):
         # create unpublished item
         unpublished_obj = ModelBase(title='title', state='unpublished')
@@ -240,11 +239,9 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # Is_permitted should be False if the object is
         # not published for the current site.
-        mobile_site = Site(id=100, domain="mobi.address.com")
-        mobile_site.save()
         published_obj_mobile = ModelBase(state='published')
         published_obj_mobile.save()
-        published_obj_mobile.sites.add(mobile_site)
+        published_obj_mobile.sites.add(self.mobile_site)
         published_obj_mobile.save()
         self.failIf(published_obj_mobile.is_permitted)
 
@@ -307,7 +304,7 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failIf(obj.can_vote(request)[0])
 
     def test_comment_count(self):
-        comment_model = comments.get_model()
+        comment_model = django_comments.get_model()
 
         # Return 0 if no comments exist.
         obj = ModelBase()
@@ -413,16 +410,20 @@ class ModelBaseTestCase(unittest.TestCase):
         self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, 'published')
 
     def test_unicode(self):
-        obj = TestModel(title='Title', state='published')
+        obj = TestModel(title='Title')
         obj.save()
         obj.sites = Site.objects.all()
-        obj.save()
+        obj.publish()
         self.assertEqual(unicode(obj), u'Title (all sites)')
-        obj = TestModel(title='Title', state='published')
+        obj = TestModel(title='Title')
         obj.save()
         obj.sites = [1]
-        obj.save()
-        self.assertEqual(unicode(obj), u'Title (example.com)')
+        obj.publish()
+        self.assertEqual(unicode(obj), u'Title (web.address.com)')
+
+    @classmethod
+    def tearDownClass(cls):
+        Site.objects.all().delete()
 
 
 class ModelBaseAdminTestCase(unittest.TestCase):
@@ -470,12 +471,11 @@ class PermittedManagerTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # create website site item
-        web_site = Site(id=3, domain="web.address.com")
-        web_site.save()
-        setattr(cls, 'web_site', web_site)
+        cls.web_site = Site(id=1, domain="web.address.com")
+        cls.web_site.save()
+        cls.mobile_site = Site(id=2, domain="mobi.address.com")
+        cls.mobile_site.save()
 
-    @override_settings(SITE_ID=3)
     def test_get_query_set(self):
         # create unpublished item
         unpublished_obj = ModelBase(title='title', state='unpublished')
@@ -497,6 +497,7 @@ class PermittedManagerTestCase(unittest.TestCase):
 
         # unpublished objects should not be available in queryset
         queryset = ModelBase.permitted.all()
+        #import pdb;pdb.set_trace()
         self.failIf(unpublished_obj in queryset)
 
         # published objects should always be available in queryset
@@ -521,16 +522,13 @@ class PermittedManagerTestCase(unittest.TestCase):
         self.failUnless(published_obj_web in queryset)
 
         # queryset should not contain items for other sites
-        mobile_site = Site(id=101, domain="mobi.address.com")
-        mobile_site.save()
         published_obj_mobile = ModelBase(state='published')
         published_obj_mobile.save()
-        published_obj_mobile.sites.add(mobile_site)
+        published_obj_mobile.sites.add(self.mobile_site)
         published_obj_mobile.save()
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
 
-    @override_settings(SITE_ID=3)
     def test_publish_retract(self):
         today = datetime.today()
         yesterday = today - timedelta(days=1)
@@ -594,7 +592,6 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(p8 in queryset)
 
-    @override_settings(SITE_ID=3)
     def test_content_type(self):
         obj = BranchModel(title='title', state='published')
         obj.save()
@@ -607,7 +604,6 @@ class PermittedManagerTestCase(unittest.TestCase):
         queryset = ModelBase.permitted.all()
         self.failIf(obj in queryset)
 
-    @override_settings(SITE_ID=3)
     def test_related_permitted_query(self):
         # Targets for DummyModel to point to
         dtmb_p = DummyTargetModelBase(title='dtmb_p', state='published')
@@ -661,6 +657,10 @@ class PermittedManagerTestCase(unittest.TestCase):
         dsmb_p2.save()
         dsmb_p2.sites.add(self.web_site)
         dsmb_p2.save()
+
+    @classmethod
+    def tearDownClass(cls):
+        Site.objects.all().delete()
 
 
 class InclusionTagsTestCase(unittest.TestCase):
@@ -753,8 +753,8 @@ class TemplateTagsTestCase(unittest.TestCase):
         cls.request.get_full_path = lambda: cls.request._path
         cls.client = Client()
 
-        # Add an extra site
-        site, dc = Site.objects.get_or_create(id=4, name='another', domain='another.com')
+        # Add a site
+        site, dc = Site.objects.get_or_create(id=1, name='another', domain='another.com')
 
     def setUp(self):
         obj = TestModel(title='title', state='published')
@@ -826,6 +826,11 @@ class TemplateTagsTestCase(unittest.TestCase):
         result2 = t.render(self.context)
         self.failUnlessEqual(result1, result2)
 
+    @classmethod
+    def tearDownClass(cls):
+        Site.objects.all().delete()
+        settings.SITE_ID = 1
+
 
 class ViewsTestCase(unittest.TestCase):
 
@@ -834,12 +839,17 @@ class ViewsTestCase(unittest.TestCase):
         cls.request = RequestFactory()
         cls.client = Client()
 
-        cls.obj = ModelBase.objects.create(title="title1", state="published")
+        cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")
+        cls.web_site.save()
+
+        cls.obj = ModelBase.objects.create(title="title1")
         cls.obj.sites = Site.objects.all()
         cls.obj.save()
+        cls.obj.publish()
 
     def test_detail_view(self):
-        response = self.client.get(self.obj.get_absolute_url())
+        url = self.obj.get_absolute_url()
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.failUnless('<div class="object-detail' in response.content)
 
@@ -848,6 +858,10 @@ class ViewsTestCase(unittest.TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)
+
+    @classmethod
+    def tearDownClass(cls):
+        Site.objects.all().delete()
 
 
 if USE_GIS:

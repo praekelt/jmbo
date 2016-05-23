@@ -12,7 +12,7 @@ class ObjectDetail(DetailView):
     params = {"extra_context": {"view_modifier": None}}
 
     def get_queryset(self):
-        qs = self.model.permitted.get_query_set(
+        qs = self.model.permitted.get_queryset(
             for_user=getattr(getattr(self, "request", None), "user", None)
         )
 
