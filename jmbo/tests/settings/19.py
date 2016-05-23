@@ -17,8 +17,6 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
-    # Include tests because it declares models
-    'jmbo.tests',
     'jmbo',
     'photologue',
     'category',
@@ -68,9 +66,6 @@ BROKER_BACKEND = 'memory'
 SECRET_KEY = 'SECRET_KEY'
 
 STAGING = False
-
-# xxx: get tests to pass with migrations
-SOUTH_TESTS_MIGRATE = False
 
 TEMPLATE_DIRS = (
     os.path.realpath(os.path.dirname(__file__)) + '/../templates/',
