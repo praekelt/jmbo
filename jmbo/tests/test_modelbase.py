@@ -1,0 +1,364 @@
+import unittest
+
+from django.utils import timezone
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.core.management import call_command
+
+import django_comments
+from secretballot.models import Vote
+
+from jmbo.models import ModelBase
+from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
+    DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
+    BranchModel, LeafModel, TestModel
+
+
+class ModelBaseTestCase(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")
+        cls.web_site.save()
+        cls.mobile_site = Site(id=2, domain="mobi.address.com")
+        cls.mobile_site.save()
+
+    def test_save(self):
+        before_save = timezone.now()
+
+        # created field should be set on save
+        obj = ModelBase(title="title")
+        obj.save()
+
+        # created field should be set to current datetime on save
+        after_save = timezone.now()
+        self.failIf(obj.created > after_save or obj.created < before_save)
+
+        # If a user supplies a created date use that
+        # instead of the current datetime.
+        test_datetime = timezone.datetime(2008, 10, 10, 12, 12)
+        obj = ModelBase(title="title", created=test_datetime)
+        obj.save()
+        self.failIf(obj.created != test_datetime)
+
+        # modified should be set to current datetime on each save
+        before_save = timezone.now()
+        obj = ModelBase(title="title")
+        obj.save()
+        after_save = timezone.now()
+        self.failIf(obj.modified > after_save or obj.modified < before_save)
+
+        # leaf class content type should be set on save
+        obj = DummyModel(title="title")
+        obj.save()
+        self.failUnless(obj.content_type == ContentType.objects.\
+                get_for_model(DummyModel))
+
+        # leaf class class name should be set on save
+        self.failUnless(obj.class_name == DummyModel.__name__)
+
+        # Correct leaf class content type should be retained
+        # over base class" content type.
+        base = obj.modelbase_ptr
+        base.save()
+        self.failUnless(
+            base.content_type == ContentType.objects.get_for_model( DummyModel)
+        )
+
+        # Correct leaf class class name should be
+        # retained over base class" class name.
+        self.failUnless(base.class_name == DummyModel.__name__)
+
+    def test_unique_slugs(self):
+        # create 2 sites
+        site_1 = Site(id=201, domain="site1.example.com")
+        site_1.save()
+        site_2 = Site(id=202, domain="site2.example.com")
+        site_2.save()
+
+        # Create an object for site 1
+        obj_1 = ModelBase(title="object for site 1")
+        obj_1.save()
+        obj_1.sites.add(site_1)
+        obj_1.slug = "generic_slug"
+        obj_1.save()
+
+        # Create an object for site 2
+        obj_2 = ModelBase(title="object for site 2")
+        obj_2.save()
+        obj_2.sites.add(site_2)
+        obj_2.slug = "generic_slug"
+        obj_2.save()
+
+        # Trying to add site_1 should raise an error.
+        with self.assertRaises(RuntimeError):
+            obj_2.sites.add(site_1)
+            obj_2.save()
+
+        # When the slugs differ, you can add site_1.
+        obj_2.slug = "generic_slug_2"
+        obj_2.sites.add(site_1)
+        obj_2.save()
+
+        # Trying to change the slug to an existing one should raise an error.
+        with self.assertRaises(RuntimeError):
+            obj_2.slug = "generic_slug"
+            obj_2.save()
+
+    def test_as_leaf_class(self):
+        obj = LeafModel(title="title")
+        obj.save()
+
+        # always return the leaf class, no matter where we are in the hierarchy
+        self.failUnless(TrunkModel.objects.get(slug=obj.slug).\
+                as_leaf_class() == obj)
+        self.failUnless(BranchModel.objects.get(slug=obj.slug).\
+                as_leaf_class() == obj)
+        self.failUnless(LeafModel.objects.get(slug=obj.slug).\
+                as_leaf_class() == obj)
+
+    def test_vote_total(self):
+        # create object with some votes
+        obj = ModelBase(title="title")
+        obj.save()
+        obj.add_vote("token1", 1)
+        obj.add_vote("token2", -1)
+        obj.add_vote("token3", 1)
+
+        # vote_total should return an integer
+        obj = ModelBase.objects.get(id=obj.id)
+        result = obj.vote_total
+        self.failUnlessEqual(result.__class__, int)
+
+        # vote total is calculated as total_upvotes - total_downvotes
+        self.failUnlessEqual(result, 1)
+
+    def test_is_permitted(self):
+        # create unpublished item
+        unpublished_obj = ModelBase(title="title", state="unpublished")
+        unpublished_obj.save()
+        unpublished_obj.sites.add(self.web_site)
+        unpublished_obj.save()
+
+        # create published item
+        published_obj = ModelBase(title="title", state="published")
+        published_obj.save()
+        published_obj.sites.add(self.web_site)
+        published_obj.save()
+
+        # create staging item
+        staging_obj = ModelBase(title="title", state="staging")
+        staging_obj.save()
+        staging_obj.sites.add(self.web_site)
+        staging_obj.save()
+
+        # is_permitted should be False for unpublished objects
+        self.failIf(unpublished_obj.is_permitted)
+
+        # is_permitted should be True for published objects
+        self.failUnless(published_obj.is_permitted)
+
+        # Is_permitted should be True for otherwise published objects in
+        # the staging state for instances that define settings.STAGING = True.
+        from django.conf import settings
+        settings.STAGING = False
+        self.failIf(staging_obj.is_permitted)
+        settings.STAGING = True
+        self.failUnless(staging_obj.is_permitted)
+
+        # Is_permitted should be True only if the object is
+        # published for the current site.
+        published_obj_web = ModelBase(state="published")
+        published_obj_web.save()
+        published_obj_web.sites.add(self.web_site)
+        published_obj_web.save()
+        self.failUnless(published_obj_web.is_permitted)
+
+        # Is_permitted should be False if the object is
+        # not published for the current site.
+        published_obj_mobile = ModelBase(state="published")
+        published_obj_mobile.save()
+        published_obj_mobile.sites.add(self.mobile_site)
+        published_obj_mobile.save()
+        self.failIf(published_obj_mobile.is_permitted)
+
+    def test_can_vote(self):
+        # create dummy request object
+        request = type("Request", (object,), {})
+
+        class User():
+            def is_authenticated(self):
+                return False
+        request.user = User()
+        request.secretballot_token = "test_token"
+
+        # return false when liking is closed
+        obj = ModelBase(
+            likes_enabled=True,
+            likes_closed=True,
+            anonymous_likes=True
+        )
+        obj.save()
+        self.failIf(obj.can_vote(request)[0])
+
+        # return false when liking is disabled
+        obj = ModelBase(
+            likes_enabled=False,
+            likes_closed=False,
+            anonymous_likes=True
+        )
+        obj.save()
+        self.failIf(obj.can_vote(request)[0])
+
+        # return false if anonymous and anonymous liking is disabled
+        obj = ModelBase(
+            likes_enabled=True,
+            likes_closed=False,
+            anonymous_likes=False
+        )
+        obj.save()
+        self.failIf(obj.can_vote(request)[0])
+
+        # return true if anonymous and anonymous liking is enabled
+        obj = ModelBase(
+            likes_enabled=True,
+            likes_closed=False,
+            anonymous_likes=True
+        )
+        obj.save()
+        self.failUnless(obj.can_vote(request))
+
+        # return false if vote already exist
+        content_type = ContentType.objects.get(
+            app_label="jmbo",
+            model="modelbase"
+        )
+        Vote.objects.create(
+            object_id=obj.id,
+            token="test_token",
+            content_type=content_type, vote=1
+        )
+        self.failIf(obj.can_vote(request)[0])
+
+    def test_comment_count(self):
+        comment_model = django_comments.get_model()
+
+        # Return 0 if no comments exist.
+        obj = ModelBase()
+        obj.save()
+        self.failUnless(obj.comment_count == 0)
+
+        # Return the number of comments if comments exist. Here it
+        # should be 1 since we"ve created 1 comment.
+        comment_obj = comment_model(content_object=obj, site_id=1)
+        comment_obj.save()
+        obj = ModelBase.objects.get(id=obj.id)
+        self.failUnless(obj.comment_count == 1)
+
+        # Return 0 if no comments exist.
+        dummy_obj = DummyModel()
+        dummy_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
+        self.failUnless(dummy_obj.comment_count == 0)
+
+        # Return the number of comments if comments exist on the
+        # ModelBase object. Here it should be 1 since we"ve created 1
+        # comment on the ModelBase object.
+        comment_obj = comment_model(
+            content_object=dummy_obj.modelbase_obj,
+            site_id=1
+        )
+        comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
+        self.failUnless(dummy_obj.modelbase_obj.comment_count == 1)
+
+        # If a comment was made on the ModelBase object it should
+        # still count for leaf class objects.
+        self.failUnless(dummy_obj.comment_count == 1)
+
+        # Add another comment on dummy object and make sure the count
+        # is 2 for both the dummy object and its modelbase object.
+        comment_obj = comment_model(content_object=dummy_obj, site_id=1)
+        comment_obj.save()
+        dummy_obj = ModelBase.objects.get(id=dummy_obj.id)
+        self.failUnless(dummy_obj.comment_count == 2)
+        self.failUnless(dummy_obj.modelbase_obj.comment_count == 2)
+
+        # There should now only be 3 comment objects.
+        self.failUnless(comment_model.objects.all().count() == 3)
+
+    def test_can_comment(self):
+        # create dummy request object
+        request = type("Request", (object,), {})
+
+        class User():
+            def is_authenticated(self):
+                return False
+        request.user = User()
+        request.secretballot_token = "test_token"
+
+        # return false when commenting is closed
+        obj = ModelBase(
+            comments_enabled=True,
+            comments_closed=True,
+            anonymous_comments=True
+        )
+        obj.save()
+        self.failIf(obj.can_comment(request)[0])
+
+        # return false when commenting is disabled
+        obj = ModelBase(
+            comments_enabled=False,
+            comments_closed=False,
+            anonymous_comments=True
+        )
+        obj.save()
+        self.failIf(obj.can_comment(request)[0])
+
+        # return false if anonymous and anonymous commenting is disabled
+        obj = ModelBase(
+            comments_enabled=True,
+            comments_closed=False,
+            anonymous_comments=False
+        )
+        obj.save()
+        self.failIf(obj.can_comment(request)[0])
+
+        # return true if anonymous and anonymous commenting is enabled
+        obj = ModelBase(
+            comments_enabled=True,
+            comments_closed=False,
+            anonymous_comments=True
+        )
+        obj.save()
+        self.failUnless(obj.can_comment(request)[0])
+
+    def test_publishing_timezone_awareness(self):
+        obj_naive = ModelBase.objects.create(
+            title="Obj1",
+            publish_on=timezone.datetime.now() - timezone.timedelta(hours=1)
+        )
+        obj_aware = ModelBase.objects.create(
+            title="Obj2",
+            publish_on=timezone.now() - timezone.timedelta(hours=1)
+        )
+        call_command("jmbo_publish")
+        self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, "published")
+        self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, "published")
+
+    def test_unicode(self):
+        obj = TestModel(title="Title")
+        obj.save()
+        obj.sites = Site.objects.all()
+        obj.publish()
+        self.assertEqual(unicode(obj), u"Title (all sites)")
+        obj = TestModel(title="Title")
+        obj.save()
+        obj.sites = [1]
+        obj.publish()
+        self.assertEqual(unicode(obj), u"Title (web.address.com)")
+
+    @classmethod
+    def tearDownClass(cls):
+        Site.objects.all().delete()
+
