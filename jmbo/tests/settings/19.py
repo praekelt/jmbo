@@ -66,8 +66,6 @@ BROKER_BACKEND = 'memory'
 
 SECRET_KEY = 'SECRET_KEY'
 
-STAGING = False
-
 TEMPLATE_DIRS = (
     os.path.realpath(os.path.dirname(__file__)) + '/../templates/',
 )
