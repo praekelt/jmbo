@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% load jmbo_inclusion_tags jmbo_template_tags %}
+{% load jmbo_inclusion_tags jmbo_template_tags ultracache_tags %}
 
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    {% jmbocache 1200 'modelbase-detail' object.id object.modified %}
+    {% ultracache 1200 'modelbase-detail' object.id object.modified %}
         <link rel="canonical" href="{{ object.get_absolute_url }}" />
         <meta name="description" content="{{ object.description|default_if_none:'' }}" />
         {% with object.tags.all as tags %}
@@ -19,7 +19,7 @@
             <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.image_detail_url }}" />
         {% endif %}
         <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
-    {% endjmbocache %}
+    {% endultracache %}
 {% endblock %}
 
 {% block content %}

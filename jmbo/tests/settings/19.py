@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     "secretballot",
     "pagination",
     "preferences",
+    "ultracache",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -81,3 +82,7 @@ SECRET_KEY = "SECRET_KEY"
 TEMPLATE_DIRS = (
     os.path.realpath(os.path.dirname(__file__)) + "/../templates/",
 )
+
+# Ultracache triggers lazy creation of content types. This prevents that code
+# path.
+ULTRACACHE = {"invalidate": False}

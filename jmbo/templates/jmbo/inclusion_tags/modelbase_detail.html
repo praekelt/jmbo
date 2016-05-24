@@ -1,8 +1,8 @@
-{% load jmbo_template_tags %}
+{% load jmbo_template_tags ultracache_tags %}
 
 <div class="detail-inclusion">
     {% block content %}
-        {% jmbocache 1200 'object-detail-inclusion' object.id object.modified %}
+        {% ultracache 1200 'object-detail-inclusion' object.id object.modified %}
             {% if object.image %}
                 <img src="{{ object.image_detail_url }}" />
                 {% if object.image_attribution %}
@@ -14,7 +14,7 @@
                     {{ object.description|linebreaks }}
                 </div>
             {% endif %}
-        {% endjmbocache %}
+        {% endultracache %}
     {% endblock %}
     <div class="clear"></div>
 </div>

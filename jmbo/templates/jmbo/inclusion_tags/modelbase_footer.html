@@ -1,6 +1,6 @@
-{% load i18n jmbo_template_tags %}
+{% load i18n jmbo_template_tags ultracache_tags %}
 
-{% jmbocache 3600 'object_footer' object.id object.modified %}
+{% ultracache 3600 'object_footer' object.id object.modified %}
 <div class="footer-inclusion">
 
     <div class="sharing">
@@ -25,4 +25,4 @@
     </div>
 
 </div>
-{% endjmbocache %}
+{% endultracache %}
