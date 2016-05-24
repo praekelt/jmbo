@@ -19,6 +19,11 @@ urlpatterns = patterns(
         name="jmbo-modelbase-detail"
     ),
     url(
+        r"^detail/(?P<category_slug>[\w-]+)/(?P<slug>[\w-]+)/$",
+        ObjectDetail.as_view(),
+        name="jmbo-modelbase-categorized-detail"
+    ),
+    url(
         r"^list/(?P<app_label>[\w-]+)/(?P<model>[\w-]+)/$",
         ObjectList.as_view(),
         name="jmbo-modelbase-list"

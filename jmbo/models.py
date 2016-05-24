@@ -27,7 +27,7 @@ from jmbo import monkey
 
 
 class JmboPreferences(Preferences):
-    __module__ = 'preferences.models'
+    __module__ = "preferences.models"
 
 
 class ModelBase(ImageModel):
@@ -37,16 +37,12 @@ class ModelBase(ImageModel):
     state = models.CharField(
         max_length=32,
         choices=(
-            ('unpublished', 'Unpublished'),
-            ('published', 'Published'),
-            ('staging', 'Staging'),
+            ("unpublished", "Unpublished"),
+            ("published", "Published"),
         ),
-        default='unpublished',
+        default="unpublished",
         editable=False,
         db_index=True,
-        help_text=_("Set the item state. The 'Published' state makes the item \
-visible to the public, 'Unpublished' retracts it and 'Staging' makes the \
-item visible on staging instances."),
         blank=True,
         null=True,
     )
@@ -54,15 +50,15 @@ item visible on staging instances."),
         blank=True,
         null=True,
         db_index=True,
-        help_text=_("Date and time on which to publish this item (state will \
-change to 'published')."),
+        help_text=_("""Date and time on which to publish this item (the state \
+will change to "published")."""),
     )
     retract_on = models.DateTimeField(
         blank=True,
         null=True,
         db_index=True,
-        help_text=_("Date and time on which to retract this item (state will \
-change to 'unpublished')."),
+        help_text=_("""Date and time on which to retract this item (the state \
+will change to "unpublished")."""),
     )
     slug = models.SlugField(
         max_length=255,
@@ -72,36 +68,36 @@ change to 'unpublished')."),
         _("Title"),
         max_length=200,
         db_index=True,
-        help_text=_('A short descriptive title.'),
+        help_text=_("A short descriptive title."),
     )
     subtitle = models.CharField(
         max_length=200,
         blank=True,
         null=True,
-        default='',
-        help_text=_('Some titles may be the same and cause confusion in admin \
-UI. A subtitle makes a distinction.'),
+        default="",
+        help_text=_("Some titles may be the same and cause confusion in admin \
+UI. A subtitle makes a distinction."),
     )
     description = models.TextField(
-        help_text=_('A short description. More verbose than the title but \
-limited to one or two sentences.'),
+        help_text=_("A short description. More verbose than the title but \
+limited to one or two sentences. It may not contain any markup."),
         blank=True,
         null=True,
         db_index=True
     )
     created = models.DateTimeField(
-        _('Created Date & Time'),
+        _("Created Date & Time"),
         blank=True,
         db_index=True,
-        help_text=_('Date and time on which this item was created. This is \
-automatically set on creation, but can be changed subsequently.')
+        help_text=_("Date and time on which this item was created. This is \
+automatically set on creation but can be changed subsequently.")
     )
     modified = models.DateTimeField(
-        _('Modified Date & Time'),
+        _("Modified Date & Time"),
         db_index=True,
         editable=False,
-        help_text=_('Date and time on which this item was last modified. This \
-is automatically set each time the item is saved.')
+        help_text=_("Date and time on which this item was last modified. This \
+is automatically set each time the item is saved.")
     )
     owner = models.ForeignKey(
         User,
@@ -126,33 +122,33 @@ eg. Reuters.")
         null=True
     )
     categories = models.ManyToManyField(
-        'category.Category',
+        "category.Category",
         blank=True,
         null=True,
-        help_text=_('Categorizing this item.')
+        help_text=_("Categorize this item.")
     )
     primary_category = models.ForeignKey(
-        'category.Category',
+        "category.Category",
         blank=True,
         null=True,
         help_text=_("Primary category for this item. Used to determine the \
-            object's absolute/default URL."),
+            object's absolute / default URL."),
         related_name="primary_modelbase_set",
     )
     tags = models.ManyToManyField(
-        'category.Tag',
+        "category.Tag",
         blank=True,
         null=True,
-        help_text=_('Tag this item.')
+        help_text=_("Tag this item.")
     )
     sites = models.ManyToManyField(
-        'sites.Site',
+        "sites.Site",
         blank=True,
         null=True,
-        help_text=_('Makes item eligible to be published on selected sites.'),
+        help_text=_("Makes item eligible to be published on selected sites."),
     )
     comments_enabled = models.BooleanField(
-        verbose_name=_("Commenting Enabled"),
+        verbose_name=_("Commenting enabled"),
         help_text=_("Enable commenting for this item. Comments will not \
 display when disabled."),
         default=True,
@@ -203,13 +199,12 @@ but users won't be able to add new likes."),
     vote_total = models.PositiveIntegerField(default=0, editable=False)
 
     class Meta:
-        ordering = ('-publish_on', '-created')
+        ordering = ("-publish_on", "-created")
 
     def as_leaf_class(self):
-        """
-        Returns the leaf class no matter where the calling instance is in
-        the inheritance hierarchy.
-        Inspired by http://www.djangosnippets.org/snippets/1031/
+        """Returns the leaf class no matter where the calling instance is in
+        the inheritance hierarchy. Inspired by
+        http://www.djangosnippets.org/snippets/1031/
         """
         try:
             instance = self.__getattribute__(self.class_name.lower())
@@ -219,57 +214,52 @@ but users won't be able to add new likes."),
             if(model == ModelBase):
                 return self
             instance = model.objects.get(id=self.id)
-        '''
-        If distance was dynamically added to this object,
-        it needs to be added to the leaf object as well
-        '''
+
+        # If distance was dynamically added to this object it needs to be
+        # added to the leaf object as well.
         if hasattr(self, "distance"):
             instance.distance = self.distance
+
         return instance
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, category=None):
         # Reverse by traversing upwards over inheritance hierarchy and
         # following naming convention.
         ct = self.content_type
         kls = ct.model_class()
-        while ct.model != "modelbase":
+        while ct.model != "imagemodel":
             try:
-                return reverse(
-                    "%s-%s-detail" % (ct.app_label, ct.model), args=[self.slug]
-                )
+                if category is None:
+                    return reverse(
+                        "%s-%s-detail" % \
+                            (ct.app_label, ct.model), args=[self.slug]
+                    )
+                else:
+                    return reverse(
+                        "%s-%s-categorized-detail" % \
+                            (ct.app_label, ct.model), args=[category.slug, self.slug]
+                    )
             except NoReverseMatch:
                 kls = kls.__bases__[0]
                 ct = ContentType.objects.get_for_model(kls)
+
         return reverse("jmbo-modelbase-detail", args=[self.slug])
 
     def get_absolute_url_categorized(self):
-        """Absolute url with category.
+        """Absolute url with category incorporated into the url. The normal
+        template when navigating to get_absolute_url is still rendered. Hint:
+        SEO."""
 
-        Provides a hook to get an url for an object, connected to a category,
-        but just reusing the get_absolute_url templates etc. This differs from
-        the get_absolute_category_url method in that we don't provide
-        different sets of templates.
-        """
-        category_slug = None
+        category = None
         if self.primary_category:
-            category_slug = self.primary_category.slug
-        elif self.categories.all().exists():
-            category_slug = self.categories.all()[0].slug
+            category = self.primary_category
+        else:
+            categories = self.categories.all()
+            # Small list so no need for exists method
+            if categories:
+                category = categories[0]
 
-        if category_slug:
-            try:
-                return reverse(
-                    '%s_categorized_object_detail' \
-                        % self.as_leaf_class().__class__.__name__.lower(),
-                    kwargs={'category_slug': category_slug, 'slug': self.slug}
-                )
-            except NoReverseMatch:
-                # No generic modelbase fallback: Allow get_absolute_url to
-                # take over.
-                pass
-
-        # Sane fallback if no category
-        return self.get_absolute_url()
+        return self.get_absolute_url(category)
 
     def save(self, *args, **kwargs):
         now = timezone.now()
@@ -279,7 +269,7 @@ but users won't be able to add new likes."),
             self.created = now
 
         # set modified to now on each save.
-        set_modified = kwargs.pop('set_modified', True)
+        set_modified = kwargs.pop("set_modified", True)
         if set_modified:
             self.modified = now
 
@@ -310,29 +300,29 @@ but users won't be able to add new likes."),
 
     def __unicode__(self):
         # This method gets called repeatedly in admin so cache
-        key = 'jmbo-mb-uc-%s-%s' % \
-            (self.pk, self.modified and int(self.modified.strftime('%s')) or 0)
+        key = "jmbo-mb-uc-%s-%s" % \
+            (self.pk, self.modified and int(self.modified.strftime("%s")) or 0)
         cached = cache.get(key, None)
         if cached is not None:
             return cached
 
         # Append site(s) information intelligently
-        suffix = ''
+        suffix = ""
         sites = self.sites.all()
         if not sites:
-            suffix = ' (%s)' % ugettext("no sites")
+            suffix = " (%s)" % ugettext("no sites")
         else:
             all_sites = Site.objects.all()
             len_all_sites = len(all_sites)
             if len_all_sites > 1:
                 if len(sites) == len_all_sites:
-                    suffix = ' (%s)' % ugettext("all sites")
+                    suffix = " (%s)" % ugettext("all sites")
                 else:
-                    suffix = ' (%s)' % ', '.join([s.name for s in sites])
+                    suffix = " (%s)" % ", ".join([s.name for s in sites])
         if self.subtitle:
-            result = '%s - %s%s' % (self.title, self.subtitle, suffix)
+            result = "%s - %s%s" % (self.title, self.subtitle, suffix)
         else:
-            result = '%s%s' % (self.title, suffix)
+            result = "%s%s" % (self.title, suffix)
         cache.set(key, result, 300)
         return result
 
@@ -344,12 +334,12 @@ but users won't be able to add new likes."),
             else:
                 return False
 
-        if self.state == 'unpublished':
+        if self.state == "unpublished":
             return False
-        elif self.state == 'published':
+        elif self.state == "published":
             return for_site()
-        elif self.state == 'staging':
-            if getattr(settings, 'STAGING', False):
+        elif self.state == "staging":
+            if getattr(settings, "STAGING", False):
                 return for_site()
 
         return False
@@ -359,10 +349,10 @@ but users won't be able to add new likes."),
         if self.__class__ == ModelBase:
             return self
         else:
-            '''
+            """
             Use self._meta.get_ancestor_link instead of self.modelbase_ptr since
             the name of the link could be different
-            '''
+            """
             link_name = self._meta.get_ancestor_link(ModelBase).name
             return getattr(self, link_name)
 
@@ -371,60 +361,60 @@ but users won't be able to add new likes."),
         """
         Determines whether or not the current user can vote.
         Returns a bool as well as a string indicating the current vote status,
-        with vote status being one of: 'closed', 'disabled',
-        'auth_required', 'can_vote', 'voted'
+        with vote status being one of: "closed", "disabled",
+        "auth_required", "can_vote", "voted"
         """
         modelbase_obj = self.modelbase_obj
 
-        # can't vote if liking is closed
+        # Can't vote if liking is closed
         if modelbase_obj.likes_closed:
-            return False, 'closed'
+            return False, "closed"
 
-        # can't vote if liking is disabled
+        # Can't vote if liking is disabled
         if not modelbase_obj.likes_enabled:
-            return False, 'disabled'
+            return False, "disabled"
 
-        # anonymous users can't vote if anonymous likes are disabled
+        # Anonymous users can't vote if anonymous likes are disabled
         if not request.user.is_authenticated() and not \
                 modelbase_obj.anonymous_likes:
-            return False, 'auth_required'
+            return False, "auth_required"
 
-        # return false if existing votes are found
+        # Return false if existing votes are found
         if Vote.objects.filter(
             object_id=modelbase_obj.id,
             token=request.secretballot_token
         ).count() == 0:
-            return True, 'can_vote'
+            return True, "can_vote"
         else:
-            return False, 'voted'
+            return False, "voted"
 
     def can_comment(self, request):
         modelbase_obj = self.modelbase_obj
 
-        # can't comment if commenting is closed
+        # Can't comment if commenting is closed
         if modelbase_obj.comments_closed:
-            return False, 'closed'
+            return False, "closed"
 
-        # can't comment if commenting is disabled
+        # Can't comment if commenting is disabled
         if not modelbase_obj.comments_enabled:
-            return False, 'disabled'
+            return False, "disabled"
 
-        # anonymous users can't comment if anonymous comments are disabled
+        # Anonymous users can't comment if anonymous comments are disabled
         if not request.user.is_authenticated() and not \
                 modelbase_obj.anonymous_comments:
-            return False, 'auth_required'
+            return False, "auth_required"
 
-        return True, 'can_comment'
+        return True, "can_comment"
 
     @property
     def _vote_total(self):
         """
         Calculates vote total (+1 for upvote and -1 for downvote). We are
-        adding a method here instead of relying on django-secretballot's
-        addition since that doesn't work for subclasses.
+        adding a method here instead of relying on django-secretballot"s
+        addition since that doesn"t work for subclasses.
         """
         votes = Vote.objects.filter(object_id= \
-            self.id).aggregate(Sum('vote'))['vote__sum']
+            self.id).aggregate(Sum("vote"))["vote__sum"]
         return votes if votes else 0
 
     @property
@@ -442,7 +432,8 @@ but users won't be able to add new likes."),
         )
 
         # Compute site id range. This is a slight pollution from jmbo-foundry
-        # but we don't want to monkey patch Jmbo itself.
+        # but we don"t want to monkey patch Jmbo itself.
+        # xxx: fix this crap hedley!
         i = settings.SITE_ID / 10
         site_ids = range(i * 10 + 1, (i + 1) * 10)
 
@@ -454,20 +445,20 @@ but users won't be able to add new likes."),
         )
 
         # The is_public and is_removed fields are implementation details of the
-        # built-in comment model's spam filtering system, so they might not
+        # built-in comment model"s spam filtering system, so they might not
         # be present on a custom comment model subclass. If they exist, we
         # should filter on them.
         try:
-            comment_model._meta.get_field('is_public')
+            comment_model._meta.get_field("is_public")
             is_public = True
         except models.FieldDoesNotExist:
             is_public = False
         if is_public:
             qs = qs.filter(is_public=True)
 
-        if getattr(settings, 'COMMENTS_HIDE_REMOVED', True):
+        if getattr(settings, "COMMENTS_HIDE_REMOVED", True):
             try:
-                comment_model._meta.get_field('is_removed')
+                comment_model._meta.get_field("is_removed")
                 is_removed = True
             except models.FieldDoesNotExist:
                 is_removed = False
@@ -483,11 +474,11 @@ but users won't be able to add new likes."),
         corresponding image URL, else return modelbase detail default image
         URL. This allows content types which may typically have images which
         are not landscaped (eg human faces) to define their own sizes."""
-        method = 'get_%s_detail_url' % self.as_leaf_class().__class__.__name__.lower()
+        method = "get_%s_detail_url" % self.as_leaf_class().__class__.__name__.lower()
         if hasattr(self, method):
             return getattr(self, method)()
         else:
-            return getattr(self, 'get_modelbase_detail_url')()
+            return getattr(self, "get_modelbase_detail_url")()
 
     @property
     def image_list_url(self):
@@ -495,13 +486,13 @@ but users won't be able to add new likes."),
         corresponding image URL, else return modelbase detail default image
         URL. This allows content types which may typically have images which
         are not landscaped (eg human faces) to define their own sizes."""
-        method = 'get_%s_list_url' % self.as_leaf_class().__class__.__name__.lower()
+        method = "get_%s_list_url" % self.as_leaf_class().__class__.__name__.lower()
         if hasattr(self, method):
             return getattr(self, method)()
         else:
-            return getattr(self, 'get_modelbase_list_url')()
+            return getattr(self, "get_modelbase_list_url")()
 
-    def get_related_items(self, name=None, direction='forward'):
+    def get_related_items(self, name=None, direction="forward"):
         """If direction is forward get items self points to by name name. If
         direction is reverse get items pointing to self to by name name.
 
@@ -510,14 +501,14 @@ but users won't be able to add new likes."),
         safe.
         """
 
-        if direction == 'both':
+        if direction == "both":
             ids = Relation.objects.filter(
                 source_content_type=self.content_type,
                 source_object_id=self.id
             )
             if name:
                 ids = ids.filter(name=name)
-            ids_forward = ids.values_list('target_object_id', flat=True)
+            ids_forward = ids.values_list("target_object_id", flat=True)
 
             ids = Relation.objects.filter(
                 target_content_type=self.content_type,
@@ -525,52 +516,52 @@ but users won't be able to add new likes."),
             )
             if name:
                 ids = ids.filter(name=name)
-            ids_reverse = ids.values_list('source_object_id', flat=True)
+            ids_reverse = ids.values_list("source_object_id", flat=True)
 
             ids = [i for i in ids_forward] + [i for i in ids_reverse]
-            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
+            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
 
-        elif direction == 'forward':
+        elif direction == "forward":
             ids = Relation.objects.filter(
                 source_content_type=self.content_type,
                 source_object_id=self.id
             )
             if name:
                 ids = ids.filter(name=name)
-            ids = ids.values_list('target_object_id', flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
+            ids = ids.values_list("target_object_id", flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
 
-        elif direction == 'reverse':
+        elif direction == "reverse":
             ids = Relation.objects.filter(
                 target_content_type=self.content_type,
                 target_object_id=self.id
             )
             if name:
                 ids = ids.filter(name=name)
-            ids = ids.values_list('source_object_id', flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by('-publish_on', '-created')
+            ids = ids.values_list("source_object_id", flat=True)
+            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
 
         else:
             return ModelBase.permitted.none()
 
-    def get_permitted_related_items(self, name=None, direction='forward'):
+    def get_permitted_related_items(self, name=None, direction="forward"):
         return self.get_related_items(name, direction)
 
     def natural_key(self):
         return (self.slug, )
 
     def publish(self):
-        if self.state != 'published':
+        if self.state != "published":
             now = timezone.now()
-            self.state = 'published'
+            self.state = "published"
             self.publish_on = now
             if self.retract_on and (self.retract_on <= now):
                 self.retract_on = None
             self.save()
 
     def unpublish(self):
-        if self.state != 'unpublished':
-            self.state = 'unpublished'
+        if self.state != "unpublished":
+            self.state = "unpublished"
             self.retract_on = timezone.now()
             self.save()
 
@@ -579,19 +570,19 @@ class Relation(models.Model):
     """Generic relation between two objects"""
     source_content_type = models.ForeignKey(
         ContentType,
-        related_name='relation_source_content_type',
+        related_name="relation_source_content_type",
     )
     source_object_id = models.PositiveIntegerField()
     source = GenericForeignKey(
-        'source_content_type', 'source_object_id'
+        "source_content_type", "source_object_id"
     )
     target_content_type = models.ForeignKey(
         ContentType,
-        related_name='relation_target_content_type',
+        related_name="relation_target_content_type",
     )
     target_object_id = models.PositiveIntegerField()
     target = GenericForeignKey(
-        'target_content_type', 'target_object_id'
+        "target_content_type", "target_object_id"
     )
     name = models.CharField(
         max_length=32,
@@ -603,8 +594,8 @@ typically never changed."
 
     class Meta:
         unique_together = ((
-            'source_content_type', 'source_object_id', 'target_content_type',
-            'target_object_id', 'name'
+            "source_content_type", "source_object_id", "target_content_type",
+            "target_object_id", "name"
         ),)
 
 
@@ -629,19 +620,19 @@ def set_managers(sender, **kwargs):
     cls = sender
 
     if issubclass(cls, ModelBase):
-        cls.add_to_class('permitted', PermittedManager())
+        cls.add_to_class("permitted", PermittedManager())
 
 signals.class_prepared.connect(set_managers)
 
 
-# add natural_key to Django's Site model and manager
-Site.add_to_class('natural_key', lambda self: (self.domain, self.name))
+# add natural_key to Django"s Site model and manager
+Site.add_to_class("natural_key", lambda self: (self.domain, self.name))
 SiteManager.get_by_natural_key = lambda self, domain, name: self.get(domain=domain, name=name)
 
 # enable voting for ModelBase, but specify a different total name
-# so ModelBase's vote_total method is not overwritten
+# so ModelBase"s vote_total method is not overwritten
 secretballot.enable_voting_on(
     ModelBase,
-    manager_name='secretballot_objects',
-    total_name='secretballot_added_vote_total'
+    manager_name="secretballot_objects",
+    total_name="secretballot_added_vote_total"
 )

@@ -22,4 +22,11 @@ urlpatterns = patterns(
         ObjectDetail.as_view(),
         name="tests-leafmodel-detail"
     ),
+
+    url(
+        r"^tests/detail/(?P<category_slug>[\w-]+)/(?P<slug>[\w-]+)/$",
+        ObjectDetail.as_view(),
+        name="tests-leafmodel-categorized-detail"
+    ),
+
 )

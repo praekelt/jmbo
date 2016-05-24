@@ -90,7 +90,7 @@ class InclusionTagsTestCase(unittest.TestCase):
         t = template.Template("{% load jmbo_inclusion_tags %}\
 {% object_footer object %}")
         result = t.render(self.context)
-        self.failUnless("object-footer" in result)
+        self.failUnless("footer-inclusion" in result)
 
     def test_comments_tag(self):
         self.context = template.Context({"object": self.obj1, "request": self.request})

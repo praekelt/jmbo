@@ -1,6 +1,6 @@
 {% load jmbo_template_tags %}
 
-<div class="object-detail-inclusion {{ object.class_name.lower }}-detail-inclusion">
+<div class="detail-inclusion">
     {% block content %}
         {% jmbocache 1200 'object-detail-inclusion' object.id object.modified %}
             {% if object.image %}

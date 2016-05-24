@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 
+from category.models import Category
 import django_comments
 from secretballot.models import Vote
 
@@ -375,6 +376,25 @@ class ModelBaseTestCase(unittest.TestCase):
         self.assertEqual(
             extra_leaf.get_absolute_url(),
             "/jmbo/detail/%s/" % extra_leaf.slug
+        )
+
+    def test_get_absolute_url_categorized(self):
+        category = Category.objects.create(title="cat1", slug="cat1")
+        leaf = LeafModel.objects.create(
+            title="title", primary_category=category
+        )
+        extra_leaf = ExtraLeafModel.objects.create(
+            title="title", primary_category=category
+        )
+        # Leaf declares a url pattern
+        self.assertEqual(
+            leaf.get_absolute_url_categorized(),
+            "/tests/detail/%s/%s/" % (category.slug, leaf.slug)
+        )
+        # Extra Leaf does not declare a url pattern
+        self.assertEqual(
+            extra_leaf.get_absolute_url_categorized(),
+            "/jmbo/detail/%s/%s/" % (category.slug, extra_leaf.slug)
         )
 
     @classmethod

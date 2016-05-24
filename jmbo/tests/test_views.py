@@ -27,12 +27,13 @@ class ViewsTestCase(unittest.TestCase):
         url = self.obj.get_absolute_url()
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.failUnless('<div class="object-detail' in response.content)
+        self.failUnless("""<div class="jmbo-detail jmbo-detail jmbo-modelbase-detail""" in response.content)
 
     def test_list_view(self):
         url = reverse("jmbo-modelbase-list", args=["jmbo", "modelbase"])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.failUnless("""<div class="jmbo-list""" in response.content)
         self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)
 
     @classmethod
