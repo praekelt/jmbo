@@ -492,7 +492,7 @@ but users won't be able to add new likes."),
         else:
             return getattr(self, "get_modelbase_list_url")()
 
-    def get_related_items(self, name=None, direction="forward"):
+    def get_related_items(self, name=None, direction="forward", permitted=False):
         """If direction is forward get items self points to by name name. If
         direction is reverse get items pointing to self to by name name.
 
@@ -500,6 +500,11 @@ but users won't be able to add new likes."),
         an object. This nature of the data makes the use of the ids iterators
         safe.
         """
+
+        if permitted:
+            manager = ModelBase.permitted
+        else:
+            manager = ModelBase.objects
 
         if direction == "both":
             ids = Relation.objects.filter(
@@ -519,7 +524,7 @@ but users won't be able to add new likes."),
             ids_reverse = ids.values_list("source_object_id", flat=True)
 
             ids = [i for i in ids_forward] + [i for i in ids_reverse]
-            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
+            return manager.filter(id__in=ids).order_by("-publish_on", "-created")
 
         elif direction == "forward":
             ids = Relation.objects.filter(
@@ -529,7 +534,7 @@ but users won't be able to add new likes."),
             if name:
                 ids = ids.filter(name=name)
             ids = ids.values_list("target_object_id", flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
+            return manager.filter(id__in=ids).order_by("-publish_on", "-created")
 
         elif direction == "reverse":
             ids = Relation.objects.filter(
@@ -539,16 +544,16 @@ but users won't be able to add new likes."),
             if name:
                 ids = ids.filter(name=name)
             ids = ids.values_list("source_object_id", flat=True)
-            return ModelBase.permitted.filter(id__in=ids).order_by("-publish_on", "-created")
+            return manager.filter(id__in=ids).order_by("-publish_on", "-created")
 
         else:
-            return ModelBase.permitted.none()
+            return manager.none()
 
     def get_permitted_related_items(self, name=None, direction="forward"):
-        return self.get_related_items(name, direction)
+        return self.get_related_items(name, direction, True)
 
     def natural_key(self):
-        return (self.slug, )
+        return (self.slug,)
 
     def publish(self):
         if self.state != "published":

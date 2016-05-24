@@ -9,7 +9,7 @@ from category.models import Category
 import django_comments
 from secretballot.models import Vote
 
-from jmbo.models import ModelBase
+from jmbo.models import ModelBase, Relation
 from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
     BranchModel, LeafModel, TestModel
@@ -397,7 +397,42 @@ class ModelBaseTestCase(unittest.TestCase):
             "/jmbo/detail/%s/%s/" % (category.slug, extra_leaf.slug)
         )
 
+    def test_get_related_items(self):
+        obj1 = ModelBase.objects.create(title="obj1")
+        obj2 = ModelBase.objects.create(title="obj2")
+        obj3 = ModelBase.objects.create(title="obj2")
+        Relation.objects.create(
+            source=obj1, target=obj2, name="obj-objs"
+        )
+        Relation.objects.create(
+            source=obj3, target=obj1, name="multi"
+        )
+        self.assertEqual(obj1.get_related_items()[0].id, obj2.id)
+        self.assertEqual(obj1.get_related_items(name="obj-objs")[0].id, obj2.id)
+        self.assertEqual(len(obj1.get_related_items(name="---")), 0)
+        self.assertEqual(obj2.get_related_items(direction="reverse")[0].id, obj1.id)
+        self.assertEqual(len(obj1.get_related_items(direction="both")), 2)
+
+    def test_get_permitted_related_items(self):
+        obj1 = ModelBase.objects.create(title="obj1")
+        obj1.sites = Site.objects.all()
+        obj1.publish()
+        obj2 = ModelBase.objects.create(title="obj2")
+        obj2.sites = Site.objects.all()
+        obj2.publish()
+        obj3 = ModelBase.objects.create(title="obj3")
+        Relation.objects.create(
+            source=obj1, target=obj2, name="obj-objs"
+        )
+        Relation.objects.create(
+            source=obj1, target=obj3, name="obj-objs"
+        )
+        self.assertEqual(obj1.get_permitted_related_items()[0].id, obj2.id)
+        self.failIf(obj3 in obj1.get_permitted_related_items())
+
     @classmethod
     def tearDownClass(cls):
         Site.objects.all().delete()
-
+        # Relations are picked up by ModelBaseAdmin and will interfere with
+        # other tests.
+        Relation.objects.all().delete()
