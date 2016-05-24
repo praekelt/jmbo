@@ -12,6 +12,7 @@ from jmbo.models import ModelBase
 from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
     BranchModel, LeafModel, TestModel
+from jmbo.tests.extra.models import LeafModel as ExtraLeafModel
 
 
 class ModelBaseTestCase(unittest.TestCase):
@@ -106,16 +107,20 @@ class ModelBaseTestCase(unittest.TestCase):
             obj_2.save()
 
     def test_as_leaf_class(self):
-        obj = LeafModel(title="title")
-        obj.save()
+        leaf = LeafModel(title="title")
+        leaf.save()
+        extra_leaf = ExtraLeafModel(title="title")
+        extra_leaf.save()
 
-        # always return the leaf class, no matter where we are in the hierarchy
-        self.failUnless(TrunkModel.objects.get(slug=obj.slug).\
-                as_leaf_class() == obj)
-        self.failUnless(BranchModel.objects.get(slug=obj.slug).\
-                as_leaf_class() == obj)
-        self.failUnless(LeafModel.objects.get(slug=obj.slug).\
-                as_leaf_class() == obj)
+        # Always return the leaf class, no matter where we are in the hierarchy
+        self.failUnless(TrunkModel.objects.get(slug=leaf.slug).\
+                as_leaf_class() == leaf)
+        self.failUnless(BranchModel.objects.get(slug=leaf.slug).\
+                as_leaf_class() == leaf)
+        self.failUnless(LeafModel.objects.get(slug=leaf.slug).\
+                as_leaf_class() == leaf)
+        self.failUnless(ModelBase.objects.get(slug=extra_leaf.slug).\
+                as_leaf_class() == extra_leaf)
 
     def test_vote_total(self):
         # create object with some votes
@@ -357,6 +362,20 @@ class ModelBaseTestCase(unittest.TestCase):
         obj.sites = [1]
         obj.publish()
         self.assertEqual(unicode(obj), u"Title (web.address.com)")
+
+    def test_get_absolute_url(self):
+        leaf = LeafModel.objects.create(title="title")
+        extra_leaf = ExtraLeafModel.objects.create(title="title")
+        # Leaf declares a url pattern
+        self.assertEqual(
+            leaf.get_absolute_url(),
+            "/tests/detail/%s/" % leaf.slug
+        )
+        # Extra Leaf does not declare a url pattern
+        self.assertEqual(
+            extra_leaf.get_absolute_url(),
+            "/jmbo/detail/%s/" % extra_leaf.slug
+        )
 
     @classmethod
     def tearDownClass(cls):

@@ -56,7 +56,7 @@ class ObjectList(ListView):
     params = {"extra_context": {"view_modifier": DefaultViewModifier}}
 
     def get_queryset(self):
-        qs =  self.model.permitted.filter(
+        qs = self.model.permitted.filter(
             content_type__app_label=self.kwargs["app_label"],
             content_type__model=self.kwargs["model"]
         )

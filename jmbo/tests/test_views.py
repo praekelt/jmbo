@@ -30,7 +30,7 @@ class ViewsTestCase(unittest.TestCase):
         self.failUnless('<div class="object-detail' in response.content)
 
     def test_list_view(self):
-        url = reverse("object_list", args=["jmbo", "modelbase"])
+        url = reverse("jmbo-modelbase-list", args=["jmbo", "modelbase"])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)

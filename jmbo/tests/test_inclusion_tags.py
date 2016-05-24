@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.test.client import Client, RequestFactory
 
 from jmbo.tests.models import BranchModel, LeafModel, TestModel
+from jmbo.tests.extra.models import LeafModel as ExtraLeafModel
 
 
 class InclusionTagsTestCase(unittest.TestCase):
@@ -27,6 +28,8 @@ class InclusionTagsTestCase(unittest.TestCase):
         cls.obj2.save()
         cls.obj3 = LeafModel(title="title 3", state="published")
         cls.obj3.save()
+        cls.obj4 = ExtraLeafModel(title="title 4", state="published")
+        cls.obj4.save()
 
     def test_render_tag(self):
         # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
@@ -45,12 +48,22 @@ class InclusionTagsTestCase(unittest.TestCase):
         expected = u"BranchModel block\n"
         self.failUnless(result, expected)
 
-        # "jmbo/inclusion_tags/modelbase_%s.html" % type
+        # LeafModel subclasses BranchModel and does not have its own detail
+        # template, thus it traverses upwards until a parent class provides a
+        # detail template.
         self.context = template.Context({"object": self.obj3})
         t = template.Template("""{% load jmbo_inclusion_tags %}\
 {% render_object object "test_block" %}""")
         result = t.render(self.context)
-        expected = u"ModelBase block\n"
+        expected = u"BranchModel block\n"
+        self.failUnlessEqual(result, expected)
+
+        # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
+        self.context = template.Context({"object": self.obj4})
+        t = template.Template("""{% load jmbo_inclusion_tags %}\
+{% render_object object "test_block" %}""")
+        result = t.render(self.context)
+        expected = u"ExtraLeafModel block\n"
         self.failUnlessEqual(result, expected)
 
         # No template was found

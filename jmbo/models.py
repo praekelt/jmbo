@@ -228,25 +228,18 @@ but users won't be able to add new likes."),
         return instance
 
     def get_absolute_url(self):
-        # Use jmbo naming convention, eg. we may have a view named
-        # 'post_object_detail'.
-
-        # Special case if leaf is actually a ModelBase
-        as_leaf_class = self.as_leaf_class()
-        if as_leaf_class.__class__ ==  ModelBase:
-            return reverse('object_detail', args=[self.slug])
-
-        # Typical case
-        try:
-            return reverse(
-                '%s_object_detail' \
-                    % as_leaf_class.__class__.__name__.lower(),
-                kwargs={'slug': self.slug}
-            )
-        except NoReverseMatch:
-            # Fallback
-            return reverse('object_detail', args=[self.slug])
-
+        # Reverse by traversing upwards and following naming convention
+        ct = self.content_type
+        kls = ct.model_class()
+        while (ct.app_label != "jmbo") and (ct.model != "modelbase"):
+            try:
+                return reverse(
+                    "%s-%s-detail" % (ct.app_label, ct.model), args=[self.slug]
+                )
+            except NoReverseMatch:
+                kls = kls.__bases__[0]
+                ct = ContentType.objects.get_for_model(kls)
+        return reverse("jmbo-modelbase-detail", args=[self.slug])
 
     def get_absolute_url_categorized(self):
         """Absolute url with category.
