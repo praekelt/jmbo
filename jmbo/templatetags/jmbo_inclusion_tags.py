@@ -39,16 +39,21 @@ class RenderObjectNode(template.Node):
         context.push()
         context['object'] = obj
 
-        # Template names follow typical Django naming convention but also
-        # provides legacy handling.
-        ctype = ContentType.objects.get_for_model(obj)
-        template_names = (
-            "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type),
-            "%s/%s/inclusion_tags/object_%s.html" % (ctype.app_label, ctype.model, type),
-            "%s/inclusion_tags/object_%s.html" % (ctype.app_label, type),
-            "jmbo/inclusion_tags/object_%s.html" % type,
-            "jmbo/inclusion_tags/modelbase_%s.html" % type
-        )
+        # Template names follow typical Django naming convention, but also
+        # traverse upwards over inheritance hierarchy.
+        template_names = []
+        ct = obj.content_type
+        kls = ct.model_class()
+        while ct.model != "imagemodel":
+            template_names.extend((
+                "%s/inclusion_tags/%s_%s.html" % \
+                    (ct.app_label, ct.model, type),
+                "%s/inclusion_tags/modelbase_%s.html" % \
+                    (ct.app_label, type),
+            ))
+            kls = kls.__bases__[0]
+            ct = ContentType.objects.get_for_model(kls)
+
         rendered = False
         for template_name in template_names:
             try:

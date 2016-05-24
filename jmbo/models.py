@@ -228,10 +228,11 @@ but users won't be able to add new likes."),
         return instance
 
     def get_absolute_url(self):
-        # Reverse by traversing upwards and following naming convention
+        # Reverse by traversing upwards over inheritance hierarchy and
+        # following naming convention.
         ct = self.content_type
         kls = ct.model_class()
-        while (ct.app_label != "jmbo") and (ct.model != "modelbase"):
+        while ct.model != "modelbase":
             try:
                 return reverse(
                     "%s-%s-detail" % (ct.app_label, ct.model), args=[self.slug]
