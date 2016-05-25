@@ -13,45 +13,41 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.contrib.admin import SimpleListFilter
 from django.conf import settings
 
 from category.models import Category
 from category.admin import CategoryAdmin
+from photologue.models import Photo
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Relation, ImageOverride
+from jmbo.models import ModelBase, Relation
 from jmbo import USE_GIS
 
 
-# Maintain backwards compatibility with Django versions < 1.4.
-try:
-    from django.contrib.admin import SimpleListFilter
+class CategoriesListFilter(SimpleListFilter):
+    title = "categories"
+    parameter_name = "category_slug"
 
-    class CategoriesListFilter(SimpleListFilter):
-        title = "categories"
-        parameter_name = "category_slug"
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return ((category.slug, category.title) \
+                for category in Category.objects.all())
 
-        def lookups(self, request, model_admin):
-            """
-            Returns a list of tuples. The first element in each
-            tuple is the coded value for the option that will
-            appear in the URL query. The second element is the
-            human-readable name for the option that will appear
-            in the right sidebar.
-            """
-            return ((category.slug, category.title) \
-                    for category in Category.objects.all())
-
-        def queryset(self, request, queryset):
-            """
-            Returns queryset filtered on categories and primary_category.
-            """
-            if self.value():
-                category = Category.objects.get(slug=self.value())
-                return queryset.filter(Q(primary_category=category) | \
-                        Q(categories=category))
-except ImportError:
-    CategoriesListFilter = 'categories'
+    def queryset(self, request, queryset):
+        """
+        Returns queryset filtered on categories and primary_category.
+        """
+        if self.value():
+            category = Category.objects.get(slug=self.value())
+            return queryset.filter(Q(primary_category=category) | \
+                    Q(categories=category))
 
 
 def make_published(modeladmin, request, queryset):
@@ -153,21 +149,16 @@ chopped off."""
         return self.cleaned_data
 
 
-class ImageOverrideInlineForm(forms.ModelForm):
+class ImageInlineForm(forms.ModelForm):
 
     class Meta:
-        model = ImageOverride
+        model = Photo
         exclude = ("crop_from",)
 
-    def __init__(self, *args, **kwargs):
-        super(ImageOverrideInlineForm, self).__init__(*args, **kwargs)
-        self.fields["photosize"].queryset = self.fields["photosize"].queryset.order_by("name")
 
-
-class ImageOverrideInline(admin.TabularInline):
-    form = ImageOverrideInlineForm
-    model = ImageOverride
-    exclude = ("crop_from",)
+class ImageInline(admin.TabularInline):
+    form = ImageInlineForm
+    model = Photo
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -181,7 +172,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
-    inlines = [ImageOverrideInline]
+    inlines = [ImageInline]
 
     # The Oracle database adapter is buggy and can't handle sites__sitesgroup
     try:

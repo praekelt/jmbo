@@ -1,5 +1,5 @@
-"""Patch photologue. There are migrations for this but the patch ensures the
-tests pass, because tests skip South migrations."""
+"""Patch photologue to allow null images.
+todo: may need to fix migrations to account for it."""
 
 from photologue.models import ImageModel, PhotoSize
 
@@ -30,79 +30,3 @@ def ImageModel_delete(self):
         self.image.storage.delete(self.image.name)
 
 ImageModel.delete = ImageModel_delete
-
-
-"""Patch photologue create_size so image overrides are considered."""
-from io import BytesIO
-
-from django.core.files.base import ContentFile
-
-from photologue.models import Image
-
-
-# Copy paste. No idea why it can't also be imported from photologue.models
-IMAGE_EXIF_ORIENTATION_MAP = {
-    1: 0,
-    8: 2,
-    3: 3,
-    6: 4,
-}
-
-
-def my_create_size(self, photosize):
-    if not self.image or self.size_exists(photosize):
-        return
-
-    # If we have an override then use it. Prevent circular import.
-    from jmbo.models import ModelBase
-    if isinstance(self, ModelBase):
-        from jmbo.models import ImageOverride
-        override = ImageOverride.objects.filter(
-            target=self.modelbase_obj, photosize=photosize
-        ).first()
-        image_model_obj = override if override else self
-    else:
-        image_model_obj = self
-
-    try:
-        im = Image.open(image_model_obj.image.storage.open(image_model_obj.image.name))
-    except IOError:
-        return
-    # Save the original format
-    im_format = im.format
-    # Apply effect if found
-    if image_model_obj.effect is not None:
-        im = image_model_obj.effect.pre_process(im)
-    elif photosize.effect is not None:
-        im = photosize.effect.pre_process(im)
-    # Resize/crop image
-    if im.size != photosize.size and photosize.size != (0, 0):
-        im = image_model_obj.resize_image(im, photosize)
-    # Rotate if found & necessary
-    if image_model_obj.EXIF.get('Image Orientation', None) is not None:
-        im = im.transpose(IMAGE_EXIF_ORIENTATION_MAP[image_model_obj.EXIF.get('Image Orientation', 1).values[0]])
-    # Apply watermark if found
-    if photosize.watermark is not None:
-        im = photosize.watermark.post_process(im)
-    # Apply effect if found
-    if image_model_obj.effect is not None:
-        im = image_model_obj.effect.post_process(im)
-    elif photosize.effect is not None:
-        im = photosize.effect.post_process(im)
-    # Save file
-    im_filename = getattr(self, "get_%s_filename" % photosize.name)()
-    try:
-        buffer = BytesIO()
-        if im_format != 'JPEG':
-            im.save(buffer, im_format)
-        else:
-            im.save(buffer, 'JPEG', quality=int(photosize.quality),
-                    optimize=True)
-        buffer_contents = ContentFile(buffer.getvalue())
-        image_model_obj.image.storage.save(im_filename, buffer_contents)
-    except IOError as e:
-        if image_model_obj.image.storage.exists(im_filename):
-            image_model_obj.image.storage.delete(im_filename)
-        raise e
-
-#ImageModel.create_size = my_create_size

@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.core.cache import cache
 
 import django_comments
-from photologue.models import ImageModel
+from photologue.models import ImageModel, Photo
 from preferences import Preferences
 import secretballot
 from secretballot.models import Vote
@@ -197,6 +197,7 @@ but users won't be able to add new likes."),
     )
     comment_count = models.PositiveIntegerField(default=0, editable=False)
     vote_total = models.PositiveIntegerField(default=0, editable=False)
+    images = models.ManyToManyField(Photo, null=True, blank=True, through="ModelBaseImages")
 
     class Meta:
         ordering = ("-publish_on", "-created")
@@ -567,6 +568,12 @@ but users won't be able to add new likes."),
             self.save()
 
 
+class ModelBaseImages(models.Model):
+    modelbase_obj = models.ForeignKey(ModelBase)
+    image = models.ForeignKey(Photo, related_name="image_link_to_modelbase")
+    position = models.PositiveIntegerField(default=0)
+
+
 class Relation(models.Model):
     """Generic relation between two objects"""
     source_content_type = models.ForeignKey(
@@ -599,20 +606,6 @@ typically never changed."
             "target_object_id", "name"
         ),)
 
-
-class ImageOverride(ImageModel):
-    """Model that allows a specific curated image to override a scale that
-    would normally be generated."""
-
-    target = models.ForeignKey(ModelBase, editable=False)
-    photosize = models.ForeignKey("photologue.PhotoSize")
-
-    class Meta:
-        verbose_name = _("Image override")
-        verbose_name_plural = _("Image overrides")
-
-    def __unicode__(self):
-        return _("Override for %s") % self.photosize.name
 
 def set_managers(sender, **kwargs):
     """
