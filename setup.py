@@ -20,7 +20,7 @@ setup(
         'django-pagination-fork>=1.0.17',
         'django-preferences',
         'django-photologue>=3.3',
-        'django-sites-groups',
+        'django-sites-groups>=1.9.1',
         'django-ultracache>=1.9',
     ],
     include_package_data=True,

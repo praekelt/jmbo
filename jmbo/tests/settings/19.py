@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     "pagination",
     "preferences",
     "ultracache",
+    "sites_groups",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
