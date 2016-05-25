@@ -1,3 +1,5 @@
+-e git+https://github.com/hedleyroos/django-secretballot.git#egg=django-secretballot
+
 Django==1.9.6
 django-category==1.9
 django-contrib-comments==1.7.1
@@ -8,12 +10,12 @@ django-pagination==1.0.7
 django-pagination-fork==1.0.17
 django-photologue==3.5.1
 django-preferences==0.0.2
-django-secretballot==0.5.0
+#django-secretballot==0.5.0
 django-sites-groups==1.9.1
 django-sortedm2m==1.2.2
 django-ultracache==1.9.0
 ExifRead==2.1.2
-jmbo==2.0.16
+#jmbo==2.0.16
 Pillow==3.2.0
 #psycopg2==2.6.1
 pytz==2016.4

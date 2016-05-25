@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.sessions",
     "django.contrib.sites",
 )
 
@@ -83,6 +84,8 @@ SECRET_KEY = "SECRET_KEY"
 TEMPLATE_DIRS = (
     os.path.realpath(os.path.dirname(__file__)) + "/../templates/",
 )
+
+DEBUG = True
 
 # Ultracache triggers lazy creation of content types. This prevents that code
 # path.

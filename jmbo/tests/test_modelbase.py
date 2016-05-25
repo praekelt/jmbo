@@ -38,10 +38,8 @@ class ModelBaseTestCase(unittest.TestCase):
         cls.web_site.save()
         cls.mobile_site = Site(id=2, domain="mobi.address.com")
         cls.mobile_site.save()
-        print "before load_photosizes"
         call_command("load_photosizes")
         PhotoSizeCache().reset()
-        print "after load_photosizes"
 
     def test_save(self):
         before_save = timezone.now()

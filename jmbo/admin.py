@@ -67,7 +67,7 @@ class ModelBaseAdminForm(forms.ModelForm):
 
     class Meta:
         model = ModelBase
-        exclude = ['state']
+        exclude = ('state', 'effect_id', 'primary_category_id', 'owner_id')
         widgets = {'sites': SitesGroupsWidget}
 
     def __init__(self, *args, **kwargs):
@@ -149,16 +149,8 @@ chopped off."""
         return self.cleaned_data
 
 
-class ImageInlineForm(forms.ModelForm):
-
-    class Meta:
-        model = Photo
-        exclude = ("crop_from",)
-
-
 class ImageInline(admin.TabularInline):
-    form = ImageInlineForm
-    model = Photo
+    model = ModelBase.images.through
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -168,11 +160,11 @@ class ModelBaseAdmin(admin.ModelAdmin):
     # template.
     change_form_template = 'admin/jmbo/change_form.html'
 
-    actions = [make_published, make_unpublished]
+    actions = (make_published, make_unpublished)
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
-    inlines = [ImageInline]
+    inlines = (ImageInline,)
 
     # The Oracle database adapter is buggy and can't handle sites__sitesgroup
     try:

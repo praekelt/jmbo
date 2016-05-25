@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('photologue', '0011_auto_20160525_1456'),
+        ('photologue', '0010_auto_20160105_1307'),
         ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('sites', '0002_alter_domain_unique'),

@@ -1,13 +1,17 @@
 from importlib import import_module
 
 from django.conf.urls import patterns, include, url
+from django.contrib import admin
 from django.conf import settings
 
 from jmbo.views import ObjectDetail, ObjectList
 
 
+admin.autodiscover()
+
 urlpatterns = patterns(
     "",
+    (r"^admin/", include(admin.site.urls)),
     (r"^jmbo/", include("jmbo.urls")),
     (r"^comments/", include("django_comments.urls")),
 
