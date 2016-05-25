@@ -105,4 +105,4 @@ def my_create_size(self, photosize):
             image_model_obj.image.storage.delete(im_filename)
         raise e
 
-ImageModel.create_size = my_create_size
+#ImageModel.create_size = my_create_size

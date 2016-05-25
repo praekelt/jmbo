@@ -464,14 +464,23 @@ but users won't be able to add new likes."),
     @property
     def image_detail_url(self):
         """If a photosize is defined for the content type return the
-        corresponding image URL, else return modelbase detail default image
-        URL. This allows content types which may typically have images which
-        are not landscaped (eg human faces) to define their own sizes."""
-        method = "get_%s_detail_url" % self.as_leaf_class().__class__.__name__.lower()
-        if hasattr(self, method):
-            return getattr(self, method)()
-        else:
-            return getattr(self, "get_modelbase_detail_url")()
+        corresponding image URL, else traverse upwards over inheritance
+        hierarchy until a URL is found.  This allows content types which may
+        typically have images which are not landscaped (eg human faces) to
+        define their own sizes."""
+
+        ct = self.content_type
+        kls = ct.model_class()
+        while ct.model != "imagemodel":
+            method = "get_%s_%s_detail_url" % (ct.app_label, ct.model)
+            if hasattr(self, method):
+                print "image_detail_url returns %s" % method
+                return getattr(self, method)()
+            else:
+                kls = kls.__bases__[0]
+                ct = ContentType.objects.get_for_model(kls)
+
+        return self.get_jmbo_modelbase_detail_url()
 
     @property
     def image_list_url(self):

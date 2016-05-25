@@ -1,12 +1,15 @@
+import os
 import unittest
 
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
+from django.core.files.base import ContentFile
 
 from category.models import Category
 import django_comments
+from photologue.models import PhotoSizeCache
 from secretballot.models import Vote
 
 from jmbo.models import ModelBase, Relation
@@ -14,6 +17,17 @@ from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
     BranchModel, LeafModel, TestModel
 from jmbo.tests.extra.models import LeafModel as ExtraLeafModel
+
+
+RES_DIR = os.path.join(os.path.dirname(__file__), "res")
+IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
+
+
+def set_image(obj):
+    obj.image.save(
+        os.path.basename(IMAGE_PATH),
+        ContentFile(open(IMAGE_PATH, "rb").read())
+    )
 
 
 class ModelBaseTestCase(unittest.TestCase):
@@ -24,6 +38,10 @@ class ModelBaseTestCase(unittest.TestCase):
         cls.web_site.save()
         cls.mobile_site = Site(id=2, domain="mobi.address.com")
         cls.mobile_site.save()
+        print "before load_photosizes"
+        call_command("load_photosizes")
+        PhotoSizeCache().reset()
+        print "after load_photosizes"
 
     def test_save(self):
         before_save = timezone.now()
@@ -429,6 +447,30 @@ class ModelBaseTestCase(unittest.TestCase):
         )
         self.assertEqual(obj1.get_permitted_related_items()[0].id, obj2.id)
         self.failIf(obj3 in obj1.get_permitted_related_items())
+
+    def test_image_detail_url(self):
+        leaf = LeafModel.objects.create(title="title")
+        set_image(leaf)
+        extra_leaf = ExtraLeafModel.objects.create(title="title")
+        set_image(extra_leaf)
+
+        # Leaf gets image from BranchModel
+        self.assertTrue(
+            leaf.image_detail_url.startswith("photologue/photos/cache/image_")
+        )
+        self.assertTrue(
+            leaf.image_detail_url.endswith("_tests_branchmodel_detail.jpg")
+        )
+
+        # Extra Leaf gets image from ModelBase
+        self.assertTrue(
+            extra_leaf.image_detail_url.startswith(
+                "photologue/photos/cache/image_"
+            )
+        )
+        self.assertTrue(
+            extra_leaf.image_detail_url.endswith("_jmbo_modelbase_detail.jpg")
+        )
 
     @classmethod
     def tearDownClass(cls):
