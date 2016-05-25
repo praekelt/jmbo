@@ -411,7 +411,7 @@ but users won't be able to add new likes."),
         """
         Calculates vote total (+1 for upvote and -1 for downvote). We are
         adding a method here instead of relying on django-secretballot"s
-        addition since that doesn"t work for subclasses.
+        addition since that doesn't work for subclasses.
         """
         votes = Vote.objects.filter(object_id= \
             self.id).aggregate(Sum("vote"))["vote__sum"]
@@ -431,17 +431,10 @@ but users won't be able to add new likes."),
             model="modelbase"
         )
 
-        # Compute site id range. This is a slight pollution from jmbo-foundry
-        # but we don"t want to monkey patch Jmbo itself.
-        # xxx: fix this crap hedley!
-        i = settings.SITE_ID / 10
-        site_ids = range(i * 10 + 1, (i + 1) * 10)
-
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(
             content_type__in=[self.content_type, modelbase_content_type],
             object_pk=smart_unicode(self.pk),
-            site__pk__in = site_ids,
         )
 
         # The is_public and is_removed fields are implementation details of the
