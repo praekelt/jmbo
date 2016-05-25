@@ -472,6 +472,30 @@ class ModelBaseTestCase(unittest.TestCase):
             extra_leaf.image_detail_url.endswith("_jmbo_modelbase_detail.jpg")
         )
 
+    def test_image_list_url(self):
+        leaf = LeafModel.objects.create(title="title")
+        set_image(leaf)
+        extra_leaf = ExtraLeafModel.objects.create(title="title")
+        set_image(extra_leaf)
+
+        # Leaf gets image from BranchModel
+        self.assertTrue(
+            leaf.image_list_url.startswith("photologue/photos/cache/image_")
+        )
+        self.assertTrue(
+            leaf.image_list_url.endswith("_tests_branchmodel_list.jpg")
+        )
+
+        # Extra Leaf gets image from ModelBase
+        self.assertTrue(
+            extra_leaf.image_list_url.startswith(
+                "photologue/photos/cache/image_"
+            )
+        )
+        self.assertTrue(
+            extra_leaf.image_list_url.endswith("_jmbo_modelbase_list.jpg")
+        )
+
     @classmethod
     def tearDownClass(cls):
         Site.objects.all().delete()

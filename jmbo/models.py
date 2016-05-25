@@ -461,8 +461,7 @@ but users won't be able to add new likes."),
         # Return amount of items in qs
         return qs.count()
 
-    @property
-    def image_detail_url(self):
+    def _get_image_url(self, type="detail"):
         """If a photosize is defined for the content type return the
         corresponding image URL, else traverse upwards over inheritance
         hierarchy until a URL is found.  This allows content types which may
@@ -472,27 +471,22 @@ but users won't be able to add new likes."),
         ct = self.content_type
         kls = ct.model_class()
         while ct.model != "imagemodel":
-            method = "get_%s_%s_detail_url" % (ct.app_label, ct.model)
+            method = "get_%s_%s_%s_url" % (ct.app_label, ct.model, type)
             if hasattr(self, method):
-                print "image_detail_url returns %s" % method
                 return getattr(self, method)()
             else:
                 kls = kls.__bases__[0]
                 ct = ContentType.objects.get_for_model(kls)
 
-        return self.get_jmbo_modelbase_detail_url()
+        return getattr(self, "get_jmbo_modelbase_%s_url" % type)()
+
+    @property
+    def image_detail_url(self):
+        return self._get_image_url("detail")
 
     @property
     def image_list_url(self):
-        """If a photosize is defined for the content type return the
-        corresponding image URL, else return modelbase detail default image
-        URL. This allows content types which may typically have images which
-        are not landscaped (eg human faces) to define their own sizes."""
-        method = "get_%s_list_url" % self.as_leaf_class().__class__.__name__.lower()
-        if hasattr(self, method):
-            return getattr(self, method)()
-        else:
-            return getattr(self, "get_modelbase_list_url")()
+        return self._get_image_url("list")
 
     def get_related_items(self, name=None, direction="forward", permitted=False):
         """If direction is forward get items self points to by name name. If
