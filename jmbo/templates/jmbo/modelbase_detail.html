@@ -15,7 +15,7 @@
         <meta property="og:title" content="{{ object.title }}" />
         <meta property="og:type" content="article"/>
         <meta property="og:url" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.get_absolute_url }}" />
-        {% if object.image %}
+        {% if object.canonical_image %}
             <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.image_detail_url }}" />
         {% endif %}
         <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
