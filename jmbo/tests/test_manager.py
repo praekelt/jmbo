@@ -32,28 +32,12 @@ class PermittedManagerTestCase(unittest.TestCase):
         published_obj.sites.add(self.web_site)
         published_obj.save()
 
-        # create staging item
-        staging_obj = ModelBase(title="title", state="staging")
-        staging_obj.save()
-        staging_obj.sites.add(self.web_site)
-        staging_obj.save()
-
         # unpublished objects should not be available in queryset
         queryset = ModelBase.permitted.all()
         self.failIf(unpublished_obj in queryset)
 
         # published objects should always be available in queryset
         self.failUnless(published_obj in queryset)
-
-        # Staging objects should only be available on instances
-        # that define settings.STAGING = True.
-        from django.conf import settings
-        settings.STAGING = False
-        queryset = ModelBase.permitted.all()
-        self.failIf(staging_obj in queryset)
-        settings.STAGING = True
-        queryset = ModelBase.permitted.all()
-        self.failUnless(staging_obj in queryset)
 
         # queryset should only contain items for the current site
         published_obj_web = ModelBase(state="published")

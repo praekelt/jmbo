@@ -183,13 +183,6 @@ class ModelBaseAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
-            'Image',
-            {
-                'fields': ('image', 'crop_from', 'image_attribution'),
-                'classes': ()
-            }
-        ),
-        (
             'Publishing',
             {
                 'fields': ('sites', 'publish_on', 'retract_on'),
@@ -235,15 +228,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
             set_fields += fieldset[1]['fields']
 
         new_fields = []
-        for name in model._meta.get_all_field_names():
-            try:
-                field = model._meta.get_field(name)
-            except FieldDoesNotExist:
-                continue
+        for field in model._meta.get_fields():
+            name = field.name
 
-            # Don't include through relation if it has more than 5 fields
+            # Don't include through relation if it has more than 3 fields
             try:
-                if len(field.rel.through._meta.get_all_field_names()) > 5:
+                if len(field.rel.through._meta.get_fields()) > 3:
                     continue
             except AttributeError:
                 pass

@@ -12,7 +12,7 @@ import django_comments
 from photologue.models import PhotoSizeCache
 from secretballot.models import Vote
 
-from jmbo.models import ModelBase, Relation
+from jmbo.models import ModelBase, Relation, Image, ModelBaseImage
 from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
     BranchModel, LeafModel, TestModel
@@ -24,10 +24,12 @@ IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
 
 
 def set_image(obj):
-    obj.image.save(
+    image = Image.objects.create(title=IMAGE_PATH)
+    image.image.save(
         os.path.basename(IMAGE_PATH),
         ContentFile(open(IMAGE_PATH, "rb").read())
     )
+    ModelBaseImage.objects.create(modelbase=obj, image=image)
 
 
 class ModelBaseTestCase(unittest.TestCase):
@@ -86,6 +88,14 @@ class ModelBaseTestCase(unittest.TestCase):
         # Correct leaf class class name should be
         # retained over base class" class name.
         self.failUnless(base.class_name == DummyModel.__name__)
+
+        # Setting an image directly must raise
+        with self.assertRaises(RuntimeError):
+            obj.image.save(
+                os.path.basename(IMAGE_PATH),
+                ContentFile(open(IMAGE_PATH, "rb").read())
+            )
+            obj.save()
 
     def test_unique_slugs(self):
         # create 2 sites
@@ -168,25 +178,11 @@ class ModelBaseTestCase(unittest.TestCase):
         published_obj.sites.add(self.web_site)
         published_obj.save()
 
-        # create staging item
-        staging_obj = ModelBase(title="title", state="staging")
-        staging_obj.save()
-        staging_obj.sites.add(self.web_site)
-        staging_obj.save()
-
         # is_permitted should be False for unpublished objects
         self.failIf(unpublished_obj.is_permitted)
 
         # is_permitted should be True for published objects
         self.failUnless(published_obj.is_permitted)
-
-        # Is_permitted should be True for otherwise published objects in
-        # the staging state for instances that define settings.STAGING = True.
-        from django.conf import settings
-        settings.STAGING = False
-        self.failIf(staging_obj.is_permitted)
-        settings.STAGING = True
-        self.failUnless(staging_obj.is_permitted)
 
         # Is_permitted should be True only if the object is
         # published for the current site.

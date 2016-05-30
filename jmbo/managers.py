@@ -51,11 +51,6 @@ class PermittedManager(BaseManager):
                 state='unpublished'
             )
 
-        # Exclude objects in staging state if not in
-        # staging mode (settings.STAGING = False).
-        if not getattr(settings, 'STAGING', False):
-            queryset = queryset.exclude(state='staging')
-
         # Filter objects for current site
         queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
 

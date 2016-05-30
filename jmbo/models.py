@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.core.cache import cache
 
 import django_comments
-from photologue.models import ImageModel, Photo
+from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
 from secretballot.models import Vote
@@ -27,6 +27,34 @@ from jmbo import monkey
 
 class JmboPreferences(Preferences):
     __module__ = "preferences.models"
+
+
+class Image(ImageModel):
+    title = models.CharField(
+        _("Title"),
+        max_length=200,
+        db_index=True,
+        help_text=_("A short descriptive title."),
+    )
+    subtitle = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        default="",
+        help_text=_("Some titles may be the same and cause confusion in admin \
+UI. A subtitle makes a distinction."),
+    )
+    attribution = models.CharField(
+        max_length=256,
+        blank=True,
+        null=True,
+        help_text=_("Attribution for the image, eg. Shutterstock.")
+    )
+
+    def __unicode__(self):
+        if self.subtitle:
+            return "%s - %s" % (self.title, self.subtitle)
+        return self.title
 
 
 class ModelBase(ImageModel):
@@ -188,15 +216,9 @@ but users won't be able to add new likes."),
             null=True,
             help_text=_("A location that can be used for content filtering."),
         )
-    image_attribution = models.CharField(
-        max_length=256,
-        blank=True,
-        null=True,
-        help_text=_("Attribution for the canonical image, eg. Shutterstock.")
-    )
     comment_count = models.PositiveIntegerField(default=0, editable=False)
     vote_total = models.PositiveIntegerField(default=0, editable=False)
-    images = models.ManyToManyField(Photo, null=True, blank=True, through="ModelBaseImages")
+    images = models.ManyToManyField(Image, null=True, blank=True, through="ModelBaseImage")
 
     class Meta:
         ordering = ("-publish_on", "-created")
@@ -262,6 +284,10 @@ but users won't be able to add new likes."),
         return self.get_absolute_url(category)
 
     def save(self, *args, **kwargs):
+        if self.image:
+            raise RuntimeError, "Do not set the image field directly. \
+                Use the add_image method."""
+
         now = timezone.now()
 
         # set created time to now if not already set.
@@ -338,9 +364,6 @@ but users won't be able to add new likes."),
             return False
         elif self.state == "published":
             return for_site()
-        elif self.state == "staging":
-            if getattr(settings, "STAGING", False):
-                return for_site()
 
         return False
 
@@ -355,7 +378,6 @@ but users won't be able to add new likes."),
             """
             link_name = self._meta.get_ancestor_link(ModelBase).name
             return getattr(self, link_name)
-
 
     def can_vote(self, request):
         """
@@ -461,6 +483,10 @@ but users won't be able to add new likes."),
         # Return amount of items in qs
         return qs.count()
 
+    @property
+    def canonical_image(self):
+        return self.images.all().first()
+
     def _get_image_url(self, type="detail"):
         """If a photosize is defined for the content type return the
         corresponding image URL, else traverse upwards over inheritance
@@ -468,17 +494,21 @@ but users won't be able to add new likes."),
         typically have images which are not landscaped (eg human faces) to
         define their own sizes."""
 
+        image = self.canonical_image
+        if not image:
+            return None
+
         ct = self.content_type
         kls = ct.model_class()
         while ct.model != "imagemodel":
             method = "get_%s_%s_%s_url" % (ct.app_label, ct.model, type)
-            if hasattr(self, method):
-                return getattr(self, method)()
+            if hasattr(image, method):
+                return getattr(image, method)()
             else:
                 kls = kls.__bases__[0]
                 ct = ContentType.objects.get_for_model(kls)
 
-        return getattr(self, "get_jmbo_modelbase_%s_url" % type)()
+        return getattr(image, "get_jmbo_modelbase_%s_url" % type)()
 
     @property
     def image_detail_url(self):
@@ -567,10 +597,13 @@ but users won't be able to add new likes."),
             self.save()
 
 
-class ModelBaseImages(models.Model):
-    modelbase_obj = models.ForeignKey(ModelBase)
-    image = models.ForeignKey(Photo, related_name="image_link_to_modelbase")
+class ModelBaseImage(models.Model):
+    modelbase = models.ForeignKey(ModelBase)
+    image = models.ForeignKey(Image, related_name="image_link_to_modelbase")
     position = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ("position",)
 
 
 class Relation(models.Model):
