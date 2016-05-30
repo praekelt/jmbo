@@ -89,14 +89,6 @@ class ModelBaseTestCase(unittest.TestCase):
         # retained over base class" class name.
         self.failUnless(base.class_name == DummyModel.__name__)
 
-        # Setting an image directly must raise
-        with self.assertRaises(RuntimeError):
-            obj.image.save(
-                os.path.basename(IMAGE_PATH),
-                ContentFile(open(IMAGE_PATH, "rb").read())
-            )
-            obj.save()
-
     def test_unique_slugs(self):
         # create 2 sites
         site_1 = Site(id=201, domain="site1.example.com")

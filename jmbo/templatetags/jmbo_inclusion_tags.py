@@ -1,5 +1,6 @@
 import warnings
 
+from django.db import models
 from django import template
 from django.template import TemplateDoesNotExist
 from django.contrib.contenttypes.models import ContentType
@@ -44,7 +45,7 @@ class RenderObjectNode(template.Node):
         template_names = []
         ct = obj.content_type
         kls = ct.model_class()
-        while ct.model != "imagemodel":
+        while ct.model != "model":
             template_names.extend((
                 "%s/inclusion_tags/%s_%s.html" % \
                     (ct.app_label, ct.model, type),
@@ -52,6 +53,8 @@ class RenderObjectNode(template.Node):
                     (ct.app_label, type),
             ))
             kls = kls.__bases__[0]
+            if kls == models.Model:
+                break
             ct = ContentType.objects.get_for_model(kls)
 
         rendered = False

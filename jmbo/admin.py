@@ -73,6 +73,7 @@ class ModelBaseAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
 
+        '''
         self.fields['image'].help_text = """An image can be in format JPG, \
 PNG or GIF. Images are scaled to the appropriate size when people browse to \
 the site on mobile browsers, so always upload an image that will look good on \
@@ -86,6 +87,7 @@ chopped off."""
 
         # We want image to be optional, unlike photologue
         self.fields['image'].required = False
+        '''
 
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
@@ -115,6 +117,7 @@ chopped off."""
             # Select all sites initially
             self.fields['sites'].initial = Site.objects.all()
 
+    '''
     def clean_image(self):
         image = self.cleaned_data['image']
         if image:
@@ -126,6 +129,7 @@ chopped off."""
                     "The image is either invalid or unsupported."
                 )
         return image
+    '''
 
     def clean(self):
         """

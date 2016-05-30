@@ -3,7 +3,7 @@
 <div class="detail-inclusion">
     {% block content %}
         {% ultracache 1200 'object-detail-inclusion' object.id object.modified %}
-            {% if object.canonical_image %}
+            {% if object.image %}
                 <img src="{{ object.image_detail_url }}" />
                 {% if object.image_attribution %}
                     <div class="attribution">{{ object.image_attribution }}</div>

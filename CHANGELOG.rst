@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Django 1.9 compatibility.
+
 2.0.16
 ------
 #. Special migration handling for a special database - Oracle.

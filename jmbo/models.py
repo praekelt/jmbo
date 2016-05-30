@@ -57,7 +57,7 @@ UI. A subtitle makes a distinction."),
         return self.title
 
 
-class ModelBase(ImageModel):
+class ModelBase(models.Model):
     objects = DefaultManager()
     permitted = PermittedManager()
 
@@ -249,7 +249,7 @@ but users won't be able to add new likes."),
         # following naming convention.
         ct = self.content_type
         kls = ct.model_class()
-        while ct.model != "imagemodel":
+        while ct.model != "model":
             try:
                 if category is None:
                     return reverse(
@@ -263,6 +263,8 @@ but users won't be able to add new likes."),
                     )
             except NoReverseMatch:
                 kls = kls.__bases__[0]
+                if kls == models.Model:
+                    break
                 ct = ContentType.objects.get_for_model(kls)
 
         return reverse("jmbo-modelbase-detail", args=[self.slug])
@@ -284,10 +286,6 @@ but users won't be able to add new likes."),
         return self.get_absolute_url(category)
 
     def save(self, *args, **kwargs):
-        if self.image:
-            raise RuntimeError, "Do not set the image field directly. \
-                Use the add_image method."""
-
         now = timezone.now()
 
         # set created time to now if not already set.
@@ -484,7 +482,7 @@ but users won't be able to add new likes."),
         return qs.count()
 
     @property
-    def canonical_image(self):
+    def image(self):
         return self.images.all().first()
 
     def _get_image_url(self, type="detail"):
@@ -494,18 +492,20 @@ but users won't be able to add new likes."),
         typically have images which are not landscaped (eg human faces) to
         define their own sizes."""
 
-        image = self.canonical_image
+        image = self.image
         if not image:
             return None
 
         ct = self.content_type
         kls = ct.model_class()
-        while ct.model != "imagemodel":
+        while ct.model != "model":
             method = "get_%s_%s_%s_url" % (ct.app_label, ct.model, type)
             if hasattr(image, method):
                 return getattr(image, method)()
             else:
                 kls = kls.__bases__[0]
+                if kls == models.Model:
+                    break
                 ct = ContentType.objects.get_for_model(kls)
 
         return getattr(image, "get_jmbo_modelbase_%s_url" % type)()
