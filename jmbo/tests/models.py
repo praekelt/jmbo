@@ -65,4 +65,4 @@ class LeafModel(BranchModel):
 
 
 class TestModel(ModelBase):
-    pass
+    autosave_fields = ("title",)

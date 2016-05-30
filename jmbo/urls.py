@@ -28,24 +28,4 @@ urlpatterns = patterns(
         ObjectList.as_view(),
         name="jmbo-modelbase-list"
     ),
-
-    # Admin ajax urls
-    (
-        r"^admin/jmbo/publish-ajax/$",
-        "jmbo.admin_views.publish_ajax",
-        {},
-        "jmbo-publish-ajax",
-    ),
-    (
-        r"^admin/jmbo/unpublish-ajax/$",
-        "jmbo.admin_views.unpublish_ajax",
-        {},
-        "jmbo-unpublish-ajax",
-    ),
-    (
-        r"^admin/jmbo/edit-autosave-ajax/$",
-        "jmbo.admin_views.edit_autosave_ajax",
-        {},
-        "jmbo-edit-autosave-ajax",
-    ),
 )

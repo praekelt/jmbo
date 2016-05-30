@@ -1,24 +1,21 @@
 import os
 from copy import deepcopy
-import struct
 from PIL import Image
 
 from django.db.models import Q
-from django.db.models.fields import FieldDoesNotExist
 from django import forms
 from django.contrib import admin
-from django.contrib.admin.sites import AlreadyRegistered
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.admin import SimpleListFilter
+from django.conf.urls import patterns, url
+from django.http import HttpResponse
 from django.conf import settings
 
 from category.models import Category
-from category.admin import CategoryAdmin
-from photologue.models import Photo
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Relation
@@ -323,18 +320,82 @@ class ModelBaseAdmin(admin.ModelAdmin):
         # customize change_list.html.
         result = ''
         if obj.state == 'unpublished':
-            url = "%s?id=%s" % (reverse('jmbo-publish-ajax'), obj.id)
+            url = "%s?id=%s" % (reverse('admin:jmbo-publish-ajax'), obj.id)
             result += '''<a href="%s" \
 onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Published'); return false;">
 Publish</a><br />''' % (url, url)
         if obj.state == 'published':
-            url = "%s?id=%s" % (reverse('jmbo-unpublish-ajax'), obj.id)
+            url = "%s?id=%s" % (reverse('admin:jmbo-unpublish-ajax'), obj.id)
             result += '''<a href="%s" \
 onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Unpublished'); return false;">
 Unpublish</a><br />''' % (url, url)
         return result
     _actions.short_description = 'Actions'
     _actions.allow_tags = True
+
+    def publish_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.GET["id"])
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        obj.publish()
+        return HttpResponse("published")
+
+    def unpublish_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.GET["id"])
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        obj.unpublish()
+        return HttpResponse("unpublished")
+
+    def autosave_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.POST["id"]).as_leaf_class()
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        changes = False
+        for field in getattr(obj, "autosave_fields", []):
+            new_value = request.POST.get(field)
+            old_value = getattr(obj, field)
+            if new_value != old_value:
+                setattr(obj, field, new_value)
+                changes = True
+        if changes:
+            obj.save()
+
+        return HttpResponse("1")
+
+    def get_urls(self):
+        urls = super(ModelBaseAdmin, self).get_urls()
+        my_urls = patterns("",
+            url(
+                r'^publish-ajax/$',
+                self.admin_site.admin_view(self.publish_ajax),
+                name="jmbo-publish-ajax"
+            ),
+            url(
+                r'^unpublish-ajax/$',
+                self.admin_site.admin_view(self.unpublish_ajax),
+                name="jmbo-unpublish-ajax"
+            ),
+            url(
+                r'^jmbo-autosave-ajax/$',
+                self.admin_site.admin_view(self.autosave_ajax),
+                name="jmbo-autosave-ajax"
+            ),
+
+        )
+        return my_urls + urls
 
 
 class RelationAdminForm(forms.ModelForm):
