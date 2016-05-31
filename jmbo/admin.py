@@ -19,6 +19,7 @@ from category.models import Category
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo.models import ModelBase, Relation
+from jmbo.utils import generate_slug
 from jmbo import USE_GIS
 
 
@@ -134,6 +135,13 @@ chopped off."""
         check in clean method because sites need to be available in
         cleaned_data.
         """
+
+        # Set slug on a clone and do no further validation
+        if '_saveasnew' in self.data:
+            cleaned_data = self.cleaned_data
+            cleaned_data['slug'] = generate_slug(self.instance, cleaned_data['title'])
+            return cleaned_data
+
         slug = self.cleaned_data.get('slug')
         if slug:
             # Check if any combination of slug and site exists.

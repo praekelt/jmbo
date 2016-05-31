@@ -1,5 +1,5 @@
 {% comment %}
-Based on contrib/admin/templates/admin/submit_line.html version 1.6.8. Adds
+Based on contrib/admin/templates/admin/submit_line.html version 1.9. Adds
 buttons "Save and publish" and "Save and unpublish". Changes wording on Save as
 New.
 {% endcomment %}
@@ -13,7 +13,7 @@ New.
     {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
     <p class="deletelink-box"><a href="{% add_preserved_filters delete_url %}" class="deletelink">{% trans "Delete" %}</a></p>
 {% endif %}
-{% if show_save_as_new %}<input type="submit" value="{% trans 'Clone this item' %}" name="_saveasnew" />{%endif%}
+{% if show_save_as_new %}<input type="submit" value="{% trans 'Clone this item' %}" name="_saveasnew" />{% endif %}
 {% if show_save_and_add_another %}<input type="submit" value="{% trans 'Save and add another' %}" name="_addanother" />{% endif %}
 {% if show_save_and_continue %}<input type="submit" value="{% trans 'Save and continue editing' %}" name="_continue" />{% endif %}
 </div>

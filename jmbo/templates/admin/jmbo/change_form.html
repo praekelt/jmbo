@@ -27,7 +27,7 @@ Add autosave javascript.
 
             data.push({'name': 'id', 'value': {{ adminform.form.instance.id }}});
             $.ajax({
-                url: '{% url "jmbo-edit-autosave-ajax" %}',
+                url: '{% url "admin:jmbo-autosave-ajax" %}',
                 data: data,
                 type: 'POST',
                 cache: false,
