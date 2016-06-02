@@ -1,6 +1,6 @@
 from importlib import import_module
 
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 
@@ -9,11 +9,10 @@ from jmbo.views import ObjectDetail, ObjectList
 
 admin.autodiscover()
 
-urlpatterns = patterns(
-    "",
-    (r"^admin/", include(admin.site.urls)),
-    (r"^jmbo/", include("jmbo.urls")),
-    (r"^comments/", include("django_comments.urls")),
+urlpatterns = [
+    url(r"^admin/", include(admin.site.urls)),
+    url(r"^jmbo/", include("jmbo.urls")),
+    url(r"^comments/", include("django_comments.urls")),
 
     url(
         r"^tests/detail/(?P<slug>[\w-]+)/$",
@@ -32,5 +31,4 @@ urlpatterns = patterns(
         ObjectDetail.as_view(),
         name="tests-leafmodel-categorized-detail"
     ),
-
-)
+]

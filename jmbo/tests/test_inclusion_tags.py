@@ -74,9 +74,6 @@ class InclusionTagsTestCase(unittest.TestCase):
         self.failUnlessEqual(result, expected_result)
 
     def test_header_tag(self):
-        """Provide a custom object_header because default has dependencies that
-        require request to be annotated and it is hard to fake without an HTTP
-        call"""
         self.context = template.Context({"object": self.obj1, "request": self.request})
         t = template.Template("{% load jmbo_inclusion_tags %}\
 {% object_header object %}")
@@ -98,3 +95,13 @@ class InclusionTagsTestCase(unittest.TestCase):
 {% object_comments object %}")
         result = t.render(self.context)
         self.failUnless("honeypot" in result)
+
+    def test_render_tag_inherits_context(self):
+        """The render tag must have access to the existing context"""
+        self.context = template.Context({"object": self.obj1, "request": self.request})
+        t = template.Template("{% load jmbo_inclusion_tags tests_template_tags %}\
+{% inject_foo %}\
+{% object_header object %}")
+        result = t.render(self.context)
+        self.failUnless("foo = bar" in result)
+

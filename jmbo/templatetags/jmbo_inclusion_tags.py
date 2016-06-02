@@ -60,7 +60,7 @@ class RenderObjectNode(template.Node):
         rendered = False
         for template_name in template_names:
             try:
-                response = render_to_string(template_name, context)
+                response = render_to_string(template_name, context.flatten())
                 rendered = True
                 break
             except TemplateDoesNotExist:

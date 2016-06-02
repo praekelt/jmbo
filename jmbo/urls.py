@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
 #from tastypie.api import Api
 
@@ -10,9 +10,7 @@ from jmbo.views import ObjectDetail, ObjectList
 #v1_api.register(ModelBaseResource())
 
 
-urlpatterns = patterns(
-    "",
-
+urlpatterns = [
     url(
         r"^detail/(?P<slug>[\w-]+)/$",
         ObjectDetail.as_view(),
@@ -28,4 +26,4 @@ urlpatterns = patterns(
         ObjectList.as_view(),
         name="jmbo-modelbase-list"
     ),
-)
+]

@@ -56,7 +56,7 @@ class PermittedManagerTestCase(unittest.TestCase):
         self.failIf(published_obj_mobile in queryset)
 
     def test_publish_retract(self):
-        today = timezone.datetime.today()
+        today = timezone.make_aware(timezone.datetime.today())
         yesterday = today - timezone.timedelta(days=1)
         tomorrow = today + timezone.timedelta(days=1)
 

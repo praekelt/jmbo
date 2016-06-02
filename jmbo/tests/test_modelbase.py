@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.files.base import ContentFile
+from django.test import override_settings
 
 from category.models import Category
 import django_comments
@@ -56,7 +57,7 @@ class ModelBaseTestCase(unittest.TestCase):
 
         # If a user supplies a created date use that
         # instead of the current datetime.
-        test_datetime = timezone.datetime(2008, 10, 10, 12, 12)
+        test_datetime = timezone.make_aware(timezone.datetime(2008, 10, 10, 12, 12))
         obj = ModelBase(title="title", created=test_datetime)
         obj.save()
         self.failIf(obj.created != test_datetime)
@@ -343,17 +344,21 @@ class ModelBaseTestCase(unittest.TestCase):
         obj.save()
         self.failUnless(obj.can_comment(request)[0])
 
-    def test_publishing_timezone_awareness(self):
+    @override_settings(USE_TZ=False)
+    def test_publishing_timezone_unaware(self):
         obj_naive = ModelBase.objects.create(
             title="Obj1",
             publish_on=timezone.datetime.now() - timezone.timedelta(hours=1)
         )
+        call_command("jmbo_publish")
+        self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, "published")
+
+    def test_publishing_timezone_aware(self):
         obj_aware = ModelBase.objects.create(
             title="Obj2",
             publish_on=timezone.now() - timezone.timedelta(hours=1)
         )
         call_command("jmbo_publish")
-        self.assertEqual(ModelBase.objects.get(pk=obj_naive.pk).state, "published")
         self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, "published")
 
     def test_unicode(self):

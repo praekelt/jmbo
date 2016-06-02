@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.admin import SimpleListFilter
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.http import HttpResponse
 from django.conf import settings
 
@@ -385,7 +385,7 @@ Unpublish</a><br />''' % (url, url)
 
     def get_urls(self):
         urls = super(ModelBaseAdmin, self).get_urls()
-        my_urls = patterns("",
+        my_urls = [
             url(
                 r'^publish-ajax/$',
                 self.admin_site.admin_view(self.publish_ajax),
@@ -402,7 +402,7 @@ Unpublish</a><br />''' % (url, url)
                 name="jmbo-autosave-ajax"
             ),
 
-        )
+        ]
         return my_urls + urls
 
 
