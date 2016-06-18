@@ -17,13 +17,13 @@ xDATABASES = {
 }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'skeleton.db', # Or path to database file if using sqlite3.
-        'USER': 'skeleton', # Not used with sqlite3.
-        'PASSWORD': 'skeleton', # Not used with sqlite3.
-        'HOST': '', # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '', # Set to empty string for default. Not used with sqlite3.
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": "skeleton.db", # Or path to database file if using sqlite3.
+        "USER": "skeleton", # Not used with sqlite3.
+        "PASSWORD": "skeleton", # Not used with sqlite3.
+        "HOST": "", # Set to empty string for localhost. Not used with sqlite3.
+        "PORT": "", # Set to empty string for default. Not used with sqlite3.
     }
 }
 
@@ -73,13 +73,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            # insert your TEMPLATE_DIRS here
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': TEMPLATE_CONTEXT_PROCESSORS,
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": TEMPLATE_CONTEXT_PROCESSORS,
         },
     },
 ]
@@ -93,10 +92,6 @@ CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = "memory"
 
 SECRET_KEY = "SECRET_KEY"
-
-TEMPLATE_DIRS = (
-    os.path.realpath(os.path.dirname(__file__)) + "/../templates/",
-)
 
 DEBUG = True
 
