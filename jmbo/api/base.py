@@ -20,10 +20,14 @@ class HyperlinkedModelBaseSerializer(
 
     class Meta:
         model = ModelBase
-        queryset = ModelBase.objects.all()
         admin = ModelBaseAdmin
 
 
-class ModelBaseViewSet(viewsets.ModelViewSet):
+class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
     queryset = ModelBase.objects.all()
+    serializer_class = HyperlinkedModelBaseSerializer
+
+
+class ModelBasePermittedViewSet(viewsets.ModelViewSet):
+    queryset = ModelBase.permitted.all()
     serializer_class = HyperlinkedModelBaseSerializer
