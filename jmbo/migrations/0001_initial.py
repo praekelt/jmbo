@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             name='Image',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(blank=True, null=True, upload_to=photologue.models.get_storage_path, verbose_name='image')),
+                ('image', models.ImageField(upload_to=photologue.models.get_storage_path, verbose_name='image')),
                 ('date_taken', models.DateTimeField(blank=True, help_text='Date image was taken; is obtained from the image EXIF data.', null=True, verbose_name='date taken')),
                 ('view_count', models.PositiveIntegerField(default=0, editable=False, verbose_name='view count')),
                 ('crop_from', models.CharField(blank=True, choices=[(b'top', 'Top'), (b'right', 'Right'), (b'bottom', 'Bottom'), (b'left', 'Left'), (b'center', 'Center (Default)')], default=b'center', max_length=10, verbose_name='crop from')),
