@@ -1,13 +1,6 @@
 from django.conf.urls import include, url
 
-#from tastypie.api import Api
-
 from jmbo.views import ObjectDetail, ObjectList
-#from jmbo.api import ModelBaseResource
-
-
-#v1_api = Api(api_name="v1")
-#v1_api.register(ModelBaseResource())
 
 
 urlpatterns = [
