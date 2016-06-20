@@ -1,11 +1,12 @@
 -e git+https://github.com/hedleyroos/django-secretballot.git#egg=django-secretballot
 -e git+https://github.com/praekelt/django-ultracache.git#egg=django-ultracache
+-e git+https://github.com/praekelt/django-likes.git@develop#egg=django-likes
 
 Django==1.9.6
 django-category==1.9
 django-contrib-comments==1.7.1
 django-export==1.9
-django-likes==0.2
+#django-likes==0.2
 django-object-tools==1.9
 django-pagination==1.0.7
 django-pagination-fork==1.0.17

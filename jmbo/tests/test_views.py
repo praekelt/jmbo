@@ -2,7 +2,7 @@ import unittest
 
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.test.client import Client, RequestFactory
+from django.test.client import Client
 from django.conf import settings
 
 from jmbo.models import ModelBase
@@ -12,7 +12,6 @@ class ViewsTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.request = RequestFactory()
         cls.client = Client()
 
         cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")

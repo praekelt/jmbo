@@ -10,6 +10,7 @@ urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
     url(r"^jmbo/", include("jmbo.urls")),
     url(r"^comments/", include("django_comments.urls")),
+    url(r"^likes/", include("likes.urls")),
 
     url(
         r"^tests/detail/(?P<slug>[\w-]+)/$",
