@@ -3,6 +3,8 @@ from rest_framework.serializers import HyperlinkedModelSerializer, \
     ReadOnlyField, Serializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.response import Response
+from rest_framework.decorators import detail_route
 from rest_framework_extras.serializers import FormMixin
 
 from jmbo.models import ModelBase
@@ -30,6 +32,16 @@ class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
     serializer_class = HyperlinkedModelBaseSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication)
     permission_classes = (DjangoModelPermissions,)
+
+    @detail_route(methods=["post"])
+    def publish(self, request, pk):
+        self.get_object().publish()
+        return Response({"status": "success"})
+
+    @detail_route(methods=["post"])
+    def unpublish(self, request, pk):
+        self.get_object().unpublish()
+        return Response({"status": "success"})
 
 
 class ModelBasePermittedViewSet(viewsets.ModelViewSet):

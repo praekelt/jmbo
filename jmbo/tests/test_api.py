@@ -52,7 +52,6 @@ class APITestCase(unittest.TestCase):
         response = self.client.get("/api/v1/jmbo-modelbases/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(as_json), 2)
 
     def test_permitted_modelbase_list(self):
         response = self.client.get("/api/v1/jmbo-permitted-modelbases/")
@@ -67,7 +66,6 @@ class APITestCase(unittest.TestCase):
         response = self.client.get("/api/v1/tests-testmodels/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(as_json), 2)
 
     def test_permitted_testmodel_list(self):
         response = self.client.get("/api/v1/tests-permitted-testmodels/")
@@ -88,5 +86,23 @@ class APITestCase(unittest.TestCase):
         as_json = json.loads(response.content)
         self.assertEqual(as_json["content"], "content")
         self.assertTrue(TestModel.objects.filter(pk=new_pk).exists())
-        # Cleanup else it pollutes other tests
-        TestModel.objects.filter(pk=new_pk).delete() 
+
+    def test_modelbase_publish(self):
+        response = self.client.post("/api/v1/jmbo-modelbases/%s/publish/" % self.obj1.pk)
+        self.assertEqual(response.status_code, 403)
+        self.client.login(username="editor-api", password="password")
+        response = self.client.post("/api/v1/jmbo-modelbases/%s/publish/" % self.obj1.pk)
+        as_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(as_json["status"], "success")
+        self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "published")
+
+    def test_modelbase_unpublish(self):
+        response = self.client.post("/api/v1/jmbo-modelbases/%s/unpublish/" % self.obj1.pk)
+        self.assertEqual(response.status_code, 403)
+        self.client.login(username="editor-api", password="password")
+        response = self.client.post("/api/v1/jmbo-modelbases/%s/unpublish/" % self.obj1.pk)
+        as_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(as_json["status"], "success")
+        self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "unpublished")
