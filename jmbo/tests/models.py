@@ -66,3 +66,4 @@ class LeafModel(BranchModel):
 
 class TestModel(ModelBase):
     autosave_fields = ("title",)
+    content = models.TextField(null=True, blank=True)

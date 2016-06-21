@@ -1,6 +1,7 @@
 -e git+https://github.com/hedleyroos/django-secretballot.git#egg=django-secretballot
 -e git+https://github.com/praekelt/django-ultracache.git#egg=django-ultracache
 -e git+https://github.com/praekelt/django-likes.git@develop#egg=django-likes
+-e git+https://github.com/praekelt/djangorestframework-extras.git@develop#egg=djangorestframework-extras
 
 Django==1.9.6
 django-category==1.9
@@ -23,3 +24,5 @@ Pillow==3.2.0
 pytz==2016.4
 PyYAML==3.11
 requests==2.10.0
+djangorestframework==3.3.2
+six==1.9.0
