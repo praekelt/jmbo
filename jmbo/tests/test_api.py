@@ -27,9 +27,9 @@ class APITestCase(unittest.TestCase):
         )
         cls.editor.set_password("password")
         cls.editor.save()
-        cls.client.login(username="editor-api", password="password")
 
         # Prep
+        cls.client.logout()
         Site.objects.all().delete()
         Site.objects.create(id=1, domain="site.example.com")
         ModelBase.objects.all().delete()
@@ -42,7 +42,13 @@ class APITestCase(unittest.TestCase):
         cls.obj2.sites = Site.objects.all()
         cls.obj2.save()
 
+    def setUp(self):
+        self.client.logout()
+
     def test_modelbase_list(self):
+        response = self.client.get("/api/v1/jmbo-modelbases/")
+        self.assertEqual(response.status_code, 403)
+        self.client.login(username="editor-api", password="password")
         response = self.client.get("/api/v1/jmbo-modelbases/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
@@ -56,6 +62,9 @@ class APITestCase(unittest.TestCase):
 
     def test_testmodel_list(self):
         response = self.client.get("/api/v1/tests-testmodels/")
+        self.assertEqual(response.status_code, 403)
+        self.client.login(username="editor-api", password="password")
+        response = self.client.get("/api/v1/tests-testmodels/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 2)
@@ -68,6 +77,7 @@ class APITestCase(unittest.TestCase):
 
     def test_testmodel_create(self):
         """Light test since DRF and DRFE already test similar paths"""
+        self.client.login(username="editor-api", password="password")
         new_pk = TestModel.objects.all().last().id + 1
         data = {
             "title": "title",
@@ -79,4 +89,4 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(as_json["content"], "content")
         self.assertTrue(TestModel.objects.filter(pk=new_pk).exists())
         # Cleanup else it pollutes other tests
-        TestModel.objects.filter(pk=new_pk).delete()
+        TestModel.objects.filter(pk=new_pk).delete() 
