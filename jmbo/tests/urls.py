@@ -20,7 +20,7 @@ discover(router)
 
 urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
-    url(r'^api/v1/', include(router.urls)),
+    url(r'^api/(?P<version>(v1))/', include(router.urls)),
     url(r"^jmbo/", include("jmbo.urls")),
     url(r"^comments/", include("django_comments.urls")),
     url(r"^likes/", include("likes.urls")),

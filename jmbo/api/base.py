@@ -34,12 +34,12 @@ class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
     permission_classes = (DjangoModelPermissions,)
 
     @detail_route(methods=["post"])
-    def publish(self, request, pk):
+    def publish(self, request, pk, **kwargs):
         self.get_object().publish()
         return Response({"status": "success"})
 
     @detail_route(methods=["post"])
-    def unpublish(self, request, pk):
+    def unpublish(self, request, pk, **kwargs):
         self.get_object().unpublish()
         return Response({"status": "success"})
 

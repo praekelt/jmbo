@@ -101,3 +101,7 @@ DEBUG = True
 # Ultracache triggers lazy creation of content types. This prevents that code
 # path.
 ULTRACACHE = {"invalidate": False}
+
+REST_FRAMEWORK = {
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.URLPathVersioning"
+}

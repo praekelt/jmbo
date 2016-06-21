@@ -152,10 +152,9 @@ class APITestCase(unittest.TestCase):
     def test_create_modelbaseimage(self):
         new_pk = ModelBaseImage.objects.all().last().id + 1
         data = {
-            "modelbase": "http://testserver/jmbo-modelbase/%s/" % self.obj1.pk,
-            "image": "http://testserver/jmbo-image/%s/" % self.image.pk,
+            "modelbase": "http://testserver/api/v1/jmbo-modelbase/%s/" % self.obj1.pk,
+            "image": "http://testserver/api/v1/jmbo-image/%s/" % self.image.pk,
         }
-        print data
         response = self.client.post(
             "/api/v1/jmbo-modelbaseimage/",
             data,
