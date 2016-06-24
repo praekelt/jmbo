@@ -11,10 +11,26 @@ from jmbo.tests.api import base as tests_base
 admin.autodiscover()
 
 router = routers.SimpleRouter()
-router.register(r"jmbo-modelbase", base.ModelBaseObjectsViewSet)
-router.register(r"jmbo-permitted-modelbase", base.ModelBasePermittedViewSet)
-router.register(r"tests-testmodel", tests_base.TestModelObjectsViewSet)
-router.register(r"tests-permitted-testmodel", tests_base.TestModelPermittedViewSet)
+router.register(
+    r"jmbo-modelbase",
+    base.ModelBaseObjectsViewSet,
+    #"jmbo-modelbase"
+)
+router.register(
+    r"jmbo-permitted-modelbase",
+    base.ModelBasePermittedViewSet,
+    #"jmbo-permitted-modelbase"
+)
+router.register(
+    r"tests-testmodel",
+    tests_base.TestModelObjectsViewSet,
+    #"tests-testmodel"
+)
+router.register(
+    r"tests-permitted-testmodel",
+    tests_base.TestModelPermittedViewSet,
+    #"tests-permitted-testmodel"
+)
 
 discover(router)
 

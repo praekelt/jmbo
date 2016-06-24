@@ -53,8 +53,11 @@ class APITestCase(unittest.TestCase):
             os.path.basename(IMAGE_PATH),
             ContentFile(open(IMAGE_PATH, "rb").read())
         )
-        cls.mbi = ModelBaseImage.objects.create(
+        cls.mbi1 = ModelBaseImage.objects.create(
             modelbase=cls.obj1, image=cls.image
+        )
+        cls.mbi2 = ModelBaseImage.objects.create(
+            modelbase=cls.obj2, image=cls.image
         )
 
     def setUp(self):
@@ -125,6 +128,29 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(as_json["status"], "success")
         self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "unpublished")
 
+    def test_modelbase_images(self):
+        response = self.client.get("/api/v1/jmbo-modelbase/%s/images/" % self.obj1.pk)
+        self.assertEqual(response.status_code, 403)
+        self.login()
+        response = self.client.get("/api/v1/jmbo-modelbase/%s/images/" % self.obj1.pk)
+        as_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(as_json["status"], "success")
+        self.assertEqual(
+            as_json["images"],
+            [u"http://testserver/api/v1/jmbo-image/%s/" % self.image.pk]
+        )
+
+    def test_permitted_modelbase_images(self):
+        response = self.client.get("/api/v1/jmbo-permitted-modelbase/%s/images/" % self.obj2.pk)
+        as_json = json.loads(response.content)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(as_json["status"], "success")
+        self.assertEqual(
+            as_json["images"],
+            [u"http://testserver/api/v1/jmbo-image/%s/" % self.image.pk]
+        )
+
     def test_create_image(self):
         new_pk = Image.objects.all().last().id + 1
         fp = open(IMAGE_PATH, "rb")
@@ -168,3 +194,5 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         as_json = json.loads(response.content)
         self.assertTrue(ModelBaseImage.objects.filter(pk=new_pk).exists())
+        # Delete it because it pollutes other tests
+        ModelBaseImage.objects.filter(pk=new_pk).delete()
