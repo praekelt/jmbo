@@ -74,8 +74,8 @@ class APITestCase(unittest.TestCase):
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
 
-    def test_permitted_modelbase_list(self):
-        response = self.client.get("/api/v1/jmbo-permitted-modelbase/")
+    def test_modelbase_list_permitted(self):
+        response = self.client.get("/api/v1/jmbo-modelbase-permitted/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
@@ -88,8 +88,8 @@ class APITestCase(unittest.TestCase):
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
 
-    def test_permitted_testmodel_list(self):
-        response = self.client.get("/api/v1/tests-permitted-testmodel/")
+    def test_testmodel_list_permitted(self):
+        response = self.client.get("/api/v1/tests-testmodel-permitted/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
@@ -97,7 +97,7 @@ class APITestCase(unittest.TestCase):
     def test_testmodel_create(self):
         """Light test since DRF and DRFE already test similar paths"""
         self.login()
-        new_pk = TestModel.objects.all().last().id + 1
+        new_pk = TestModel.objects.all().order_by("id").last().id + 1
         data = {
             "title": "title",
             "slug": "title",
@@ -141,8 +141,8 @@ class APITestCase(unittest.TestCase):
             [u"http://testserver/api/v1/jmbo-image/%s/" % self.image.pk]
         )
 
-    def test_permitted_modelbase_images(self):
-        response = self.client.get("/api/v1/jmbo-permitted-modelbase/%s/images/" % self.obj2.pk)
+    def test_modelbase_images_permitted(self):
+        response = self.client.get("/api/v1/jmbo-modelbase-permitted/%s/images/" % self.obj2.pk)
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(as_json["status"], "success")
@@ -152,7 +152,7 @@ class APITestCase(unittest.TestCase):
         )
 
     def test_create_image(self):
-        new_pk = Image.objects.all().last().id + 1
+        new_pk = Image.objects.all().order_by("id").last().id + 1
         fp = open(IMAGE_PATH, "rb")
         data = {
             "title": "title",
@@ -176,7 +176,7 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(Image.objects.filter(pk=new_pk).exists())
 
     def test_create_modelbaseimage(self):
-        new_pk = ModelBaseImage.objects.all().last().id + 1
+        new_pk = ModelBaseImage.objects.all().order_by("id").last().id + 1
         data = {
             "modelbase": "http://testserver/api/v1/jmbo-modelbase/%s/" % self.obj1.pk,
             "image": "http://testserver/api/v1/jmbo-image/%s/" % self.image.pk,

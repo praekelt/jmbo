@@ -232,7 +232,7 @@ but users won't be able to add new likes."),
         except (AttributeError, self.DoesNotExist):
             content_type = self.content_type
             model = content_type.model_class()
-            if(model == ModelBase):
+            if (model == ModelBase):
                 return self
             instance = model.objects.get(id=self.id)
 

@@ -5,31 +5,27 @@ from rest_framework import routers
 from rest_framework_extras import discover
 
 from jmbo.views import ObjectDetail, ObjectList
-from jmbo.api import base
-from jmbo.tests.api import base as tests_base
+from jmbo import api as jmbo_api
+from jmbo.tests import api as tests_api
 
 admin.autodiscover()
 
 router = routers.SimpleRouter()
 router.register(
     r"jmbo-modelbase",
-    base.ModelBaseObjectsViewSet,
-    #"jmbo-modelbase"
+    jmbo_api.ModelBaseObjectsViewSet,
 )
 router.register(
-    r"jmbo-permitted-modelbase",
-    base.ModelBasePermittedViewSet,
-    #"jmbo-permitted-modelbase"
+    r"jmbo-modelbase-permitted",
+    jmbo_api.ModelBasePermittedViewSet,
 )
 router.register(
     r"tests-testmodel",
-    tests_base.TestModelObjectsViewSet,
-    #"tests-testmodel"
+    tests_api.TestModelObjectsViewSet,
 )
 router.register(
-    r"tests-permitted-testmodel",
-    tests_base.TestModelPermittedViewSet,
-    #"tests-permitted-testmodel"
+    r"tests-testmodel-permitted",
+    tests_api.TestModelPermittedViewSet,
 )
 
 discover(router)

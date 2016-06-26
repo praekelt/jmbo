@@ -20,7 +20,7 @@ django-sortedm2m==1.2.2
 ExifRead==2.1.2
 #jmbo==2.0.16
 Pillow==3.2.0
-#psycopg2==2.6.1
+psycopg2==2.6.1
 pytz==2016.4
 PyYAML==3.11
 requests==2.10.0
