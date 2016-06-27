@@ -78,3 +78,14 @@ class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
 class ModelBasePermittedViewSet(CommonRoutes, viewsets.ModelViewSet):
     queryset = ModelBase.permitted.all()
     serializer_class = HyperlinkedModelBaseSerializer
+
+
+def register(router):
+    router.register(
+        r"jmbo-modelbase",
+        ModelBaseObjectsViewSet,
+    )
+    router.register(
+        r"jmbo-modelbase-permitted",
+        ModelBasePermittedViewSet,
+    )
