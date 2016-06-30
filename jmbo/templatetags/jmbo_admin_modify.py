@@ -3,7 +3,7 @@ from django import template
 register = template.Library()
 
 
-@register.inclusion_tag('admin/jmbo/submit_line.html', takes_context=True)
+@register.inclusion_tag('admin/jmbo/modelbase/submit_line.html', takes_context=True)
 def submit_row(context):
     """
     Based on django/contrib/admin/templatetags/admin_modify.py version 1.9.

@@ -18,7 +18,7 @@ from django.conf import settings
 from category.models import Category
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Relation
+from jmbo.models import ModelBase, Relation, Image
 from jmbo.utils import generate_slug
 from jmbo import USE_GIS
 
@@ -167,7 +167,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
     # ModelBase is typically subclassed so normal app/model/change_form.html
     # based lookups fail in subclasses. Explicitly set the change form
     # template.
-    change_form_template = 'admin/jmbo/change_form.html'
+    change_form_template = 'admin/jmbo/modelbase/change_form.html'
 
     actions = (make_published, make_unpublished)
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
@@ -439,3 +439,4 @@ class RelationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Relation, RelationAdmin)
+admin.site.register(Image, admin.ModelAdmin)
