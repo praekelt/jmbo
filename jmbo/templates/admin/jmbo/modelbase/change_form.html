@@ -1,0 +1,51 @@
+{% extends "admin/change_form.html" %}
+{% comment %}
+Add autosave javascript.
+{% endcomment %}
+
+{% load jmbo_admin_modify %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    {% if not request.GET.no_autosave %}
+    {% if adminform.form.instance.id %}
+    <script type="text/javascript">
+    (function($) {
+    $(document).ready(function() {
+
+        (function autosave() {
+            var data = $('form:first').serializeArray();
+
+            // Jmbo uses Ckeditor for richtext so handle the content
+            if  (typeof CKEDITOR != 'undefined'){
+                for (var editor_name in CKEDITOR.instances) {
+                    var name = $('#'+editor_name).attr('name');
+                    data.push({'name': name, 'value': CKEDITOR.instances[editor_name].getData()});
+                }
+            }
+
+            data.push({'name': 'id', 'value': {{ adminform.form.instance.id }}});
+            $.ajax({
+                url: '{% url "admin:jmbo-autosave-ajax" %}',
+                data: data,
+                type: 'POST',
+                cache: false,
+                complete: function() {
+                    setTimeout(autosave, 30000)
+                }
+            });
+
+        })();
+
+    });
+    })(django.jQuery)
+    </script>
+    {% endif %}
+    {% endif %}
+
+{% endblock %}
+
+{% block submit_buttons_top %}{% submit_row %}{% endblock %}
+
+{% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
