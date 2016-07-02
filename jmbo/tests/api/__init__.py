@@ -3,9 +3,9 @@ from jmbo import api as jmbo_api
 from jmbo.tests.models import TestModel
 
 
-class HyperlinkedTestModelSerializer(jmbo_api.HyperlinkedModelBaseSerializer):
+class HyperlinkedTestModelSerializer(jmbo_api.ModelBaseSerializer):
 
-    class Meta(jmbo_api.HyperlinkedModelBaseSerializer.Meta):
+    class Meta(jmbo_api.ModelBaseSerializer.Meta):
         model = TestModel
 
 

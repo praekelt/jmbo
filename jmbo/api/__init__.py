@@ -33,7 +33,7 @@ class PropertiesMixin(Serializer):
         fields = ("image_detail_url",)
 
 
-class HyperlinkedModelBaseSerializer(
+class ModelBaseSerializer(
     FormMixin, PropertiesMixin, HyperlinkedModelSerializer
     ):
 
@@ -58,7 +58,7 @@ class CommonRoutes(object):
 
 class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
     queryset = ModelBase.objects.all()
-    serializer_class = HyperlinkedModelBaseSerializer
+    serializer_class = ModelBaseSerializer
     authentication_classes = (SessionAuthentication, BasicAuthentication)
     permission_classes = (DjangoModelPermissions,)
 
@@ -75,7 +75,7 @@ class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
 
 class ModelBasePermittedViewSet(CommonRoutes, viewsets.ModelViewSet):
     queryset = ModelBase.permitted.all()
-    serializer_class = HyperlinkedModelBaseSerializer
+    serializer_class = ModelBaseSerializer
 
 
 def register(router):
