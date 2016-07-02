@@ -1,18 +1,7 @@
 import logging
+import json
 
 from django.conf import settings
-
-
-logger = logging.getLogger("django")
-
-if settings.REST_FRAMEWORK.get("DEFAULT_VERSIONING_CLASS") != \
-    "rest_framework.versioning.URLPathVersioning":
-    logger.warning("""Jmbo: URLPathVersioning is not set as \
-DEFAULT_VERSIONING_CLASS. It is strongly recommended to update your \
-settings.""")
-
-
-import json
 
 from rest_framework import viewsets
 from rest_framework.serializers import HyperlinkedModelSerializer, \
@@ -26,6 +15,15 @@ from rest_framework_extras.serializers import FormMixin
 
 from jmbo.models import ModelBase
 from jmbo.admin import ModelBaseAdmin
+
+
+logger = logging.getLogger("django")
+
+if settings.REST_FRAMEWORK.get("DEFAULT_VERSIONING_CLASS") != \
+    "rest_framework.versioning.URLPathVersioning":
+    logger.warning("""Jmbo: URLPathVersioning is not set as \
+DEFAULT_VERSIONING_CLASS. It is strongly recommended to update your \
+settings.""")
 
 
 class PropertiesMixin(Serializer):
@@ -81,11 +79,20 @@ class ModelBasePermittedViewSet(CommonRoutes, viewsets.ModelViewSet):
 
 
 def register(router):
-    router.register(
-        r"jmbo-modelbase",
-        ModelBaseObjectsViewSet,
-    )
-    router.register(
-        r"jmbo-modelbase-permitted",
-        ModelBasePermittedViewSet,
-    )
+    """Register all viewsets known to jmbo, overriding any items already
+    registered with the same name."""
+
+    for pth, klass in (
+        ("jmbo-modelbase", ModelBaseObjectsViewSet),
+        ("jmbo-modelbase-permitted", ModelBasePermittedViewSet),
+    ):
+        keys = [tu[0] for tu in router.registry]
+        try:
+            i = keys.index("auth-user")
+            del router.registry[i]
+        except ValueError:
+            pass
+        router.register(
+            r"%s" % pth,
+            klass,
+        )

@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 from rest_framework import routers
-from rest_framework_extras import discover
+import rest_framework_extras
 
 from jmbo.views import ObjectDetail, ObjectList
 from jmbo import api as jmbo_api
@@ -11,6 +11,7 @@ from jmbo.tests import api as tests_api
 admin.autodiscover()
 
 router = routers.SimpleRouter()
+rest_framework_extras.discover(router)
 router.register(
     r"jmbo-modelbase",
     jmbo_api.ModelBaseObjectsViewSet,
@@ -27,8 +28,6 @@ router.register(
     r"tests-testmodel-permitted",
     tests_api.TestModelPermittedViewSet,
 )
-
-discover(router)
 
 urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
