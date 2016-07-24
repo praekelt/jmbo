@@ -88,7 +88,7 @@ def register(router):
     ):
         keys = [tu[0] for tu in router.registry]
         try:
-            i = keys.index("auth-user")
+            i = keys.index(pth)
             del router.registry[i]
         except ValueError:
             pass
