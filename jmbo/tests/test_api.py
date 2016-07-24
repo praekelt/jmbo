@@ -73,12 +73,14 @@ class APITestCase(unittest.TestCase):
         response = self.client.get("/api/v1/jmbo-modelbase/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
+        self.failUnless("/jmbo-modelbase/" in as_json[0]["url"])
 
     def test_modelbase_list_permitted(self):
         response = self.client.get("/api/v1/jmbo-modelbase-permitted/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
+        self.failUnless("/jmbo-modelbase-permitted/" in as_json[0]["url"])
 
     def test_testmodel_list(self):
         response = self.client.get("/api/v1/tests-testmodel/")
@@ -87,12 +89,14 @@ class APITestCase(unittest.TestCase):
         response = self.client.get("/api/v1/tests-testmodel/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
+        self.failUnless("/tests-testmodel/" in as_json[0]["url"])
 
     def test_testmodel_list_permitted(self):
         response = self.client.get("/api/v1/tests-testmodel-permitted/")
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
+        self.failUnless("/tests-testmodel-permitted/" in as_json[0]["url"])
 
     def test_testmodel_create(self):
         """Light test since DRF and DRFE already test similar paths"""

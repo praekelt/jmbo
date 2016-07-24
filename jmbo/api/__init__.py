@@ -41,6 +41,18 @@ class ModelBaseSerializer(
         model = ModelBase
         admin = ModelBaseAdmin
 
+    def get_extra_kwargs(self):
+        # We specify a base_name at router registration and this is a way to
+        # sneak in view_name so it resolves properly.
+        di = super(ModelBaseSerializer, self).get_extra_kwargs()
+        meta = self.Meta.model._meta
+        prefix = ("%s-%s" % (meta.app_label, meta.object_name)).lower()
+        if isinstance(self.context["view"], ModelBasePermittedViewSet):
+            di["url"] = {"view_name": "%s-permitted-detail" % prefix}
+        else:
+            di["url"] = {"view_name": "%s-detail" % prefix}
+        return di
+
 
 class CommonRoutes(object):
 
@@ -78,21 +90,31 @@ class ModelBasePermittedViewSet(CommonRoutes, viewsets.ModelViewSet):
     serializer_class = ModelBaseSerializer
 
 
-def register(router):
-    """Register all viewsets known to jmbo, overriding any items already
+def register(router, mapping=None):
+    """Register all viewsets known to app, overriding any items already
     registered with the same name."""
 
-    for pth, klass in (
-        ("jmbo-modelbase", ModelBaseObjectsViewSet),
-        ("jmbo-modelbase-permitted", ModelBasePermittedViewSet),
-    ):
+    if mapping is None:
+        mapping =  (
+            ("jmbo-modelbase-permitted", ModelBasePermittedViewSet),
+            ("jmbo-modelbase", ModelBaseObjectsViewSet)
+        )
+
+    for pth, klass in mapping:
         keys = [tu[0] for tu in router.registry]
         try:
             i = keys.index(pth)
             del router.registry[i]
         except ValueError:
             pass
+        # Leave default handling intact until view_name issues are resolved
+        router.register(
+            r"%s" % pth,
+            klass
+        )
+        # Provide a base_name to consider app_label as well
         router.register(
             r"%s" % pth,
             klass,
+            base_name=pth
         )

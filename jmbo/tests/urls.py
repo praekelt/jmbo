@@ -12,22 +12,10 @@ admin.autodiscover()
 
 router = routers.SimpleRouter()
 rest_framework_extras.discover(router)
-router.register(
-    r"jmbo-modelbase",
-    jmbo_api.ModelBaseObjectsViewSet,
-)
-router.register(
-    r"jmbo-modelbase-permitted",
-    jmbo_api.ModelBasePermittedViewSet,
-)
-router.register(
-    r"tests-testmodel",
-    tests_api.TestModelObjectsViewSet,
-)
-router.register(
-    r"tests-testmodel-permitted",
-    tests_api.TestModelPermittedViewSet,
-)
+rest_framework_extras.register(router)
+
+jmbo_api.register(router)
+tests_api.register(router)
 
 urlpatterns = [
     url(r"^admin/", include(admin.site.urls)),
