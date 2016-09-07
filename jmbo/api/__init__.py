@@ -65,7 +65,7 @@ class CommonRoutes(object):
             # xxx: DRF does not prefix base_name with app_label. Investigate.
             reversed = "%s%s/" % (reverse("image-list", request=self.request), image.pk)
             li.append(reversed)
-        return Response({"status": "success", "images": li})
+        return Response(li)
 
 
 class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
