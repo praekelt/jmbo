@@ -198,3 +198,14 @@ class APITestCase(unittest.TestCase):
         self.assertTrue(ModelBaseImage.objects.filter(pk=new_pk).exists())
         # Delete it because it pollutes other tests
         ModelBaseImage.objects.filter(pk=new_pk).delete()
+
+    def test_testmodel_create_permitted(self):
+        """The permitted viewset does not allow CUD"""
+        self.login()
+        data = {
+            "title": "title",
+            "slug": "title",
+            "content": "content"
+        }
+        response = self.client.post("/api/v1/tests-testmodel-permitted/", data)
+        self.assertEqual(response.status_code, 405)

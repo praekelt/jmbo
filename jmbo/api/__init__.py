@@ -85,7 +85,7 @@ class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
         return Response({"status": "success"})
 
 
-class ModelBasePermittedViewSet(CommonRoutes, viewsets.ModelViewSet):
+class ModelBasePermittedViewSet(CommonRoutes, viewsets.ReadOnlyModelViewSet):
     queryset = ModelBase.permitted.all()
     serializer_class = ModelBaseSerializer
 
