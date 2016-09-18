@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework_extras.serializers import FormMixin
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from jmbo.models import ModelBase
 from jmbo.admin import ModelBaseAdmin
@@ -71,7 +72,9 @@ class CommonRoutes(object):
 class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
     queryset = ModelBase.objects.all()
     serializer_class = ModelBaseSerializer
-    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    authentication_classes = (
+        SessionAuthentication, BasicAuthentication, JSONWebTokenAuthentication
+    )
     permission_classes = (DjangoModelPermissions,)
 
     @detail_route(methods=["post"])
