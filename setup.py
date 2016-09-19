@@ -22,6 +22,7 @@ setup(
         'django-preferences',
         'django-photologue>=3.3',
         #'djangorestframework-extras', # fix when stable
+        'djangorestframework-jwt==1.8.0',
         'django-sites-groups>=1.9.1',
         'django-ultracache>=1.9',
     ],
