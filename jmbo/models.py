@@ -281,10 +281,10 @@ but users won't be able to add new likes."),
                 ct = ContentType.objects.get_for_model(kls)
 
         if category is None:
-            return reverse("jmbo:jmbo-modelbase-detail", args=[self.slug])
+            return reverse("jmbo:modelbase-detail", args=[self.slug])
         else:
             return reverse(
-                "jmbo:jmbo-modelbase-categorized-detail",
+                "jmbo:modelbase-categorized-detail",
                 args=[category.slug, self.slug]
             )
 
