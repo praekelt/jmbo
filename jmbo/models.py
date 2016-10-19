@@ -245,10 +245,24 @@ but users won't be able to add new likes."),
 
     def get_absolute_url(self, category=None):
         # Reverse by traversing upwards over inheritance hierarchy and
-        # following naming convention.
+        # following naming convention. Try namespace first, then fall back to
+        # verbose view naming convention.
         ct = self.content_type
         kls = ct.model_class()
         while ct.model != "model":
+            try:
+                if category is None:
+                    return reverse(
+                        "%s:%s-detail" % \
+                            (ct.app_label, ct.model), args=[self.slug]
+                    )
+                else:
+                    return reverse(
+                        "%s:%s-categorized-detail" % \
+                            (ct.app_label, ct.model), args=[category.slug, self.slug]
+                    )
+            except NoReverseMatch:
+                pass
             try:
                 if category is None:
                     return reverse(
@@ -266,7 +280,13 @@ but users won't be able to add new likes."),
                     break
                 ct = ContentType.objects.get_for_model(kls)
 
-        return reverse("jmbo-modelbase-detail", args=[self.slug])
+        if category is None:
+            return reverse("jmbo:jmbo-modelbase-detail", args=[self.slug])
+        else:
+            return reverse(
+                "jmbo:jmbo-modelbase-categorized-detail",
+                args=[category.slug, self.slug]
+            )
 
     def get_absolute_url_categorized(self):
         """Absolute url with category incorporated into the url. The normal
