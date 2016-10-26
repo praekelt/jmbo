@@ -6,7 +6,6 @@ from django.db.models import Q
 from django import forms
 from django.contrib import admin
 from django.contrib.sites.models import Site
-from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse

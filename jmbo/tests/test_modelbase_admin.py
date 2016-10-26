@@ -1,7 +1,7 @@
 import unittest
 
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test.client import Client, RequestFactory
 
 from jmbo.models import ModelBase
@@ -13,7 +13,7 @@ from jmbo.tests.models import DummyModel
 class ModelBaseAdminTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.user, self.created = User.objects.get_or_create(
+        self.user, self.created = get_user_model().objects.get_or_create(
             username="test",
             email="test@test.com"
         )

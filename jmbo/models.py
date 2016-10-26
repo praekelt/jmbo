@@ -1,17 +1,16 @@
 import types
 
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site, SiteManager
-from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django.db import models
 from django.db.models import signals, Sum
-from django.utils.encoding import smart_unicode
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.utils import timezone
 from django.core.cache import cache
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.urlresolvers import reverse, NoReverseMatch
+from django.utils.encoding import smart_unicode
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site, SiteManager
+from django.conf import settings
 
 import django_comments
 from photologue.models import ImageModel
@@ -126,7 +125,7 @@ automatically set on creation but can be changed subsequently.")
 is automatically set each time the item is saved.")
     )
     owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
     )

@@ -1,7 +1,6 @@
 import unittest
 
 from django import template
-from django.contrib.auth.models import User
 from django.test.client import Client, RequestFactory
 
 from jmbo.tests.models import BranchModel, LeafModel, TestModel
