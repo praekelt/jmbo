@@ -33,11 +33,12 @@ ImageModel.delete = ImageModel_delete
 
 
 """Patch photologue create_size so image overrides are considered."""
+import os
 from io import BytesIO
 
 from django.core.files.base import ContentFile
 
-from photologue.models import Image
+from photologue.models import Image, PhotoSizeCache
 
 
 # Copy paste. No idea why it can't also be imported from photologue.models
@@ -78,9 +79,6 @@ def my_create_size(self, photosize):
     # Resize/crop image
     if im.size != photosize.size and photosize.size != (0, 0):
         im = image_model_obj.resize_image(im, photosize)
-    # Rotate if found & necessary
-    if image_model_obj.EXIF.get('Image Orientation', None) is not None:
-        im = im.transpose(IMAGE_EXIF_ORIENTATION_MAP[image_model_obj.EXIF.get('Image Orientation', 1).values[0]])
     # Apply watermark if found
     if photosize.watermark is not None:
         im = photosize.watermark.post_process(im)
@@ -90,7 +88,7 @@ def my_create_size(self, photosize):
     elif photosize.effect is not None:
         im = photosize.effect.post_process(im)
     # Save file
-    im_filename = getattr(self, "get_%s_filename" % photosize.name)()
+    im_filename = getattr(image_model_obj, "get_%s_filename" % photosize.name)()
     try:
         buffer = BytesIO()
         if im_format != 'JPEG':
@@ -106,3 +104,23 @@ def my_create_size(self, photosize):
         raise e
 
 ImageModel.create_size = my_create_size
+
+
+def my_get_filename_for_size(self, size):
+    photosize = PhotoSizeCache().sizes.get(size)
+
+    from jmbo.models import ModelBase
+    if isinstance(self, ModelBase):
+        from jmbo.models import ImageOverride
+        override = ImageOverride.objects.filter(
+            target=self.modelbase_obj, photosize=photosize
+        ).first()
+        image_model_obj = override if override else self
+    else:
+        image_model_obj = self
+
+    size = getattr(size, 'name', size)
+    base, ext = os.path.splitext(image_model_obj.image_filename())
+    return ''.join([base, '_', size, ext])
+
+ImageModel._get_filename_for_size = my_get_filename_for_size

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.17
+------
+#. Fixed an issue where the patched photologue may flip the image.
+
 2.0.16
 ------
 #. Special migration handling for a special database - Oracle.
