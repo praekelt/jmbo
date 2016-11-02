@@ -71,8 +71,8 @@ class RenderObjectNode(template.Node):
         if not rendered:
             if settings.TEMPLATE_DEBUG:
                 raise TemplateDoesNotExist({
-                    'content_type': ctype.app_label,
-                    'model': ctype.model,
+                    'content_type': ct.app_label,
+                    'model': ct.model,
                     'type': type
                 })
             else:
