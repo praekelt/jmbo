@@ -1,6 +1,6 @@
 from django.conf.urls import include, url
 
-from jmbo.views import ObjectDetail, ObjectList
+from jmbo.views import ObjectDetail, ObjectList, image_scale_url
 
 
 urlpatterns = [
@@ -19,4 +19,9 @@ urlpatterns = [
         ObjectList.as_view(),
         name="modelbase-list"
     ),
+    url(
+        r"^image-scale-url/(?P<pk>[\w-]+)/(?P<size>[\w-]+)/$",
+        image_scale_url,
+        name="image-scale-url"
+    )
 ]

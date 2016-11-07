@@ -1,7 +1,8 @@
+from django.http import HttpResponseRedirect
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from jmbo.models import ModelBase
+from jmbo.models import ModelBase, Image
 from jmbo.view_modifiers import DefaultViewModifier
 
 
@@ -80,3 +81,11 @@ class ObjectList(ListView):
         context["title"] = self.kwargs.get("title", "Items")
         context["view_modifier"] = self.view_modifier
         return context
+
+
+def image_scale_url(request, pk, size):
+    """Return scaled image URL. This ensures the scale is created by
+    Photologue."""
+
+    url = Image.objects.get(pk=pk)._get_SIZE_url(size)
+    return HttpResponseRedirect(url)

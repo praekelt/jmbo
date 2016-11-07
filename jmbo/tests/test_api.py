@@ -132,25 +132,12 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(as_json["status"], "success")
         self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "unpublished")
 
-    def test_modelbase_images(self):
-        response = self.client.get("/api/v1/jmbo-modelbase/%s/images/" % self.obj1.pk)
-        self.assertEqual(response.status_code, 403)
-        self.login()
-        response = self.client.get("/api/v1/jmbo-modelbase/%s/images/" % self.obj1.pk)
+    def test_modelbase_scales(self):
+        response = self.client.get("/api/v1/jmbo-image/%s/scales/" % self.image.pk)
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            as_json,
-            ["http://testserver/api/v1/jmbo-image/%s/" % self.image.pk]
-        )
-
-    def test_modelbase_images_permitted(self):
-        response = self.client.get("/api/v1/jmbo-modelbase-permitted/%s/images/" % self.obj2.pk)
-        as_json = json.loads(response.content)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            as_json,
-            ["http://testserver/api/v1/jmbo-image/%s/" % self.image.pk]
+        self.failUnless(
+            "/jmbo/image-scale-url/%s/thumbnail/" % self.image.pk in as_json
         )
 
     def test_create_image(self):
