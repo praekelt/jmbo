@@ -70,22 +70,6 @@ class ModelBaseAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
 
-        '''
-        self.fields['image'].help_text = """An image can be in format JPG, \
-PNG or GIF. Images are scaled to the appropriate size when people browse to \
-the site on mobile browsers, so always upload an image that will look good on \
-normal web browsers. In general an image with an aspect ratio of 4:3 will \
-yield best results."""
-
-        self.fields['crop_from'].help_text = """If you upload an image in an \
-aspect ratio that may require it to be cropped then you can adjust from where \
-the cropping takes place. This is useful to prevent peoples' heads from being \
-chopped off."""
-
-        # We want image to be optional, unlike photologue
-        self.fields['image'].required = False
-        '''
-
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
         relations = Relation.objects.filter(source_content_type=content_type)
@@ -113,20 +97,6 @@ chopped off."""
         if (instance is None) and not self.is_bound:
             # Select all sites initially
             self.fields['sites'].initial = Site.objects.all()
-
-    '''
-    def clean_image(self):
-        image = self.cleaned_data['image']
-        if image:
-            im = Image.open(image)
-            try:
-                im.load()
-            except IOError:
-                raise forms.ValidationError(
-                    "The image is either invalid or unsupported."
-                )
-        return image
-    '''
 
     def clean(self):
         """
