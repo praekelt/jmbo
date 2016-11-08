@@ -1,20 +1,24 @@
 import logging
 import json
 
+from django.utils.encoding import filepath_to_uri
 from django.conf import settings
 
 from rest_framework import viewsets
 from rest_framework.serializers import HyperlinkedModelSerializer, \
     ReadOnlyField, Serializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, \
+    DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.reverse import reverse
 from rest_framework_extras.serializers import FormMixin
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from jmbo.models import ModelBase
+from photologue.models import PhotoSize
+
+from jmbo.models import ModelBase, Image
 from jmbo.admin import ModelBaseAdmin
 
 
@@ -55,21 +59,7 @@ class ModelBaseSerializer(
         return di
 
 
-class CommonRoutes(object):
-
-    @detail_route(methods=["get"])
-    def images(self, request, pk, **kwargs):
-        li = []
-        for image in self.get_object().images.all():
-            # I can't get reverse('jmbo-image-detail', args=(image.pk,),
-            # request=self.request) to work, so use a workaround.
-            # xxx: DRF does not prefix base_name with app_label. Investigate.
-            reversed = "%s%s/" % (reverse("image-list", request=self.request), image.pk)
-            li.append(reversed)
-        return Response(li)
-
-
-class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
+class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
     queryset = ModelBase.objects.all()
     serializer_class = ModelBaseSerializer
     authentication_classes = (
@@ -88,9 +78,40 @@ class ModelBaseObjectsViewSet(CommonRoutes, viewsets.ModelViewSet):
         return Response({"status": "success"})
 
 
-class ModelBasePermittedViewSet(CommonRoutes, viewsets.ReadOnlyModelViewSet):
+class ModelBasePermittedViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ModelBase.permitted.all()
     serializer_class = ModelBaseSerializer
+
+
+class ImageSerializer(HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Image
+
+
+class ImageViewSet(viewsets.ModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
+    authentication_classes = (
+        SessionAuthentication, BasicAuthentication, JSONWebTokenAuthentication
+    )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
+
+    @detail_route(methods=["get"])
+    def scales(self, request, pk, **kwargs):
+        """Return link to a view that will redirect to the scaled image. This
+        intermediary view is required because we usually create the scaled
+        images lazily."""
+
+        li = []
+        obj = self.get_object()
+        for photosize in PhotoSize.objects.all():
+            url = reverse(
+                "jmbo:image-scale-url",
+                (obj.pk, photosize.name),
+            )
+            li.append(url)
+        return Response(li)
 
 
 def register(router, mapping=None):
@@ -100,7 +121,8 @@ def register(router, mapping=None):
     if mapping is None:
         mapping =  (
             ("jmbo-modelbase-permitted", ModelBasePermittedViewSet),
-            ("jmbo-modelbase", ModelBaseObjectsViewSet)
+            ("jmbo-modelbase", ModelBaseObjectsViewSet),
+            ("jmbo-image", ImageViewSet)
         )
 
     for pth, klass in mapping:
