@@ -50,7 +50,6 @@ class ObjectDetail(DetailView):
 
 class ObjectList(ListView):
     model = ModelBase
-    app_label = "jmbo"
     template_name = "jmbo/object_list.html"
     params = {}
     view_modifier = DefaultViewModifier
@@ -60,7 +59,7 @@ class ObjectList(ListView):
     def get_queryset(self):
         qs = self.model.permitted.filter(
             content_type__app_label=self.kwargs.get("app_label", self.app_label),
-            content_type__model=self.kwargs.get("model", self.model)
+            content_type__model=self.kwargs.get("model", self.model.__name__)
         )
 
         # Push self through view modifier
