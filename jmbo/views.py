@@ -58,7 +58,9 @@ class ObjectList(ListView):
 
     def get_queryset(self):
         qs = self.model.permitted.filter(
-            content_type__app_label=self.kwargs.get("app_label", self.app_label),
+            content_type__app_label=self.kwargs.get(
+                "app_label", getattr(self, "app_label", None)
+            ),
             content_type__model=self.kwargs.get("model", self.model.__name__)
         )
 
