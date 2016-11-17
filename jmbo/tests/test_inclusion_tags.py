@@ -1,10 +1,27 @@
+import os
 import unittest
 
 from django import template
+from django.core.files.base import ContentFile
+from django.core.management import call_command
 from django.test.client import Client, RequestFactory
 
+from jmbo.models import Image, ModelBaseImage
 from jmbo.tests.models import BranchModel, LeafModel, TestModel
 from jmbo.tests.extra.models import LeafModel as ExtraLeafModel
+
+
+RES_DIR = os.path.join(os.path.dirname(__file__), "res")
+IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
+
+
+def set_image(obj):
+    image = Image.objects.create(title=IMAGE_PATH)
+    image.image.save(
+        os.path.basename(IMAGE_PATH),
+        ContentFile(open(IMAGE_PATH, "rb").read())
+    )
+    ModelBaseImage.objects.create(modelbase=obj, image=image)
 
 
 class InclusionTagsTestCase(unittest.TestCase):
@@ -23,6 +40,7 @@ class InclusionTagsTestCase(unittest.TestCase):
 
         cls.obj1 = TestModel(title="title 1", state="published")
         cls.obj1.save()
+        set_image(cls.obj1)
         cls.obj2 = BranchModel(title="title 2", state="published")
         cls.obj2.save()
         cls.obj3 = LeafModel(title="title 3", state="published")
@@ -30,7 +48,9 @@ class InclusionTagsTestCase(unittest.TestCase):
         cls.obj4 = ExtraLeafModel(title="title 4", state="published")
         cls.obj4.save()
 
-    def test_render_tag(self):
+        call_command("load_photosizes")
+
+    def test_render_object_tag(self):
         # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
         self.context = template.Context({"object": self.obj1})
         t = template.Template("""{% load jmbo_inclusion_tags %}\
@@ -103,4 +123,11 @@ class InclusionTagsTestCase(unittest.TestCase):
 {% object_header object %}")
         result = t.render(self.context)
         self.failUnless("foo = bar" in result)
+
+    def test_image_url_tag(self):
+        self.context = template.Context({"object": self.obj1})
+        t = template.Template("""{% load jmbo_inclusion_tags %}\
+{% image_url object "detail" %}""")
+        result = t.render(self.context)
+        self.failUnless("jmbo_modelbase_detail.jpg" in result)
 

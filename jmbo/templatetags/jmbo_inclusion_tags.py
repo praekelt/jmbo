@@ -24,6 +24,7 @@ def render_object(parser, token):
 
 
 class RenderObjectNode(template.Node):
+
     def __init__(self, obj, type):
         self.obj = template.Variable(obj)
         self.type = template.Variable(type)
@@ -146,6 +147,7 @@ def view_modifier(parser, token):
 
 
 class ViewModifierNode(template.Node):
+
     def __init__(self, view_modifier):
         self.view_modifier = template.Variable(view_modifier)
 
@@ -159,3 +161,30 @@ class ViewModifierNode(template.Node):
             'jmbo/inclusion_tags/view_modifier.html',
             context
         )
+
+
+@register.tag
+def image_url(parser, token):
+    """Return image URL for a certain photosize. Defers to _get_image_url in
+    order to consider inheritance hierarchy."""
+
+    try:
+        tag_name, obj, type = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "image_url tag requires 2 arguments (obj, type), %s given" % \
+                    (len(token.split_contents()) - 1)
+            )
+    return ImageUrlNode(obj, type)
+
+
+class ImageUrlNode(template.Node):
+
+    def __init__(self, obj, type):
+        self.obj = template.Variable(obj)
+        self.type = template.Variable(type)
+
+    def render(self, context):
+        obj = self.obj.resolve(context)
+        type = self.type.resolve(context)
+        return obj._get_image_url(type)
