@@ -10,7 +10,6 @@ from django.utils import timezone
 # We're modifying a field from another app. This requires trickery.
 
 def fix_app_label(apps, schema_editor):
-    print "DO THE MIGRATION TRICK"
     migrations.recorder.MigrationRecorder.Migration.objects.create(
         app='jmbo', name='0004_photosize_name_length',
         applied=timezone.now()
