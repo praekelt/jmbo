@@ -49,6 +49,7 @@ class InclusionTagsTestCase(unittest.TestCase):
         cls.obj4.save()
 
         call_command("load_photosizes")
+        PhotoSizeCache().reset()
 
     def test_render_object_tag(self):
         # "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type)
