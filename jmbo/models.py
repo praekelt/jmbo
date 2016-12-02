@@ -528,6 +528,9 @@ but users won't be able to add new likes."),
                     break
                 ct = ContentType.objects.get_for_model(kls)
 
+        print "get_jmbo_modelbase_%s_url" % type
+        from  photologue.models import PhotoSize
+        print ", ".join([o.name for o in PhotoSize.objects.all()])
         return getattr(image, "get_jmbo_modelbase_%s_url" % type)()
 
     @property
