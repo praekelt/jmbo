@@ -4,10 +4,12 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test.client import Client
 
+from photologue.models import PhotoSizeCache
 from rest_framework.test import APIClient
 
 from jmbo.models import ModelBase, Image, ModelBaseImage
@@ -59,6 +61,9 @@ class APITestCase(unittest.TestCase):
         cls.mbi2 = ModelBaseImage.objects.create(
             modelbase=cls.obj2, image=cls.image
         )
+
+        call_command("load_photosizes")
+        PhotoSizeCache().reset()
 
     def setUp(self):
         self.client.logout()

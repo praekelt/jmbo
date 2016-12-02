@@ -6,6 +6,8 @@ from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.test.client import Client, RequestFactory
 
+from photologue.models import PhotoSizeCache
+
 from jmbo.models import Image, ModelBaseImage
 from jmbo.tests.models import BranchModel, LeafModel, TestModel
 from jmbo.tests.extra.models import LeafModel as ExtraLeafModel

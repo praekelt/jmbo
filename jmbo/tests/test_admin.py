@@ -1,13 +1,16 @@
 import unittest
 
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
 from django.test.client import Client, RequestFactory
 
+from photologue.models import PhotoSizeCache
+
 from jmbo.tests.models import TestModel
 
 
-class ModelBaseTestCase(unittest.TestCase):
+class AdminTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -27,6 +30,9 @@ class ModelBaseTestCase(unittest.TestCase):
 
         cls.obj = TestModel(title="title")
         cls.obj.save()
+
+        call_command("load_photosizes")
+        PhotoSizeCache().reset()
 
     def test_change_list(self):
         response = self.client.get(reverse("admin:tests_testmodel_changelist"))

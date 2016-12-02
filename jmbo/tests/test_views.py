@@ -1,9 +1,12 @@
 import unittest
 
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.test.client import Client
 from django.conf import settings
+
+from photologue.models import PhotoSizeCache
 
 from jmbo.models import ModelBase
 
@@ -21,6 +24,9 @@ class ViewsTestCase(unittest.TestCase):
         cls.obj.sites = Site.objects.all()
         cls.obj.save()
         cls.obj.publish()
+
+        call_command("load_photosizes")
+        PhotoSizeCache().reset()
 
     def test_detail_view(self):
         url = self.obj.get_absolute_url()
