@@ -3,15 +3,17 @@ import types
 from django.db import models, IntegrityError
 from django.db.models import signals, Sum
 from django.core.cache import cache
-from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.urlresolvers import reverse, NoReverseMatch
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site, SiteManager
 from django.utils.encoding import smart_unicode
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site, SiteManager
 from django.conf import settings
 
+from crum import get_current_request
 import django_comments
 from photologue.models import ImageModel
 from preferences import Preferences
@@ -372,16 +374,11 @@ but users won't be able to add new likes."),
 
     @property
     def is_permitted(self):
-        def for_site():
-            if self.sites.filter(id__exact=settings.SITE_ID):
-                return True
-            else:
-                return False
-
         if self.state == "unpublished":
             return False
         elif self.state == "published":
-            return for_site()
+            site = get_current_site(get_current_request())
+            return self.sites.filter(id__exact=site.id).exists()
 
         return False
 

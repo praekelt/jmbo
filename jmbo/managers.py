@@ -1,5 +1,8 @@
-from django.conf import settings
 from django.db import models
+from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
+
+from crum import get_current_request
 
 from jmbo import USE_GIS
 
@@ -53,7 +56,8 @@ class PermittedManager(BaseManager):
             )
 
         # Filter objects for current site
-        queryset = queryset.filter(sites__id__exact=settings.SITE_ID)
+        site = get_current_site(get_current_request())
+        queryset = queryset.filter(sites__id__exact=site.id)
 
         return queryset
 
