@@ -1,6 +1,6 @@
 import types
 
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import signals, Sum
 from django.core.cache import cache
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -336,7 +336,7 @@ but users won't be able to add new likes."),
                 q = jmbo.models.ModelBase.objects.filter(
                         slug=self.slug, sites=site).exclude(id=self.id)
                 if q.exists():
-                    raise RuntimeError(
+                    raise IntegrityError(
                         "The slug %s is already in use for site %s by %s" %
                         (self.slug, site.domain, q[0].title))
 

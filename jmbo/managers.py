@@ -42,6 +42,7 @@ if USE_GIS:
 class PermittedManager(BaseManager):
 
     def get_queryset(self, for_user=None):
+        #import pdb;pdb.set_trace()
         is_staff = getattr(for_user, 'is_staff', False)
         queryset = super(PermittedManager, self).get_queryset()
 

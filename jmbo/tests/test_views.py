@@ -1,9 +1,7 @@
-import unittest
-
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
-from django.test.client import Client
+from django.test import TestCase
 from django.conf import settings
 
 from photologue.models import PhotoSizeCache
@@ -11,14 +9,12 @@ from photologue.models import PhotoSizeCache
 from jmbo.models import ModelBase
 
 
-class ViewsTestCase(unittest.TestCase):
+class ViewsTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
-    def setUpClass(cls):
-        cls.client = Client()
-
-        cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")
-        cls.web_site.save()
+    def setUpTestData(cls):
+        super(ViewsTestCase, cls).setUpTestData()
 
         cls.obj = ModelBase.objects.create(title="title1")
         cls.obj.sites = Site.objects.all()
@@ -40,7 +36,3 @@ class ViewsTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.failUnless("""<div class="jmbo-list""" in response.content)
         self.failUnless("""<div class="jmbo-view-modifier">""" in response.content)
-
-    @classmethod
-    def tearDownClass(cls):
-        Site.objects.all().delete()

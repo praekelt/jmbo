@@ -1,11 +1,11 @@
-import unittest
-
 from django.template.defaultfilters import slugify
+from django.test import TestCase
 
 from jmbo.models import ModelBase
 
 
-class UtilsTestCase(unittest.TestCase):
+class UtilsTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     def test_generate_slug(self):
         # On save a slug should be set

@@ -1,5 +1,4 @@
 import os
-import unittest
 import json
 
 from django.core.urlresolvers import reverse
@@ -7,6 +6,7 @@ from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
+from django.test import TestCase
 from django.test.client import Client
 
 from photologue.models import PhotoSizeCache
@@ -20,11 +20,12 @@ RES_DIR = os.path.join(os.path.dirname(__file__), "res")
 IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
 
 
-class APITestCase(unittest.TestCase):
+class APITestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
-    def setUpClass(cls):
-        cls.client = APIClient()
+    def setUpTestData(cls):
+        super(APITestCase, cls).setUpTestData()
 
         # Editor
         cls.editor = get_user_model().objects.create(
@@ -37,7 +38,6 @@ class APITestCase(unittest.TestCase):
         cls.editor.save()
 
         # Prep
-        cls.client.logout()
         Site.objects.all().delete()
         Site.objects.create(id=1, domain="site.example.com")
         ModelBase.objects.all().delete()
@@ -66,6 +66,7 @@ class APITestCase(unittest.TestCase):
         PhotoSizeCache().reset()
 
     def setUp(self):
+        self.client = APIClient()
         self.client.logout()
 
     def login(self):

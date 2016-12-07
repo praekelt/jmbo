@@ -1,12 +1,12 @@
 import os
-import unittest
 
-from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.files.base import ContentFile
-from django.test import override_settings
+from django.db import transaction, IntegrityError
+from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from category.models import Category
 import django_comments
@@ -33,14 +33,14 @@ def set_image(obj):
     ModelBaseImage.objects.create(modelbase=obj, image=image)
 
 
-class ModelBaseTestCase(unittest.TestCase):
+class ModelBaseTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
-    def setUpClass(cls):
-        cls.web_site = Site(id=1, domain="web.address.com", name="web.address.com")
-        cls.web_site.save()
-        cls.mobile_site = Site(id=2, domain="mobi.address.com")
-        cls.mobile_site.save()
+    def setUpTestData(cls):
+        super(ModelBaseTestCase, cls).setUpTestData()
+        cls.web_site = Site.objects.all().first()
+        cls.mobile_site = Site.objects.all().last()
         call_command("load_photosizes")
         PhotoSizeCache().reset()
 
@@ -83,7 +83,7 @@ class ModelBaseTestCase(unittest.TestCase):
         base = obj.modelbase_ptr
         base.save()
         self.failUnless(
-            base.content_type == ContentType.objects.get_for_model( DummyModel)
+            base.content_type == ContentType.objects.get_for_model(DummyModel)
         )
 
         # Correct leaf class class name should be
@@ -91,40 +91,35 @@ class ModelBaseTestCase(unittest.TestCase):
         self.failUnless(base.class_name == DummyModel.__name__)
 
     def test_unique_slugs(self):
-        # create 2 sites
-        site_1 = Site(id=201, domain="site1.example.com")
-        site_1.save()
-        site_2 = Site(id=202, domain="site2.example.com")
-        site_2.save()
-
-        # Create an object for site 1
         obj_1 = ModelBase(title="object for site 1")
         obj_1.save()
-        obj_1.sites.add(site_1)
+        obj_1.sites.add(self.web_site)
         obj_1.slug = "generic_slug"
         obj_1.save()
 
         # Create an object for site 2
         obj_2 = ModelBase(title="object for site 2")
         obj_2.save()
-        obj_2.sites.add(site_2)
+        obj_2.sites.add(self.mobile_site)
         obj_2.slug = "generic_slug"
         obj_2.save()
 
         # Trying to add site_1 should raise an error.
-        with self.assertRaises(RuntimeError):
-            obj_2.sites.add(site_1)
-            obj_2.save()
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                obj_2.sites.add(self.web_site)
+                obj_2.save()
 
         # When the slugs differ, you can add site_1.
         obj_2.slug = "generic_slug_2"
-        obj_2.sites.add(site_1)
+        obj_2.sites.add(self.web_site)
         obj_2.save()
 
         # Trying to change the slug to an existing one should raise an error.
-        with self.assertRaises(RuntimeError):
-            obj_2.slug = "generic_slug"
-            obj_2.save()
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                obj_2.slug = "generic_slug"
+                obj_2.save()
 
     def test_as_leaf_class(self):
         leaf = LeafModel(title="title")
@@ -371,7 +366,7 @@ class ModelBaseTestCase(unittest.TestCase):
         obj.save()
         obj.sites = [1]
         obj.publish()
-        self.assertEqual(unicode(obj), u"Title (web.address.com)")
+        self.assertEqual(unicode(obj), u"Title (testserver)")
 
     def test_get_absolute_url(self):
         leaf = LeafModel.objects.create(title="title")
@@ -486,10 +481,3 @@ class ModelBaseTestCase(unittest.TestCase):
         self.assertTrue(
             extra_leaf.image_list_url.endswith("_jmbo_modelbase_list.jpg")
         )
-
-    @classmethod
-    def tearDownClass(cls):
-        Site.objects.all().delete()
-        # Relations are picked up by ModelBaseAdmin and will interfere with
-        # other tests.
-        Relation.objects.all().delete()

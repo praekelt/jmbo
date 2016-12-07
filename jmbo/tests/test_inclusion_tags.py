@@ -1,10 +1,10 @@
 import os
-import unittest
 
 from django import template
 from django.core.files.base import ContentFile
 from django.core.management import call_command
-from django.test.client import Client, RequestFactory
+from django.test import TestCase
+from django.test.client import RequestFactory
 
 from photologue.models import PhotoSizeCache
 
@@ -26,14 +26,14 @@ def set_image(obj):
     ModelBaseImage.objects.create(modelbase=obj, image=image)
 
 
-class InclusionTagsTestCase(unittest.TestCase):
+class InclusionTagsTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
-    def setUpClass(cls):
-        cls.request = RequestFactory()
-        cls.request.method = "GET"
-        cls.request._path = "/"
-        cls.request.get_full_path = lambda: cls.request._path
+    def setUpTestData(cls):
+        super(InclusionTagsTestCase, cls).setUpTestData()
+
+        cls.request = RequestFactory().get("/")
         class User():
             def is_authenticated(self):
                 return False

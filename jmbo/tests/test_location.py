@@ -1,4 +1,4 @@
-import unittest
+from django.test import TestCase
 
 from jmbo import USE_GIS
 from jmbo.models import ModelBase
@@ -10,8 +10,10 @@ if USE_GIS:
 
 
 if USE_GIS:
-    class LocationAwarenessTestCase(unittest.TestCase):
+    class LocationAwarenessTestCase(TestCase):
+
         def setUp(self):
+            super(LocationAwarenessTestCase, self).setUp()
             country = Country(name="South Africa", country_code="ZA")
             country.save()
             self.ct = City(

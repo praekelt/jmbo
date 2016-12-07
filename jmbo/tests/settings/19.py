@@ -21,11 +21,12 @@ INSTALLED_APPS = (
     "jmbo.tests",
     "jmbo.tests.extra",
     "jmbo",
-    "photologue",
     "category",
+    "crum",
     "django_comments",
     "likes",
     "pagination",
+    "photologue",
     "preferences",
     "rest_framework",
     "rest_framework_extras",
@@ -50,6 +51,7 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.messages.middleware.MessageMiddleware",
     "likes.middleware.SecretBallotUserIpUseragentMiddleware",
     "pagination.middleware.PaginationMiddleware",
+    "crum.CurrentRequestUserMiddleware",
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

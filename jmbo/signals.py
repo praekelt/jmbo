@@ -1,5 +1,6 @@
-from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
+from django.db import IntegrityError
+from django.dispatch import receiver
 
 import django_comments
 from likes.signals import likes_enabled_test, can_vote_test
@@ -54,6 +55,6 @@ def check_slug(sender, instance, **kwargs):
             q = jmbo.models.ModelBase.objects.filter(
                     slug=instance.slug, sites=site).exclude(id=instance.id)
             if q.exists():
-                raise RuntimeError(
+                raise IntegrityError(
                     "The slug %s is already in use for site %s by %s" %
                     (instance.slug, site.domain, q[0].title))

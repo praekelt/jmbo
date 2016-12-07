@@ -1,21 +1,19 @@
-import unittest
-
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_user_model
-from django.test.client import Client, RequestFactory
+from django.test import TestCase
 
 from photologue.models import PhotoSizeCache
 
 from jmbo.tests.models import TestModel
 
 
-class AdminTestCase(unittest.TestCase):
+class AdminTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
-    def setUpClass(cls):
-        cls.request = RequestFactory()
-        cls.client = Client()
+    def setUpTestData(cls):
+        super(AdminTestCase, cls).setUpTestData()
 
         # Editor
         cls.editor = get_user_model().objects.create(
@@ -26,13 +24,16 @@ class AdminTestCase(unittest.TestCase):
         )
         cls.editor.set_password("password")
         cls.editor.save()
-        cls.client.login(username='editor', password='password')
 
         cls.obj = TestModel(title="title")
         cls.obj.save()
 
         call_command("load_photosizes")
         PhotoSizeCache().reset()
+
+    def setUp(self):
+        super(AdminTestCase, self).setUp()
+        self.client.login(username='editor', password='password')
 
     def test_change_list(self):
         response = self.client.get(reverse("admin:tests_testmodel_changelist"))

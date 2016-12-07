@@ -1,6 +1,5 @@
-import unittest
-
 from django.contrib.sites.models import Site
+from django.test import TestCase
 from django.utils import timezone
 
 from jmbo.models import ModelBase
@@ -10,14 +9,14 @@ from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     BranchModel, LeafModel, TestModel
 
 
-class PermittedManagerTestCase(unittest.TestCase):
+class PermittedManagerTestCase(TestCase):
+    fixtures = ["sites.json"]
 
     @classmethod
     def setUpClass(cls):
-        cls.web_site = Site(id=1, domain="web.address.com")
-        cls.web_site.save()
-        cls.mobile_site = Site(id=2, domain="mobi.address.com")
-        cls.mobile_site.save()
+        super(PermittedManagerTestCase, cls).setUpClass()
+        cls.web_site = Site.objects.all().first()
+        cls.mobile_site = Site.objects.all().last()
 
     def test_get_query_set(self):
         # create unpublished item
@@ -183,8 +182,3 @@ class PermittedManagerTestCase(unittest.TestCase):
         dsmb_p2.save()
         dsmb_p2.sites.add(self.web_site)
         dsmb_p2.save()
-
-    @classmethod
-    def tearDownClass(cls):
-        Site.objects.all().delete()
-

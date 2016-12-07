@@ -1,8 +1,7 @@
-import unittest
-
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
-from django.test.client import Client, RequestFactory
+from django.test import TestCase
+from django.test.client import RequestFactory
 
 from jmbo.models import ModelBase
 from jmbo.admin import ModelBaseAdmin
@@ -10,10 +9,13 @@ from jmbo.admin import ModelBaseAdmin
 from jmbo.tests.models import DummyModel
 
 
-class ModelBaseAdminTestCase(unittest.TestCase):
+class ModelBaseAdminTestCase(TestCase):
+    fixtures = ["sites.json"]
 
-    def setUp(self):
-        self.user, self.created = get_user_model().objects.get_or_create(
+    @classmethod
+    def setUpTestData(cls):
+        super(ModelBaseAdminTestCase, cls).setUpTestData()
+        cls.user, cls.created = get_user_model().objects.get_or_create(
             username="test",
             email="test@test.com"
         )
@@ -39,10 +41,10 @@ class ModelBaseAdminTestCase(unittest.TestCase):
     def test_save_model(self):
         # Setup mock objects
         admin_obj = ModelBaseAdmin(ModelBase, 1)
-        request = RequestFactory()
+        request = RequestFactory().get("/")
         request.user = self.user
 
-        # After admin save the object"s owner should be the current user.
+        # After admin save the object's owner should be the current user.
         obj = ModelBase()
         admin_obj.save_model(request, obj, admin_obj.form, 1)
         self.failUnless(obj.owner == self.user)

@@ -1,24 +1,14 @@
-import unittest
-
 from django import template
 from django.contrib.sites.models import Site
-from django.test.client import Client, RequestFactory
-from django.conf import settings
+from django.test import TestCase
 
 from jmbo.models import ModelBase, Relation
 
 
-class TemplateTagsTestCase(unittest.TestCase):
+class TemplateTagsTestCase(TestCase):
+    fixtures = ["sites.json"]
 
-    @classmethod
-    def setUpClass(cls):
-        cls.request = RequestFactory()
-        cls.client = Client()
-
-        # Add a site
-        site, dc = Site.objects.get_or_create(id=1, name="another", domain="another.com")
-
-    def xtest_get_related_list(self):
+    def test_get_related_list(self):
         obj1 = ModelBase.objects.create(title="obj1")
         obj1.sites = Site.objects.all()
         obj1.publish()
@@ -39,8 +29,3 @@ class TemplateTagsTestCase(unittest.TestCase):
         result = t.render(self.context)
         self.failUnless("obj2" in result)
         self.failIf("obj3" in result)
-
-    @classmethod
-    def tearDownClass(cls):
-        Site.objects.all().delete()
-        settings.SITE_ID = 1
