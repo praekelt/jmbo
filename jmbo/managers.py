@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.utils import OperationalError
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 
@@ -55,9 +56,15 @@ class PermittedManager(BaseManager):
                 state='unpublished'
             )
 
-        # Filter objects for current site
-        site = get_current_site(get_current_request())
-        queryset = queryset.filter(sites__id__exact=site.id)
+        # Filter objects for current site. During the first migration the sites
+        # table may not exist yet. Since get_current_site needs to access the
+        # database that poses a problem and there is also no opportunity to use
+        # a migration dependency to avoid the issue.
+        try:
+            site = get_current_site(get_current_request())
+            queryset = queryset.filter(sites__id__exact=site.id)
+        except OperationalError:
+            pass
 
         return queryset
 
