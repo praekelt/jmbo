@@ -7,7 +7,7 @@ TIME_ZONE = "Africa/Johannesburg"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": "jmbo",
         "USER": "postgres",
         "PASSWORD": "",
