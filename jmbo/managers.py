@@ -1,7 +1,7 @@
 import logging
 
 from django.db import models
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
