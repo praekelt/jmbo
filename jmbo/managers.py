@@ -69,7 +69,7 @@ class PermittedManager(BaseManager):
         try:
             site = get_current_site(get_current_request())
             queryset = queryset.filter(sites__id__exact=site.id)
-        except (OperationalError, Site.DoesNotExist):
+        except (OperationalError, ProgrammingError, Site.DoesNotExist):
             logger.info("Sites not loaded yet. This message should appear \
                 only during the first migration."
             )
