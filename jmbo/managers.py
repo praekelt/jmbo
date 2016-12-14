@@ -1,11 +1,16 @@
+import logging
+
 from django.db import models
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 from django.contrib.sites.shortcuts import get_current_site
 from django.conf import settings
 
 from crum import get_current_request
 
 from jmbo import USE_GIS
+
+
+logger = logging.getLogger("django")
 
 
 class BaseManager(models.Manager):
@@ -63,8 +68,10 @@ class PermittedManager(BaseManager):
         try:
             site = get_current_site(get_current_request())
             queryset = queryset.filter(sites__id__exact=site.id)
-        except OperationalError:
-            pass
+        except (OperationalError, ProgrammingError):
+            logger.info("Sites not loaded yet. This message should appear \
+                only during the first migration."
+            )
 
         return queryset
 
