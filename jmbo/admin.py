@@ -100,7 +100,7 @@ class ModelBaseAdminForm(forms.ModelForm):
             self.fields['sites'].initial = Site.objects.all()
 
             # Select all layers initially
-            self.fields['layers'] = Layer.objects.all()
+            self.fields['layers'].initial = Layer.objects.all()
 
     def clean(self):
         """
