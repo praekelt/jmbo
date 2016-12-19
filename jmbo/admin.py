@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
+from layers.models import Layer
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo import USE_GIS
@@ -97,6 +98,9 @@ class ModelBaseAdminForm(forms.ModelForm):
         if (instance is None) and not self.is_bound:
             # Select all sites initially
             self.fields['sites'].initial = Site.objects.all()
+
+            # Select all layers initially
+            self.fields['layers'] = Layer.objects.all()
 
     def clean(self):
         """
