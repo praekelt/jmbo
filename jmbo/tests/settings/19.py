@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     "category",
     "crum",
     "django_comments",
+    "layers",
     "likes",
     "pagination",
     "photologue",

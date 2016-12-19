@@ -2,24 +2,25 @@ import os
 from copy import deepcopy
 from PIL import Image
 
-from django.db.models import Q
 from django import forms
-from django.contrib import admin
-from django.contrib.sites.models import Site
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
-from django.contrib.admin import SimpleListFilter
-from django.conf.urls import url
-from django.http import HttpResponse
 from django.conf import settings
+from django.conf.urls import url
+from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
+from layers.models import Layer
 from sites_groups.widgets import SitesGroupsWidget
 
+from jmbo import USE_GIS
 from jmbo.models import ModelBase, Relation, Image
 from jmbo.utils import generate_slug
-from jmbo import USE_GIS
 
 
 class CategoriesListFilter(SimpleListFilter):
@@ -98,6 +99,10 @@ class ModelBaseAdminForm(forms.ModelForm):
             # Select all sites initially
             self.fields['sites'].initial = Site.objects.all()
 
+        # If there are no layers remove the field
+        if not Layer.objects.all().exists():
+            del self.fields['layers']
+
     def clean(self):
         """
         Slug must be unique per site. Show sensible errors when not. Can only
@@ -163,7 +168,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
         (
             'Publishing',
             {
-                'fields': ('sites', 'publish_on', 'retract_on'),
+                'fields': ('sites', 'layers', 'publish_on', 'retract_on'),
                 'classes': (),
             }
         ),
@@ -199,6 +204,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
+
         fieldsets = deepcopy(self.fieldsets)
 
         set_fields = []

@@ -15,6 +15,7 @@ from django.conf import settings
 
 from crum import get_current_request
 import django_comments
+from layers.models import Layer
 from photologue.models import ImageModel
 from preferences import Preferences
 import secretballot
@@ -176,6 +177,12 @@ eg. Reuters.")
         null=True,
         help_text=_("Makes item eligible to be published on selected sites."),
     )
+    layers = models.ManyToManyField(
+        Layer,
+        blank=True,
+        null=True,
+        help_text=_("Makes item eligible to be published on selected layers."),
+    )
     comments_enabled = models.BooleanField(
         verbose_name=_("Commenting enabled"),
         help_text=_("Enable commenting for this item. Comments will not \
@@ -310,25 +317,25 @@ but users won't be able to add new likes."),
     def save(self, *args, **kwargs):
         now = timezone.now()
 
-        # set created time to now if not already set.
+        # Set created time to now if not already set
         if not self.created:
             self.created = now
 
-        # set modified to now on each save.
+        # Set modified to now on each save
         set_modified = kwargs.pop("set_modified", True)
         if set_modified:
             self.modified = now
 
-        # set leaf class content type
+        # Set leaf class content type
         if not self.content_type:
             self.content_type = ContentType.objects.get_for_model(\
                     self.__class__)
 
-        # set leaf class class name
+        # Set leaf class class name
         if not self.class_name:
             self.class_name = self.__class__.__name__
 
-        # set title as slug uniquely exactly once
+        # Set title as slug uniquely exactly once
         if not self.slug:
             self.slug = generate_slug(self, self.title)
 

@@ -1,6 +1,10 @@
 from django.contrib.sites.models import Site
+from django.core.management import call_command
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils import timezone
+
+from layers.models import Layer
 
 from jmbo.models import ModelBase
 from jmbo.management.commands import jmbo_publish
@@ -18,7 +22,12 @@ class PermittedManagerTestCase(TestCase):
         cls.web_site = Site.objects.all().first()
         cls.mobile_site = Site.objects.all().last()
 
-    def test_get_query_set(self):
+    @classmethod
+    def setUpTestData(cls):
+        super(PermittedManagerTestCase, cls).setUpTestData()
+        #call_command("load_layers")
+
+    def test_get_queryset(self):
         # create unpublished item
         unpublished_obj = ModelBase(title="title", state="unpublished")
         unpublished_obj.save()
@@ -53,6 +62,22 @@ class PermittedManagerTestCase(TestCase):
         published_obj_mobile.save()
         queryset = ModelBase.permitted.all()
         self.failIf(published_obj_mobile in queryset)
+
+        # Publish to different layers. The current layer during this test run
+        # is "web".
+        with override_settings(LAYERS={"tree": ["basic", ["web"]], "current": "web"}):
+            call_command("load_layers")
+            obj_layer_basic = ModelBase.objects.create(state="published")
+            obj_layer_basic.sites = Site.objects.all()
+            obj_layer_basic.layers = [Layer.objects.get(name="basic")]
+            obj_layer_basic.save()
+            obj_layer_web = ModelBase.objects.create(state="published")
+            obj_layer_web.sites = Site.objects.all()
+            obj_layer_web.layers = [Layer.objects.get(name="web")]
+            obj_layer_web.save()
+            queryset = ModelBase.permitted.all()
+            self.failIf(obj_layer_basic in queryset)
+            self.failUnless(obj_layer_web in queryset)
 
     def test_publish_retract(self):
         today = timezone.make_aware(timezone.datetime.today())
