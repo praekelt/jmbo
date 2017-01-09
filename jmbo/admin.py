@@ -1,6 +1,6 @@
 import os
 from copy import deepcopy
-from PIL import Image
+from PIL import Image as PILImage
 
 from django import forms
 from django.conf import settings
@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
 from layers.models import Layer
+from photologue.models import PhotoSizeCache
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo import USE_GIS
@@ -58,6 +59,54 @@ def make_unpublished(modeladmin, request, queryset):
     for obj in queryset:
         obj.unpublish()
 make_unpublished.short_description = "Mark selected items as unpublished"
+
+
+class ImageAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Image
+        fields = ("title", "subtitle", "image", "attribution", "crop_from")
+
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        if image:
+            im = PILImage.open(image)
+            try:
+                im.load()
+            except IOError:
+                raise forms.ValidationError(
+                    "The image is either invalid or unsupported."
+                )
+        return image
+
+
+class ImageAdmin(admin.ModelAdmin):
+    form = ImageAdminForm
+    list_display = ("title", "_thumb", "_links")
+
+    def _thumb(self, obj):
+        return """<img src="%(url)s" />""" % \
+            {"url": obj.get_thumbnail_url()}
+    _thumb.short_description = _("Thumbnail")
+    _thumb.allow_tags = True
+
+    def _links(self, obj):
+        s = """<a href="%(url)s">%(url)s</a>
+            <br />
+            <a href="#"
+               onclick="django.jQuery('#jmbo-image-cl-links').toggle(); return false;">
+                %(label)s
+            </a>
+            <ul id="jmbo-image-cl-links" style="display: none;">
+            """ % {"url": obj.image.url, "label": _("More / less")}
+        for name in sorted(PhotoSizeCache().sizes.keys()):
+            s += """<li><a href="%(url)s">%(url)s</a></li>""" % \
+                {"url": obj._get_SIZE_url(name)}
+        s += "</ul>"
+        return s
+
+    _links.short_description = _("Link(s)")
+    _links.allow_tags = True
 
 
 class ModelBaseAdminForm(forms.ModelForm):
@@ -412,5 +461,5 @@ class RelationAdmin(admin.ModelAdmin):
     form = RelationAdminForm
 
 
+admin.site.register(Image, ImageAdmin)
 admin.site.register(Relation, RelationAdmin)
-admin.site.register(Image, admin.ModelAdmin)
