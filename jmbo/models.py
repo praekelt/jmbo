@@ -115,8 +115,7 @@ UI. A subtitle makes a distinction."),
         help_text=_("A short description. More verbose than the title but \
 limited to one or two sentences. It may not contain any markup."),
         blank=True,
-        null=True,
-        db_index=True
+        null=True
     )
     created = models.DateTimeField(
         _("Created Date & Time"),
