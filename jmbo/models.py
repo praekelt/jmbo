@@ -54,6 +54,9 @@ UI. A subtitle makes a distinction."),
         help_text=_("Attribution for the image, eg. Shutterstock.")
     )
 
+    class Meta:
+        ordering = ("title",)
+
     def __unicode__(self):
         if self.subtitle:
             return "%s - %s" % (self.title, self.subtitle)
