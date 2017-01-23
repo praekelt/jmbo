@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=255)),
                 ('title', models.CharField(db_index=True, help_text='A short descriptive title.', max_length=200, verbose_name='Title')),
                 ('subtitle', models.CharField(blank=True, default=b'', help_text='Some titles may be the same and cause confusion in admin UI. A subtitle makes a distinction.', max_length=200, null=True)),
-                ('description', models.TextField(blank=True, db_index=True, help_text='A short description. More verbose than the title but limited to one or two sentences. It may not contain any markup.', null=True)),
+                ('description', models.TextField(blank=True, help_text='A short description. More verbose than the title but limited to one or two sentences. It may not contain any markup.', null=True)),
                 ('created', models.DateTimeField(blank=True, db_index=True, help_text='Date and time on which this item was created. This is automatically set on creation but can be changed subsequently.', verbose_name='Created Date & Time')),
                 ('modified', models.DateTimeField(db_index=True, editable=False, help_text='Date and time on which this item was last modified. This is automatically set each time the item is saved.', verbose_name='Modified Date & Time')),
                 ('owner_override', models.CharField(blank=True, help_text='If the author is not a registered user then set it here, eg. Reuters.', max_length=256, null=True)),
