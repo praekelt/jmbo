@@ -1,5 +1,7 @@
 import os
+from shutil import rmtree
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
@@ -10,10 +12,10 @@ from django.utils import timezone
 
 from category.models import Category
 import django_comments
-from photologue.models import PhotoSizeCache
+from photologue.models import PhotoSize, PhotoSizeCache
 from secretballot.models import Vote
 
-from jmbo.models import ModelBase, Relation, Image, ModelBaseImage
+from jmbo.models import ModelBase, Relation, Image, ModelBaseImage, ImageOverride
 from jmbo.tests.models import DummyRelationalModel1, DummyRelationalModel2, \
     DummyTargetModelBase, DummySourceModelBase, DummyModel, TrunkModel, \
     BranchModel, LeafModel, TestModel
@@ -22,6 +24,7 @@ from jmbo.tests.extra.models import LeafModel as ExtraLeafModel
 
 RES_DIR = os.path.join(os.path.dirname(__file__), "res")
 IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
+IMAGE_OVERRIDE_PATH = os.path.join(RES_DIR, "override.jpg")
 
 
 def set_image(obj):
@@ -31,6 +34,17 @@ def set_image(obj):
         ContentFile(open(IMAGE_PATH, "rb").read())
     )
     ModelBaseImage.objects.create(modelbase=obj, image=image)
+
+
+def set_image_override(image):
+    override = ImageOverride.objects.create(
+        image=image,
+        photo_size=PhotoSize.objects.get(name="thumbnail")
+    )
+    override.replacement.save(
+        os.path.basename(IMAGE_OVERRIDE_PATH),
+        ContentFile(open(IMAGE_OVERRIDE_PATH, "rb").read())
+    )
 
 
 class ModelBaseTestCase(TestCase):
@@ -43,6 +57,9 @@ class ModelBaseTestCase(TestCase):
         cls.mobile_site = Site.objects.all().last()
         call_command("load_photosizes")
         PhotoSizeCache().reset()
+
+        # Clear media root
+        rmtree(settings.MEDIA_ROOT)
 
     def test_save(self):
         before_save = timezone.now()
@@ -480,4 +497,12 @@ class ModelBaseTestCase(TestCase):
         )
         self.assertTrue(
             extra_leaf.image_list_url.endswith("_jmbo_modelbase_list.jpg")
+        )
+
+    def test_image_override_url(self):
+        leaf = LeafModel.objects.create(title="title")
+        set_image(leaf)
+        set_image_override(leaf.image)
+        self.assertTrue(
+            leaf.image.get_thumbnail_url().endswith("override.jpg")
         )

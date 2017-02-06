@@ -82,6 +82,8 @@ SITE_ID = 1
 
 STATIC_URL = "/static/"
 
+MEDIA_ROOT = "/tmp/jmbo"
+
 # Disable celery
 CELERY_ALWAYS_EAGER = True
 BROKER_BACKEND = "memory"

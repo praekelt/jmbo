@@ -16,7 +16,7 @@ from django.conf import settings
 from crum import get_current_request
 import django_comments
 from layers.models import Layer
-from photologue.models import ImageModel
+from photologue.models import ImageModel, PhotoSize, get_storage_path
 from preferences import Preferences
 import secretballot
 from secretballot.models import Vote
@@ -61,6 +61,22 @@ UI. A subtitle makes a distinction."),
         if self.subtitle:
             return "%s - %s" % (self.title, self.subtitle)
         return self.title
+
+    def _get_SIZE_url(self, size):
+        override = self.imageoverride_set.filter(photo_size__name=size).first()
+        if override is not None:
+            return override.replacement.url
+        return super(Image, self)._get_SIZE_url(size)
+
+
+class ImageOverride(models.Model):
+    """Allows manual setting of a photo size for an image"""
+    replacement = models.ImageField(upload_to=get_storage_path)
+    image = models.ForeignKey(Image)
+    photo_size = models.ForeignKey(PhotoSize)
+
+    class Meta:
+        unique_together = ("image", "photo_size")
 
 
 class ModelBase(models.Model):

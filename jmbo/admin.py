@@ -20,7 +20,7 @@ from photologue.models import PhotoSizeCache
 from sites_groups.widgets import SitesGroupsWidget
 
 from jmbo import USE_GIS
-from jmbo.models import ModelBase, Relation, Image
+from jmbo.models import ModelBase, Relation, Image, ImageOverride
 from jmbo.utils import generate_slug
 
 
@@ -80,9 +80,14 @@ class ImageAdminForm(forms.ModelForm):
         return image
 
 
+class ImageOverrideInline(admin.TabularInline):
+    model = ImageOverride
+
+
 class ImageAdmin(admin.ModelAdmin):
     form = ImageAdminForm
     list_display = ("title", "_thumb", "_links")
+    inlines = (ImageOverrideInline,)
 
     def _thumb(self, obj):
         return """<img src="%(url)s" />""" % \
