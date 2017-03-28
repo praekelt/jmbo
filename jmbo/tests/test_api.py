@@ -143,7 +143,8 @@ class APITestCase(TestCase):
         as_json = json.loads(response.content)
         self.assertEqual(response.status_code, 200)
         self.failUnless(
-            "/jmbo/image-scale-url/%s/thumbnail/" % self.image.pk in as_json
+            "http://testserver/jmbo/image-scale-url/%s/thumbnail/" \
+                % self.image.pk in as_json
         )
 
     def test_create_image(self):
