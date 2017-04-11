@@ -60,7 +60,9 @@ class ModelBaseSerializer(
 
 
 class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
-    queryset = ModelBase.objects.all()
+    queryset = ModelBase.objects.all().prefetch_related(
+        "categories", "sites", "layers", "tags", "images"
+        ).select_related("owner", "content_type", "primary_category")
     serializer_class = ModelBaseSerializer
     authentication_classes = (
         SessionAuthentication, BasicAuthentication, JSONWebTokenAuthentication
@@ -79,7 +81,9 @@ class ModelBaseObjectsViewSet(viewsets.ModelViewSet):
 
 
 class ModelBasePermittedViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ModelBase.permitted.all()
+    queryset = ModelBase.permitted.all().prefetch_related(
+        "categories", "sites", "layers", "tags", "images"
+        ).select_related("owner", "content_type", "primary_category")
     serializer_class = ModelBaseSerializer
 
 
