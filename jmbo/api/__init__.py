@@ -1,8 +1,8 @@
-import logging
 import json
+import logging
 
-from django.utils.encoding import filepath_to_uri
 from django.conf import settings
+from django.utils.encoding import filepath_to_uri
 
 from rest_framework import viewsets
 from rest_framework.serializers import HyperlinkedModelSerializer, \
@@ -110,10 +110,10 @@ class ImageViewSet(viewsets.ModelViewSet):
         li = []
         obj = self.get_object()
         for photosize in PhotoSize.objects.all():
-            url = reverse(
+            url = request.build_absolute_uri(reverse(
                 "jmbo:image-scale-url",
                 (obj.pk, photosize.name),
-            )
+            ))
             li.append(url)
         return Response(li)
 
