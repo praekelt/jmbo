@@ -17,6 +17,7 @@ setup(
         "pytz",
         "django>=1.9",
         "django-category>=1.9",
+        #"django-layers", fix when stable
         "django-likes>=0.0.8",
         "django-pagination-fork>=1.0.17",
         "django-preferences",
