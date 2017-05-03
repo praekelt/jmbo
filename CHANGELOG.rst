@@ -3,7 +3,7 @@ Changelog
 
 next
 ----
-#. Django 1.9 compatibility.
+#. Django 1.9 - 1.11 compatibility.
 
 2.0.16
 ------

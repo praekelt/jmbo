@@ -1,4 +1,4 @@
-Django==1.9.6
+Django==1.10.4
 django-category==1.9
 django-contrib-comments==1.7.1
 django-export==1.9

@@ -70,7 +70,7 @@ class RenderObjectNode(template.Node):
         context.pop()
 
         if not rendered:
-            if settings.TEMPLATE_DEBUG:
+            if settings.TEMPLATES[0]["OPTIONS"].get("debug", False):
                 raise TemplateDoesNotExist({
                     'content_type': ct.app_label,
                     'model': ct.model,

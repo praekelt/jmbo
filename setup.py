@@ -18,7 +18,7 @@ setup(
         "django>=1.9",
         "django-category>=1.9",
         "django-layers-hr>=1.10.1",
-        "django-likes>=0.0.8",
+        "django-likes>=1.11",
         "django-pagination-fork>=1.0.17",
         "django-preferences",
         "django-photologue>=3.3",
