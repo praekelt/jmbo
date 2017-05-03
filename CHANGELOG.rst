@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.0
+-----
+#. Django 1.9 - 1.11 compatibility.
+#. This release deprecates the items marked for deprecation in the 2.x versions.
+
 2.0.17
 ------
 #. Fixed an issue where the patched photologue may flip the image.

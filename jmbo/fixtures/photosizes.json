@@ -3,7 +3,7 @@
         "pk": null,
         "model": "photologue.photosize",
         "fields": {
-            "name": "modelbase_detail",
+            "name": "jmbo_modelbase_detail",
             "watermark": null,
             "increment_count": false,
             "effect": null,
@@ -19,7 +19,7 @@
         "pk": null,
         "model": "photologue.photosize",
         "fields": {
-            "name": "modelbase_list",
+            "name": "jmbo_modelbase_list",
             "watermark": null,
             "increment_count": false,
             "effect": null,

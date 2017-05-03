@@ -1,5 +1,6 @@
 import warnings
 
+from django.db import models
 from django import template
 from django.template import TemplateDoesNotExist
 from django.contrib.contenttypes.models import ContentType
@@ -23,6 +24,7 @@ def render_object(parser, token):
 
 
 class RenderObjectNode(template.Node):
+
     def __init__(self, obj, type):
         self.obj = template.Variable(obj)
         self.type = template.Variable(type)
@@ -39,20 +41,27 @@ class RenderObjectNode(template.Node):
         context.push()
         context['object'] = obj
 
-        # Template names follow typical Django naming convention but also
-        # provides legacy handling.
-        ctype = ContentType.objects.get_for_model(obj)
-        template_names = (
-            "%s/inclusion_tags/%s_%s.html" % (ctype.app_label, ctype.model, type),
-            "%s/%s/inclusion_tags/object_%s.html" % (ctype.app_label, ctype.model, type),
-            "%s/inclusion_tags/object_%s.html" % (ctype.app_label, type),
-            "jmbo/inclusion_tags/object_%s.html" % type,
-            "jmbo/inclusion_tags/modelbase_%s.html" % type
-        )
+        # Template names follow typical Django naming convention, but also
+        # traverse upwards over inheritance hierarchy.
+        template_names = []
+        ct = obj.content_type
+        kls = ct.model_class()
+        while ct.model != "model":
+            template_names.extend((
+                "%s/inclusion_tags/%s_%s.html" % \
+                    (ct.app_label, ct.model, type),
+                "%s/inclusion_tags/modelbase_%s.html" % \
+                    (ct.app_label, type),
+            ))
+            kls = kls.__bases__[0]
+            if kls == models.Model:
+                break
+            ct = ContentType.objects.get_for_model(kls)
+
         rendered = False
         for template_name in template_names:
             try:
-                response = render_to_string(template_name, context)
+                response = render_to_string(template_name, context.flatten())
                 rendered = True
                 break
             except TemplateDoesNotExist:
@@ -61,10 +70,10 @@ class RenderObjectNode(template.Node):
         context.pop()
 
         if not rendered:
-            if settings.TEMPLATE_DEBUG:
+            if settings.TEMPLATES[0]["OPTIONS"].get("debug", False):
                 raise TemplateDoesNotExist({
-                    'content_type': ctype.app_label,
-                    'model': ctype.model,
+                    'content_type': ct.app_label,
+                    'model': ct.model,
                     'type': type
                 })
             else:
@@ -138,6 +147,7 @@ def view_modifier(parser, token):
 
 
 class ViewModifierNode(template.Node):
+
     def __init__(self, view_modifier):
         self.view_modifier = template.Variable(view_modifier)
 
@@ -151,3 +161,30 @@ class ViewModifierNode(template.Node):
             'jmbo/inclusion_tags/view_modifier.html',
             context
         )
+
+
+@register.tag
+def image_url(parser, token):
+    """Return image URL for a certain photosize. Defers to _get_image_url in
+    order to consider inheritance hierarchy."""
+
+    try:
+        tag_name, obj, type = token.split_contents()
+    except ValueError:
+        raise template.TemplateSyntaxError(
+            "image_url tag requires 2 arguments (obj, type), %s given" % \
+                    (len(token.split_contents()) - 1)
+            )
+    return ImageUrlNode(obj, type)
+
+
+class ImageUrlNode(template.Node):
+
+    def __init__(self, obj, type):
+        self.obj = template.Variable(obj)
+        self.type = template.Variable(type)
+
+    def render(self, context):
+        obj = self.obj.resolve(context)
+        type = self.type.resolve(context)
+        return obj._get_image_url(type)
