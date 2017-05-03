@@ -1,0 +1,29 @@
+{% load likes_inclusion_tags i18n jmbo_template_tags ultracache_tags %}
+
+<div class="header-inclusion">
+    <div class="title">
+	    {{ object.title }}
+    </div>
+
+	<div class="meta">
+
+        {% if object.comments_enabled %}
+            {% ultracache 3600 'object-header-comments' object.id object.comment_count %}
+                <div class="comments">
+                    {% with object.comment_count as total %}
+                        ({{ total }} {% blocktrans %}comment{% endblocktrans %}{{ total|pluralize }})
+                    {% endwith %}
+                </div>
+            {% endultracache %}
+        {% endif %}
+
+        {% comment %}Likes cannot be cached here because of complex rules{% endcomment %}
+        {% if object.likes_enabled %}
+            <div class="likes">
+                {% likes object %}
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>

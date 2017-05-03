@@ -11,7 +11,7 @@ from jmbo.models import ModelBase
 class Command(BaseCommand):
     help = "Publish or unpublish Jmbo objects."
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def handle(self, *args, **options):
         now = timezone.now()
 

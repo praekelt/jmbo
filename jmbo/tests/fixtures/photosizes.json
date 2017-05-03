@@ -1,0 +1,34 @@
+[
+    {
+        "pk": null,
+        "model": "photologue.photosize",
+        "fields": {
+            "name": "tests_branchmodel_detail",
+            "watermark": null,
+            "increment_count": false,
+            "effect": null,
+            "crop": true,
+            "height": 240,
+            "width": 320,
+            "upscale": true,
+            "pre_cache": false,
+            "quality": 70
+        }
+    },
+    {
+        "pk": null,
+        "model": "photologue.photosize",
+        "fields": {
+            "name": "tests_branchmodel_list",
+            "watermark": null,
+            "increment_count": false,
+            "effect": null,
+            "crop": true,
+            "height": 64,
+            "width": 64,
+            "upscale": true,
+            "pre_cache": false,
+            "quality": 70
+        }
+    }
+]

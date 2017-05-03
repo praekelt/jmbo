@@ -1,13 +1,10 @@
 {% extends "base.html" %}
-{% comment %}
-Maintain backward compatibility by preserving this template.
-{% endcomment %}
-{% load jmbo_inclusion_tags jmbo_template_tags %}
+{% load jmbo_inclusion_tags jmbo_template_tags ultracache_tags %}
 
 {% block extratitle %} - {{ object.title }}{% endblock %}
 
 {% block extrameta %}
-    {% jmbocache 1200 'object-detail' object.id object.modified %}
+    {% ultracache 1200 'modelbase-detail' object.id object.modified %}
         <link rel="canonical" href="{{ object.get_absolute_url }}" />
         <meta name="description" content="{{ object.description|default_if_none:'' }}" />
         {% with object.tags.all as tags %}
@@ -22,11 +19,11 @@ Maintain backward compatibility by preserving this template.
             <meta property="og:image" content="http{% if request.is_secure %}s{%endif %}://{{ request.get_host }}{{ object.image_detail_url }}" />
         {% endif %}
         <meta property="og:description" content="{{ object.description|default_if_none:'' }}" />
-    {% endjmbocache %}
+    {% endultracache %}
 {% endblock %}
 
 {% block content %}
-    <div class="object-detail {{ object.class_name.lower }}-detail">
+    <div class="jmbo-detail {{ object.content_type.app_label }}-detail {{ object.content_type.app_label }}-{{ object.content_type.model }}-detail" >
         {% if view_modifier %}
             {% if title %}
                 <div class="title">

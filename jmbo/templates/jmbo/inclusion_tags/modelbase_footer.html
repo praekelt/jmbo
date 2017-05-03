@@ -1,0 +1,28 @@
+{% load i18n jmbo_template_tags ultracache_tags %}
+
+{% ultracache 3600 'object_footer' object.id object.modified %}
+<div class="footer-inclusion">
+
+    <div class="sharing">
+        <div class="facebook">
+            <a href="http://www.facebook.com/sharer.php?u={{ request.build_absolute_uri|iriencode }}&t={{ object.title|iriencode }}"
+               target="blank">
+               <img src="{{ STATIC_URL }}jmbo/images/facebook_share.png" alt="{% trans "Share on Facebook" %}" />{% trans "Share" %}
+            </a>
+        </div>
+        <div class="twitter">
+            <a href="http://www.twitter.com/share?url={{ request.build_absolute_uri|iriencode }}"
+               target="blank">
+               <img src="{{ STATIC_URL }}jmbo/images/twitter_share.png" alt="{% trans "Share on Twitter" %}" />{% trans "Tweet" %}
+            </a>
+        </div>
+        <div class="google">
+            <a href="http://plus.google.com/share?url={{ request.build_absolute_uri|iriencode }}"
+               target="blank">
+               <img src="{{ STATIC_URL }}jmbo/images/google_share.png" alt="{% trans "Share on Google+" %}" />{% trans "Share" %}
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endultracache %}

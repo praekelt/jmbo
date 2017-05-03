@@ -1,7 +1,8 @@
-from django.dispatch import receiver
 from django.db.models.signals import post_save, m2m_changed
-from django.contrib.comments.models import Comment
+from django.db import IntegrityError
+from django.dispatch import receiver
 
+import django_comments
 from likes.signals import likes_enabled_test, can_vote_test
 from likes.exceptions import CannotVoteException, LikesNotEnabledException
 from secretballot.models import Vote
@@ -28,7 +29,8 @@ def on_can_vote_test(sender, instance, user, request, **kwargs):
 
 @receiver(post_save)
 def on_comment_post_save(sender, **kwargs):
-    if issubclass(sender, Comment):
+    model = django_comments.get_model()
+    if issubclass(sender, model):
         obj = kwargs['instance'].content_object
         if isinstance(obj, jmbo.models.ModelBase):
             obj.comment_count = obj._comment_count
@@ -53,6 +55,6 @@ def check_slug(sender, instance, **kwargs):
             q = jmbo.models.ModelBase.objects.filter(
                     slug=instance.slug, sites=site).exclude(id=instance.id)
             if q.exists():
-                raise RuntimeError(
+                raise IntegrityError(
                     "The slug %s is already in use for site %s by %s" %
                     (instance.slug, site.domain, q[0].title))

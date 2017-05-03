@@ -1,5 +1,6 @@
 from setuptools import setup, find_packages
 
+
 setup(
     name='jmbo',
     version='2.0.17',
@@ -12,27 +13,26 @@ setup(
     packages = find_packages(),
     install_requires = [
         # The bare minimum requirements. The tests use explicit versions.
-        'Pillow',
-        'pytz',
-        'django>=1.4,<1.7',
-        'django-category>=0.0.5',
-        'django-likes>=0.0.8',
-        'django-preferences',
-        'django-publisher',             # legacy, required by migrations
-        'django-sites-groups',
-        'django-tastypie>=0.10,<0.12',  # 0.12 requires Django 1.7
-        'django-celery',
-        'django-generate',
-        'django-pagination',
-        'django-photologue>=3.1,<3.2',
-        'django-ultracache',
-        'south',
+        "Pillow",
+        "pytz",
+        "django>=1.9",
+        "django-category>=1.9",
+        "django-layers-hr>=1.10.1",
+        "django-likes>=1.11",
+        "django-pagination-fork>=1.0.17",
+        "django-preferences",
+        "django-photologue>=3.3",
+        "djangorestframework-extras>=0.2",
+        "djangorestframework-jwt==1.8.0",
+        "django-sites-groups>=1.9.1",
+        "django-ultracache>=1.10.2",
+        "django-crum",
     ],
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python",
         "License :: OSI Approved :: BSD License",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Operating System :: OS Independent",
         "Framework :: Django",
         "Intended Audience :: Developers",

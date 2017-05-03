@@ -1,58 +1,52 @@
 import os
 from copy import deepcopy
-import struct
-from PIL import Image
+from PIL import Image as PILImage
 
-from django.db.models import Q
-from django.db.models.fields import FieldDoesNotExist
 from django import forms
-from django.contrib import admin
-from django.contrib.admin.sites import AlreadyRegistered
-from django.contrib.sites.models import Site
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.conf.urls import url
+from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.http import HttpResponse
+from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
-from category.admin import CategoryAdmin
-from publisher.models import Publisher
+from layers.models import Layer
+from photologue.models import PhotoSizeCache
 from sites_groups.widgets import SitesGroupsWidget
 
-from jmbo.models import ModelBase, Relation, ImageOverride
 from jmbo import USE_GIS
+from jmbo.models import ModelBase, Relation, Image, ImageOverride
+from jmbo.utils import generate_slug
 
 
-# Maintain backwards compatibility with Django versions < 1.4.
-try:
-    from django.contrib.admin import SimpleListFilter
+class CategoriesListFilter(SimpleListFilter):
+    title = "categories"
+    parameter_name = "category_slug"
 
-    class CategoriesListFilter(SimpleListFilter):
-        title = "categories"
-        parameter_name = "category_slug"
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return ((category.slug, category.title) \
+                for category in Category.objects.all())
 
-        def lookups(self, request, model_admin):
-            """
-            Returns a list of tuples. The first element in each
-            tuple is the coded value for the option that will
-            appear in the URL query. The second element is the
-            human-readable name for the option that will appear
-            in the right sidebar.
-            """
-            return ((category.slug, category.title) \
-                    for category in Category.objects.all())
-
-        def queryset(self, request, queryset):
-            """
-            Returns queryset filtered on categories and primary_category.
-            """
-            if self.value():
-                category = Category.objects.get(slug=self.value())
-                return queryset.filter(Q(primary_category=category) | \
-                        Q(categories=category))
-except ImportError:
-    CategoriesListFilter = 'categories'
+    def queryset(self, request, queryset):
+        """
+        Returns queryset filtered on categories and primary_category.
+        """
+        if self.value():
+            category = Category.objects.get(slug=self.value())
+            return queryset.filter(Q(primary_category=category) | \
+                    Q(categories=category))
 
 
 def make_published(modeladmin, request, queryset):
@@ -67,31 +61,69 @@ def make_unpublished(modeladmin, request, queryset):
 make_unpublished.short_description = "Mark selected items as unpublished"
 
 
+class ImageAdminForm(forms.ModelForm):
+
+    class Meta:
+        model = Image
+        fields = ("title", "subtitle", "image", "attribution", "crop_from")
+
+    def clean_image(self):
+        image = self.cleaned_data['image']
+        if image:
+            im = PILImage.open(image)
+            try:
+                im.load()
+            except IOError:
+                raise forms.ValidationError(
+                    "The image is either invalid or unsupported."
+                )
+        return image
+
+
+class ImageOverrideInline(admin.TabularInline):
+    model = ImageOverride
+
+
+class ImageAdmin(admin.ModelAdmin):
+    form = ImageAdminForm
+    list_display = ("title", "_thumb", "_links")
+    inlines = (ImageOverrideInline,)
+
+    def _thumb(self, obj):
+        return """<img src="%(url)s" />""" % \
+            {"url": obj.get_thumbnail_url()}
+    _thumb.short_description = _("Thumbnail")
+    _thumb.allow_tags = True
+
+    def _links(self, obj):
+        s = """<a href="%(url)s">%(url)s</a>
+            <br />
+            <a href="#"
+               onclick="django.jQuery('#jmbo-image-cl-links').toggle(); return false;">
+                %(label)s
+            </a>
+            <ul id="jmbo-image-cl-links" style="display: none;">
+            """ % {"url": obj.image.url, "label": _("More / less")}
+        for name in sorted(PhotoSizeCache().sizes.keys()):
+            s += """<li><a href="%(url)s">%(url)s</a></li>""" % \
+                {"url": obj._get_SIZE_url(name)}
+        s += "</ul>"
+        return s
+
+    _links.short_description = _("Link(s)")
+    _links.allow_tags = True
+
+
 class ModelBaseAdminForm(forms.ModelForm):
     """Helper form for ModelBaseAdmin"""
 
     class Meta:
         model = ModelBase
+        exclude = ('state', 'effect_id', 'primary_category_id', 'owner_id')
         widgets = {'sites': SitesGroupsWidget}
 
     def __init__(self, *args, **kwargs):
         super(ModelBaseAdminForm, self).__init__(*args, **kwargs)
-
-        self.fields['image'].help_text = """An image can be in format JPG, \
-PNG or GIF. Images are scaled to the appropriate size when people browse to \
-the site on mobile browsers, so always upload an image that will look good on \
-normal web browsers. In general an image with an aspect ratio of 4:3 will \
-yield best results."""
-
-        self.fields['crop_from'].help_text = """If you upload an image in an \
-aspect ratio that may require it to be cropped then you can adjust from where \
-the cropping takes place. This is useful to prevent peoples' heads from being \
-chopped off."""
-
-        self.fields['effect'].help_text = """Apply an effect to the image."""
-
-        # We want image to be optional, unlike photologue
-        self.fields['image'].required = False
 
         # Add relations fields
         content_type = ContentType.objects.get_for_model(self._meta.model)
@@ -121,17 +153,8 @@ chopped off."""
             # Select all sites initially
             self.fields['sites'].initial = Site.objects.all()
 
-    def clean_image(self):
-        image = self.cleaned_data['image']
-        if image:
-            im = Image.open(image)
-            try:
-                im.load()
-            except IOError:
-                raise forms.ValidationError(
-                    "The image is either invalid or unsupported."
-                )
-        return image
+            # Select all layers initially
+            self.fields['layers'].initial = Layer.objects.all()
 
     def clean(self):
         """
@@ -139,6 +162,13 @@ chopped off."""
         check in clean method because sites need to be available in
         cleaned_data.
         """
+
+        # Set slug on a clone and do no further validation
+        if '_saveasnew' in self.data:
+            cleaned_data = self.cleaned_data
+            cleaned_data['slug'] = generate_slug(self.instance, cleaned_data['title'])
+            return cleaned_data
+
         slug = self.cleaned_data.get('slug')
         if slug:
             # Check if any combination of slug and site exists.
@@ -155,21 +185,8 @@ chopped off."""
         return self.cleaned_data
 
 
-class ImageOverrideInlineForm(forms.ModelForm):
-
-    class Meta:
-        model = ImageOverride
-        exclude = ("effect", "crop_from")
-
-    def __init__(self, *args, **kwargs):
-        super(ImageOverrideInlineForm, self).__init__(*args, **kwargs)
-        self.fields["photosize"].queryset = self.fields["photosize"].queryset.order_by("name")
-
-
-class ImageOverrideInline(admin.TabularInline):
-    form = ImageOverrideInlineForm
-    model = ImageOverride
-    exclude = ("effect", "crop_from")
+class ImageInline(admin.TabularInline):
+    model = ModelBase.images.through
 
 
 class ModelBaseAdmin(admin.ModelAdmin):
@@ -177,13 +194,13 @@ class ModelBaseAdmin(admin.ModelAdmin):
     # ModelBase is typically subclassed so normal app/model/change_form.html
     # based lookups fail in subclasses. Explicitly set the change form
     # template.
-    change_form_template = 'admin/jmbo/change_form.html'
+    change_form_template = 'admin/jmbo/modelbase/change_form.html'
 
-    actions = [make_published, make_unpublished]
+    actions = (make_published, make_unpublished)
     list_display = ('title', 'subtitle', 'publish_on', 'retract_on', \
         '_get_absolute_url', 'owner', 'created', '_actions'
     )
-    inlines = [ImageOverrideInline]
+    inlines = (ImageInline,)
 
     # The Oracle database adapter is buggy and can't handle sites__sitesgroup
     try:
@@ -202,16 +219,9 @@ class ModelBaseAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {'fields': ('title', 'slug', 'subtitle', 'description')}),
         (
-            'Image',
-            {
-                'fields': ('image', 'crop_from', 'image_attribution'),
-                'classes': ()
-            }
-        ),
-        (
             'Publishing',
             {
-                'fields': ('sites', 'publish_on', 'retract_on'),
+                'fields': ('sites', 'layers', 'publish_on', 'retract_on'),
                 'classes': (),
             }
         ),
@@ -240,13 +250,6 @@ class ModelBaseAdmin(admin.ModelAdmin):
                 'classes': ('collapse',)
             }
         ),
-        (
-            'Advanced',
-            {
-                'fields': ('effect',),
-                'classes': ('collapse',)
-            }
-        ),
     )
     if USE_GIS:
         fieldsets[3][1]['fields'] = tuple(list(fieldsets[3][1]['fields']) + ['location'])
@@ -254,6 +257,7 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
     def __init__(self, model, admin_site):
         super(ModelBaseAdmin, self).__init__(model, admin_site)
+
         fieldsets = deepcopy(self.fieldsets)
 
         set_fields = []
@@ -261,16 +265,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
             set_fields += fieldset[1]['fields']
 
         new_fields = []
-        for name in model._meta.get_all_field_names():
-            try:
-                field = model._meta.get_field(name)
-            except FieldDoesNotExist:
-                continue
+        for field in model._meta.get_fields():
+            name = field.name
 
-            # don't include custom through relations
-            # custom if it has more than 3 fields
+            # Don't include through relation if it has more than 3 fields
             try:
-                if len(field.rel.through._meta.get_all_field_names()) > 3:
+                if len(field.rel.through._meta.get_fields()) > 3:
                     continue
             except AttributeError:
                 pass
@@ -356,12 +356,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
         # customize change_list.html.
         result = ''
         if obj.state == 'unpublished':
-            url = "%s?id=%s" % (reverse('jmbo-publish-ajax'), obj.id)
+            url = "%s?id=%s" % (reverse('admin:jmbo-publish-ajax'), obj.id)
             result += '''<a href="%s" \
 onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Published'); return false;">
 Publish</a><br />''' % (url, url)
         if obj.state == 'published':
-            url = "%s?id=%s" % (reverse('jmbo-unpublish-ajax'), obj.id)
+            url = "%s?id=%s" % (reverse('admin:jmbo-unpublish-ajax'), obj.id)
             result += '''<a href="%s" \
 onclick="django.jQuery.get('%s'); django.jQuery(this).replaceWith('Unpublished'); return false;">
 Unpublish</a><br />''' % (url, url)
@@ -369,11 +369,79 @@ Unpublish</a><br />''' % (url, url)
     _actions.short_description = 'Actions'
     _actions.allow_tags = True
 
+    def publish_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.GET["id"])
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        obj.publish()
+        return HttpResponse("published")
+
+    def unpublish_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.GET["id"])
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        obj.unpublish()
+        return HttpResponse("unpublished")
+
+    def autosave_ajax(self, request):
+        obj = ModelBase.objects.get(id=request.POST["id"]).as_leaf_class()
+
+        if not self.has_change_permission(request, obj):
+            return HttpResponseForbidden(
+                "You are not allowed to change this object"
+            )
+
+        changes = False
+        for field in getattr(obj, "autosave_fields", []):
+            new_value = request.POST.get(field)
+            old_value = getattr(obj, field)
+            if new_value != old_value:
+                setattr(obj, field, new_value)
+                changes = True
+        if changes:
+            obj.save()
+
+        return HttpResponse("1")
+
+    def get_urls(self):
+        urls = super(ModelBaseAdmin, self).get_urls()
+        my_urls = [
+            url(
+                r'^publish-ajax/$',
+                self.admin_site.admin_view(self.publish_ajax),
+                name="jmbo-publish-ajax"
+            ),
+            url(
+                r'^unpublish-ajax/$',
+                self.admin_site.admin_view(self.unpublish_ajax),
+                name="jmbo-unpublish-ajax"
+            ),
+            url(
+                r'^jmbo-autosave-ajax/$',
+                self.admin_site.admin_view(self.autosave_ajax),
+                name="jmbo-autosave-ajax"
+            ),
+
+        ]
+        return my_urls + urls
+
 
 class RelationAdminForm(forms.ModelForm):
 
     class Meta:
         model = Relation
+        fields = (
+            'source_content_type', 'source_object_id', 'target_content_type',
+            'target_object_id', 'name'
+        )
 
     def __init__(self, *args, **kwargs):
         super(RelationAdminForm, self).__init__(*args, **kwargs)
@@ -398,4 +466,5 @@ class RelationAdmin(admin.ModelAdmin):
     form = RelationAdminForm
 
 
+admin.site.register(Image, ImageAdmin)
 admin.site.register(Relation, RelationAdmin)

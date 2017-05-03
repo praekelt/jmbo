@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Django 1.9 - 1.11 compatibility.
+
 2.0.17
 ------
 #. Fixed an issue where the patched photologue may flip the image.

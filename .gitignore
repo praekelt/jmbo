@@ -8,3 +8,5 @@ dist/
 /docs/_build
 coverage.xml
 pep8.txt
+.tox/
+photologue/

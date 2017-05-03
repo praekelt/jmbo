@@ -1,12 +1,8 @@
 {% extends "base.html" %}
-{% comment %}
-Maintain backward compatibility by preserving this template.
-{% endcomment %}
 {% load jmbo_inclusion_tags pagination_tags %}
 
 {% block content %}
-    <div class="object-list {{ model.lower }}-list">
-
+    <div class="jmbo-list" >
         {% if view_modifier %}
             {% if title %}
                 <div class="title">
@@ -21,6 +17,5 @@ Maintain backward compatibility by preserving this template.
             {% render_object object "list_item" %}
         {% endfor %}
         {% paginate %}
-
 	</div>
 {% endblock %}

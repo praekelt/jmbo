@@ -1,0 +1,22 @@
+{% load comments i18n %}
+
+{% if object.comments_enabled %}
+    <div class="comments-inclusion">
+        <div class="title">
+            {% blocktrans count counter=object.comment_count %}
+                1 comment
+            {% plural %}
+                {{ counter }} comments
+            {% endblocktrans %}
+            <a href="#comment">{% trans "Add yours" %}</a>
+        </div>
+        {% render_comment_list for object %}
+        {% if can_render_comment_form %}
+            {% render_comment_form for object %}
+        {% else %}
+            {% if can_comment_code == 'auth_required' %}
+                <a href="{% url "login" %}?next={{ request.path_info }}" class="join" rel="nofollow">{% trans "Sign in to comment" %}</a>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endif %}
