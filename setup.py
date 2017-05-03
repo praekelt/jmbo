@@ -17,15 +17,15 @@ setup(
         "pytz",
         "django>=1.9",
         "django-category>=1.9",
-        #"django-layers", fix when stable
+        "django-layers-hr>=1.10.1",
         "django-likes>=0.0.8",
         "django-pagination-fork>=1.0.17",
         "django-preferences",
         "django-photologue>=3.3",
-        #"djangorestframework-extras", # fix when stable
+        "djangorestframework-extras>=0.2",
         "djangorestframework-jwt==1.8.0",
         "django-sites-groups>=1.9.1",
-        "django-ultracache>=1.9",
+        "django-ultracache>=1.10.2",
         "django-crum",
     ],
     include_package_data=True,

@@ -1,13 +1,11 @@
 -e git+https://github.com/hedleyroos/django-secretballot.git#egg=django-secretballot
--e git+https://github.com/praekelt/django-ultracache.git#egg=django-ultracache
 -e git+https://github.com/praekelt/django-likes.git@develop#egg=django-likes
--e git+https://github.com/praekelt/djangorestframework-extras.git@develop#egg=djangorestframework-extras
--e git+https://github.com/hedleyroos/django-layers.git#egg=django-layers-hr
 
 Django==1.9.6
 django-category==1.9
 django-contrib-comments==1.7.1
 django-export==1.9
+django-layers-hr==1.10.1
 django-object-tools==1.9
 django-pagination-fork==1.0.17
 django-photologue==3.5.1
@@ -15,6 +13,7 @@ django-preferences==0.0.2
 #django-secretballot==0.5.0
 django-sites-groups==1.9.1
 django-sortedm2m==1.2.2
+django-ultracache==1.10.2
 ExifRead==2.1.2
 Pillow==3.2.0
 psycopg2==2.6.1
@@ -22,5 +21,6 @@ pytz==2016.4
 PyYAML==3.11
 requests==2.10.0
 djangorestframework==3.3.2
+djangorestframework-extras==0.2
 six==1.9.0
 django-crum==0.7.1
