@@ -91,6 +91,7 @@ class ImageSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
+        fileds = "__all__"
 
 
 class ImageViewSet(viewsets.ModelViewSet):
