@@ -14,6 +14,7 @@ def do_enable_voting_on(sender, **kwargs):
 
 
 class JmboAppConfig(AppConfig):
+    name = "jmbo"
 
     def ready(self):
         post_migrate.connect(do_enable_voting_on)
