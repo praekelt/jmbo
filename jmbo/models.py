@@ -689,6 +689,11 @@ def set_managers(sender, **kwargs):
 
     if issubclass(cls, ModelBase):
         cls.add_to_class("permitted", PermittedManager())
+        secretballot.enable_voting_on(
+            cls,
+            manager_name="secretballot_objects",
+            total_name="secretballot_added_vote_total"
+        )
 
 signals.class_prepared.connect(set_managers)
 
