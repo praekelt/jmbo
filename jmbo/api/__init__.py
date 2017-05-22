@@ -45,6 +45,7 @@ class ModelBaseSerializer(
     class Meta:
         model = ModelBase
         admin = ModelBaseAdmin
+        fields = "__all__"
 
     def get_extra_kwargs(self):
         # We specify a base_name at router registration and this is a way to
@@ -91,6 +92,7 @@ class ImageSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
+        fields = "__all__"
 
 
 class ImageViewSet(viewsets.ModelViewSet):
