@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.1
+-----
+#. Compatibility with Django Rest Framework 3.6
+
 3.0.0
 -----
 #. Django 1.9 - 1.11 compatibility.
