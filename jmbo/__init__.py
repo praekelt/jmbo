@@ -34,3 +34,5 @@ def modify_classes():
                 raise
 
 modify_classes()
+
+default_app_config = "jmbo.apps.JmboAppConfig"
