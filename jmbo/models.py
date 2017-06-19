@@ -20,6 +20,7 @@ from photologue.models import ImageModel, PhotoSize, get_storage_path
 from preferences import Preferences
 import secretballot
 from secretballot.models import Vote
+from sortedm2m.fields import SortedManyToManyField
 
 from jmbo.managers import PermittedManager, DefaultManager
 from jmbo.utils import generate_slug
@@ -245,7 +246,13 @@ but users won't be able to add new likes."),
         )
     comment_count = models.PositiveIntegerField(default=0, editable=False)
     vote_total = models.PositiveIntegerField(default=0, editable=False)
-    images = models.ManyToManyField(Image, null=True, blank=True, through="ModelBaseImage")
+    images = SortedManyToManyField(
+        Image,
+        null=True,
+        blank=True,
+        sort_value_field_name="position",
+        through="ModelBaseImage"
+    )
 
     class Meta:
         ordering = ("-publish_on", "-created")
@@ -643,6 +650,7 @@ class ModelBaseImage(models.Model):
     modelbase = models.ForeignKey(ModelBase)
     image = models.ForeignKey(Image, related_name="image_link_to_modelbase")
     position = models.PositiveIntegerField(default=0)
+    _sort_field_name = "position"
 
     class Meta:
         ordering = ("position",)

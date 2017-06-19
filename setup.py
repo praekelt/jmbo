@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='jmbo',
-    version='3.0.1',
+    version='3.0.2',
     description='The Jmbo base product introduces a content type and various tools required to build Jmbo products.',
     long_description = open('README.rst', 'r').read() + open('AUTHORS.rst', 'r').read() + open('CHANGELOG.rst', 'r').read(),
     author='Praekelt Consulting',
@@ -25,6 +25,7 @@ setup(
         "djangorestframework-extras>=0.2",
         "djangorestframework-jwt==1.8.0",
         "django-sites-groups>=1.9.1",
+        "django-sortedm2m>=1.4.0",
         "django-ultracache>=1.10.2",
         "django-crum",
     ],
