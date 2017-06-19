@@ -25,6 +25,7 @@ setup(
         "djangorestframework-extras>=0.2",
         "djangorestframework-jwt==1.8.0",
         "django-sites-groups>=1.9.1",
+        "django-sortedm2m>=1.4.0",
         "django-ultracache>=1.10.2",
         "django-crum",
     ],

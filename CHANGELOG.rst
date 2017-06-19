@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Use `django-sortedm2m` because it does proper sorting at ORM level.
+
 3.0.1
 -----
 #. Compatibility with Django Rest Framework 3.6

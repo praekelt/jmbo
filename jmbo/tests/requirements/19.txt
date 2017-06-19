@@ -10,7 +10,7 @@ django-photologue==3.5.1
 django-preferences==0.0.2
 django-secretballot==0.6.0
 django-sites-groups==1.9.1
-django-sortedm2m==1.2.2
+django-sortedm2m==1.4.0
 django-ultracache==1.10.2
 ExifRead==2.1.2
 Pillow==3.2.0
