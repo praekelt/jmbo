@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+3.0.2
+-----
 #. Use `django-sortedm2m` because it does proper sorting at ORM level.
 
 3.0.1
