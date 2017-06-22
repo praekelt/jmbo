@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.3
+-----
+#. Add `DjangoModelPermissionsOrAnonReadOnly` permissions to `jmbo-modelbase-permitted` API endpoint.
+
 3.0.2
 -----
 #. Use `django-sortedm2m` because it does proper sorting at ORM level.
