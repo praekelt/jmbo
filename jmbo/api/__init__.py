@@ -86,6 +86,7 @@ class ModelBasePermittedViewSet(viewsets.ReadOnlyModelViewSet):
         "categories", "sites", "layers", "tags", "images"
         ).select_related("owner", "content_type", "primary_category")
     serializer_class = ModelBaseSerializer
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
 
 
 class ImageSerializer(HyperlinkedModelSerializer):
