@@ -259,17 +259,13 @@ but users won't be able to add new likes."),
 
     def as_leaf_class(self):
         """Returns the leaf class no matter where the calling instance is in
-        the inheritance hierarchy. Inspired by
-        http://www.djangosnippets.org/snippets/1031/
-        """
-        try:
-            instance = self.__getattribute__(self.class_name.lower())
-        except (AttributeError, self.DoesNotExist):
-            content_type = self.content_type
-            model = content_type.model_class()
-            if (model == ModelBase):
-                return self
-            instance = model.objects.get(id=self.id)
+        the inheritance hierarchy."""
+
+        klass = self.content_type.model_class()
+        if isinstance(self, klass):
+            instance = self
+        else:
+            instance = klass.objects.get(id=self.id)
 
         # If distance was dynamically added to this object it needs to be
         # added to the leaf object as well.

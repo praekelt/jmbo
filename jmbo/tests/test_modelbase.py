@@ -154,6 +154,15 @@ class ModelBaseTestCase(TestCase):
         self.failUnless(ModelBase.objects.get(slug=extra_leaf.slug).\
                 as_leaf_class() == extra_leaf)
 
+        # Create a branch object. The fact that Leaf subclasses it should have
+        # no bearing on as_leaf_class resolution.
+        branch = BranchModel(title="title")
+        branch.save()
+        self.failUnless(TrunkModel.objects.get(slug=branch.slug).\
+                as_leaf_class() == branch)
+        self.failUnless(BranchModel.objects.get(slug=branch.slug).\
+                as_leaf_class() == branch)
+
     def test_vote_total(self):
         # create object with some votes
         obj = ModelBase(title="title")

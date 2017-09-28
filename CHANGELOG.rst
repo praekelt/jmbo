@@ -1,6 +1,10 @@
 Changelog
 =========
 
+3.0.4
+-----
+#. Simplify `as_leaf_class` method. It was erroneously assuming it was saving a database query.
+
 3.0.3
 -----
 #. Add `DjangoModelPermissionsOrAnonReadOnly` permissions to `jmbo-modelbase-permitted` API endpoint.
