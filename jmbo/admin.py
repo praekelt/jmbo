@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
