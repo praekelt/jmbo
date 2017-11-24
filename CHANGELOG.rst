@@ -1,6 +1,10 @@
 Changelog
 =========
 
+next
+----
+#. Add missing migrations.
+
 3.0.4
 -----
 #. Simplify `as_leaf_class` method. It was erroneously assuming it was saving a database query.
