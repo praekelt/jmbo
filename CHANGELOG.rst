@@ -1,8 +1,8 @@
 Changelog
 =========
 
-next
-----
+3.0.5
+-----
 #. Add missing migrations.
 
 3.0.4
