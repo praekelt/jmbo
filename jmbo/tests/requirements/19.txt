@@ -14,7 +14,7 @@ django-sortedm2m==1.4.0
 django-ultracache==1.10.2
 ExifRead==2.1.2
 Pillow==3.2.0
-psycopg2==2.6.1
+psycopg2==2.7.2
 pytz==2016.4
 PyYAML==3.11
 requests==2.10.0
