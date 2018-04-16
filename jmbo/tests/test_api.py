@@ -2,7 +2,7 @@ import os
 import json
 
 from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile
+from django.core.files.base import File, ContentFile
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -50,10 +50,9 @@ class APITestCase(TestCase):
         cls.obj2.sites = Site.objects.all()
         cls.obj2.save()
 
-        cls.image = Image.objects.create(title=IMAGE_PATH)
-        cls.image.image.save(
-            os.path.basename(IMAGE_PATH),
-            ContentFile(open(IMAGE_PATH, "rb").read())
+        cls.image = Image.objects.create(
+            title=IMAGE_PATH,
+            image=File(open(IMAGE_PATH, "rb"), os.path.basename(IMAGE_PATH))
         )
         cls.mbi1 = ModelBaseImage.objects.create(
             modelbase=cls.obj1, image=cls.image
@@ -77,13 +76,13 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, 403)
         self.login()
         response = self.client.get("/api/v1/jmbo-modelbase/")
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.failUnless("/jmbo-modelbase/" in as_json[0]["url"])
 
     def test_modelbase_list_permitted(self):
         response = self.client.get("/api/v1/jmbo-modelbase-permitted/")
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
         self.failUnless("/jmbo-modelbase-permitted/" in as_json[0]["url"])
@@ -93,13 +92,13 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, 403)
         self.login()
         response = self.client.get("/api/v1/tests-testmodel/")
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.failUnless("/tests-testmodel/" in as_json[0]["url"])
 
     def test_testmodel_list_permitted(self):
         response = self.client.get("/api/v1/tests-testmodel-permitted/")
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(as_json), 1)
         self.failUnless("/tests-testmodel-permitted/" in as_json[0]["url"])
@@ -114,7 +113,7 @@ class APITestCase(TestCase):
             "content": "content"
         }
         response = self.client.post("/api/v1/tests-testmodel/", data)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(as_json["content"], "content")
         self.assertTrue(TestModel.objects.filter(pk=new_pk).exists())
 
@@ -123,7 +122,7 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, 403)
         self.login()
         response = self.client.post("/api/v1/jmbo-modelbase/%s/publish/" % self.obj1.pk)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(as_json["status"], "success")
         self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "published")
@@ -133,14 +132,14 @@ class APITestCase(TestCase):
         self.assertEqual(response.status_code, 403)
         self.login()
         response = self.client.post("/api/v1/jmbo-modelbase/%s/unpublish/" % self.obj1.pk)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(as_json["status"], "success")
         self.assertEqual(ModelBase.objects.get(pk=self.obj1.pk).state, "unpublished")
 
     def test_modelbase_scales(self):
         response = self.client.get("/api/v1/jmbo-image/%s/scales/" % self.image.pk)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertEqual(response.status_code, 200)
         self.failUnless(
             "http://testserver/jmbo/image-scale-url/%s/thumbnail/" \
@@ -168,7 +167,7 @@ class APITestCase(TestCase):
             format="multipart"
         )
         self.assertEqual(response.status_code, 201)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertTrue(Image.objects.filter(pk=new_pk).exists())
 
     def test_create_modelbaseimage(self):
@@ -188,7 +187,7 @@ class APITestCase(TestCase):
             data,
         )
         self.assertEqual(response.status_code, 201)
-        as_json = json.loads(response.content)
+        as_json = response.json()
         self.assertTrue(ModelBaseImage.objects.filter(pk=new_pk).exists())
         # Delete it because it pollutes other tests
         ModelBaseImage.objects.filter(pk=new_pk).delete()

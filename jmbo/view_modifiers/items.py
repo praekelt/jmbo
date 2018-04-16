@@ -79,7 +79,7 @@ class URLPatternItem(Item):
             for pattern in resolver.url_patterns:
                 try:
                     sub_match = pattern.resolve(new_path)
-                except Resolver404, e:
+                except Resolver404 as e:
                     sub_tried = e.args[0].get('tried')
                     if sub_tried is not None:
                         tried.extend([(pattern.regex.pattern + \

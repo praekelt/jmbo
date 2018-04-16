@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.management import call_command
-from django.core.files.base import ContentFile
+from django.core.files.base import File, ContentFile
 from django.db import transaction, IntegrityError
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -28,10 +28,9 @@ IMAGE_OVERRIDE_PATH = os.path.join(RES_DIR, "override.jpg")
 
 
 def set_image(obj):
-    image = Image.objects.create(title=IMAGE_PATH)
-    image.image.save(
-        os.path.basename(IMAGE_PATH),
-        ContentFile(open(IMAGE_PATH, "rb").read())
+    image = Image.objects.create(
+        title=IMAGE_PATH,
+        image=File(open(IMAGE_PATH, "rb"), os.path.basename(IMAGE_PATH))
     )
     ModelBaseImage.objects.create(modelbase=obj, image=image)
 
@@ -387,12 +386,12 @@ class ModelBaseTestCase(TestCase):
         obj.save()
         obj.sites = Site.objects.all()
         obj.publish()
-        self.assertEqual(unicode(obj), u"Title (all sites)")
+        self.assertEqual(obj.__unicode__(), u"Title (all sites)")
         obj = TestModel(title="Title")
         obj.save()
         obj.sites = [1]
         obj.publish()
-        self.assertEqual(unicode(obj), u"Title (testserver)")
+        self.assertEqual(obj.__unicode__(), u"Title (testserver)")
 
     def test_get_absolute_url(self):
         leaf = LeafModel.objects.create(title="title")

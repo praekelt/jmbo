@@ -1,7 +1,7 @@
 import os
 
 from django import template
-from django.core.files.base import ContentFile
+from django.core.files.base import File, ContentFile
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -18,10 +18,9 @@ IMAGE_PATH = os.path.join(RES_DIR, "image.jpg")
 
 
 def set_image(obj):
-    image = Image.objects.create(title=IMAGE_PATH)
-    image.image.save(
-        os.path.basename(IMAGE_PATH),
-        ContentFile(open(IMAGE_PATH, "rb").read())
+    image = Image.objects.create(
+        title=IMAGE_PATH,
+        image=File(open(IMAGE_PATH, "rb"), os.path.basename(IMAGE_PATH))
     )
     ModelBaseImage.objects.create(modelbase=obj, image=image)
 

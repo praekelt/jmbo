@@ -8,7 +8,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site, SiteManager
-from django.utils.encoding import smart_unicode
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
@@ -499,7 +498,7 @@ but users won't be able to add new likes."),
         # Create a qs filtered for the ModelBase or content_type objects.
         qs = comment_model.objects.filter(
             content_type__in=[self.content_type, modelbase_content_type],
-            object_pk=smart_unicode(self.pk),
+            object_pk=self.pk,
         )
 
         # The is_public and is_removed fields are implementation details of the

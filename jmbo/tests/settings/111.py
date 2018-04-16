@@ -24,9 +24,9 @@ INSTALLED_APPS = (
     "category",
     "crum",
     "django_comments",
+    "dj_pagination",
     "layers",
     "likes",
-    "pagination",
     "photologue",
     "preferences",
     "rest_framework",
@@ -51,7 +51,7 @@ MIDDLEWARE_CLASSES = (
     "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "likes.middleware.SecretBallotUserIpUseragentMiddleware",
-    "pagination.middleware.PaginationMiddleware",
+    "dj_pagination.middleware.PaginationMiddleware",
     "crum.CurrentRequestUserMiddleware",
 )
 

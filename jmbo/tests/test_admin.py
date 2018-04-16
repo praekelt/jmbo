@@ -49,7 +49,7 @@ class AdminTestCase(TestCase):
             {"id": self.obj.id}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "published")
+        self.assertEqual(response.content.decode("utf-8"), "published")
 
     def test_unpublish_ajax(self):
         response = self.client.get(
@@ -57,7 +57,7 @@ class AdminTestCase(TestCase):
             {"id": self.obj.id}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "unpublished")
+        self.assertEqual(response.content.decode("utf-8"), "unpublished")
 
     def test_autosave_ajax(self):
         response = self.client.post(
@@ -65,5 +65,5 @@ class AdminTestCase(TestCase):
             {"id": self.obj.id, "title": "foo"}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "1")
+        self.assertEqual(response.content.decode("utf-8"), "1")
         self.assertEqual(TestModel.objects.get(id=self.obj.id).title, "foo")
