@@ -10,11 +10,11 @@ class TemplateTagsTestCase(TestCase):
 
     def test_get_related_list(self):
         obj1 = ModelBase.objects.create(title="obj1")
-        obj1.sites = Site.objects.all()
         obj1.publish()
+        obj1.sites.set(Site.objects.all())
         obj2 = ModelBase.objects.create(title="obj2")
-        obj2.sites = Site.objects.all()
         obj2.publish()
+        obj2.sites.set(Site.objects.all())
         obj3 = ModelBase.objects.create(title="obj3")
         Relation.objects.create(
             source=obj1, target=obj2, name="obj-objs"

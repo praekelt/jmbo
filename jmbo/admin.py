@@ -9,9 +9,9 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseForbidden
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from category.models import Category
@@ -270,7 +270,12 @@ class ModelBaseAdmin(admin.ModelAdmin):
 
             # Don't include through relation if it has more than 3 fields
             try:
-                if len(field.rel.through._meta.get_fields()) > 3:
+                # Django 2 deprecates the rel attribute
+                if hasattr(field, "remote_field"):
+                    remote = field.remote_field
+                else:
+                    remote = field.rel
+                if len(remote.through._meta.get_fields()) > 3:
                     continue
             except AttributeError:
                 pass

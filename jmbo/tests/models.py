@@ -16,7 +16,7 @@ class DummyTargetModelBase(ModelBase):
 
 
 class DummySourceModelBase(ModelBase):
-    points_to = models.ForeignKey('DummyModel')
+    points_to = models.ForeignKey('DummyModel', on_delete=models.CASCADE)
     points_to_many = models.ManyToManyField('DummyModel', related_name='to_many')
 
 
@@ -26,19 +26,22 @@ class DummyModel(ModelBase):
     test_foreign_field = models.ForeignKey(
         'DummyRelationalModel1',
         blank=True,
-        null=True
+        null=True,
+        on_delete=models.CASCADE
     )
     test_foreign_published = models.ForeignKey(
         'DummyTargetModelBase',
         blank=True,
         null=True,
-        related_name='foreign_published'
+        related_name='foreign_published',
+        on_delete=models.CASCADE
     )
     test_foreign_unpublished = models.ForeignKey(
         'DummyTargetModelBase',
         blank=True,
         null=True,
-        related_name='foreign_unpublished'
+        related_name='foreign_unpublished',
+        on_delete=models.CASCADE
     )
     test_many_field = models.ManyToManyField('DummyRelationalModel2')
     test_many_published = models.ManyToManyField(

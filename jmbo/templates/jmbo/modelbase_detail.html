@@ -24,14 +24,6 @@
 
 {% block content %}
     <div class="jmbo-detail {{ object.content_type.app_label }}-detail {{ object.content_type.app_label }}-{{ object.content_type.model }}-detail" >
-        {% if view_modifier %}
-            {% if title %}
-                <div class="title">
-                    {{ title }}
-		        </div>
-            {% endif %}
-            {% view_modifier view_modifier %}
-        {% endif %}
         {% with object.as_leaf_class as object %}
             {% render_object object "header" %}
             {% render_object object "detail" %}

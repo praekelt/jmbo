@@ -6,6 +6,7 @@ import rest_framework_extras
 
 from jmbo.views import ObjectDetail, ObjectList
 from jmbo import api as jmbo_api
+from jmbo import urls as jmbo_urls
 from jmbo.tests import api as tests_api
 
 admin.autodiscover()
@@ -18,9 +19,9 @@ jmbo_api.register(router)
 tests_api.register(router)
 
 urlpatterns = [
-    url(r"^admin/", include(admin.site.urls)),
+    url(r"^admin/", admin.site.urls),
     url(r'^api/(?P<version>(v1))/', include(router.urls)),
-    url(r"^jmbo/", include("jmbo.urls", namespace="jmbo")),
+    url(r"^jmbo/", include(jmbo_urls, namespace="jmbo")),
     url(r"^comments/", include("django_comments.urls")),
     url(r"^likes/", include("likes.urls")),
 

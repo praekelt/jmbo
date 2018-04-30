@@ -132,38 +132,6 @@ class RenderObjectCommentsNode(RenderObjectNode):
 
 
 @register.tag
-def view_modifier(parser, token):
-    """
-    Output view modifier.
-    """
-    try:
-        tag_name, view_modifier = token.split_contents()
-    except ValueError:
-        raise template.TemplateSyntaxError(
-            'view_modifier tag requires 1 argument (view_modifier), %s given' \
-                    % (len(token.split_contents()) - 1)
-            )
-    return ViewModifierNode(view_modifier)
-
-
-class ViewModifierNode(template.Node):
-
-    def __init__(self, view_modifier):
-        self.view_modifier = template.Variable(view_modifier)
-
-    def render(self, context):
-        view_modifier = self.view_modifier.resolve(context)
-        context = {
-            'request': context['request'],
-            'view_modifier': view_modifier,
-        }
-        return render_to_string(
-            'jmbo/inclusion_tags/view_modifier.html',
-            context
-        )
-
-
-@register.tag
 def image_url(parser, token):
     """Return image URL for a certain photosize. Defers to _get_image_url in
     order to consider inheritance hierarchy."""

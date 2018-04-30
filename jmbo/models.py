@@ -1,16 +1,16 @@
 import types
 
+from django.conf import settings
 from django.db import models, IntegrityError
 from django.db.models import signals, Sum
 from django.core.cache import cache
-from django.core.urlresolvers import reverse, NoReverseMatch
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site, SiteManager
+from django.urls import reverse, NoReverseMatch
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.conf import settings
 
 from crum import get_current_request
 import django_comments
@@ -72,8 +72,8 @@ UI. A subtitle makes a distinction."),
 class ImageOverride(models.Model):
     """Allows manual setting of a photo size for an image"""
     replacement = models.ImageField(upload_to=get_storage_path)
-    image = models.ForeignKey(Image)
-    photo_size = models.ForeignKey(PhotoSize)
+    image = models.ForeignKey(Image, on_delete=models.CASCADE)
+    photo_size = models.ForeignKey(PhotoSize, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ("image", "photo_size")
@@ -151,6 +151,7 @@ is automatically set each time the item is saved.")
         settings.AUTH_USER_MODEL,
         blank=True,
         null=True,
+        on_delete=models.CASCADE
     )
     owner_override = models.CharField(
         max_length=256,
@@ -162,7 +163,8 @@ eg. Reuters.")
     content_type = models.ForeignKey(
         ContentType,
         editable=False,
-        null=True
+        null=True,
+        on_delete=models.CASCADE
     )
     class_name = models.CharField(
         max_length=32,
@@ -182,6 +184,7 @@ eg. Reuters.")
         help_text=_("Primary category for this item. Used to determine the \
             object's absolute / default URL."),
         related_name="primary_modelbase_set",
+        on_delete=models.CASCADE
     )
     tags = models.ManyToManyField(
         "category.Tag",
@@ -241,6 +244,7 @@ but users won't be able to add new likes."),
             Location,
             blank=True,
             null=True,
+            on_delete=models.CASCADE,
             help_text=_("A location that can be used for content filtering."),
         )
     comment_count = models.PositiveIntegerField(default=0, editable=False)
@@ -439,7 +443,10 @@ but users won't be able to add new likes."),
             return False, "disabled"
 
         # Anonymous users can't vote if anonymous likes are disabled
-        if not request.user.is_authenticated() and not \
+        authenticated = request.user.is_authenticated
+        if callable(authenticated):
+            authenticated = authenticated()
+        if not authenticated and not \
                 modelbase_obj.anonymous_likes:
             return False, "auth_required"
 
@@ -464,7 +471,10 @@ but users won't be able to add new likes."),
             return False, "disabled"
 
         # Anonymous users can't comment if anonymous comments are disabled
-        if not request.user.is_authenticated() and not \
+        authenticated = request.user.is_authenticated
+        if callable(authenticated):
+            authenticated = authenticated()
+        if not authenticated and not \
                 modelbase_obj.anonymous_comments:
             return False, "auth_required"
 
@@ -642,8 +652,12 @@ but users won't be able to add new likes."),
 
 
 class ModelBaseImage(models.Model):
-    modelbase = models.ForeignKey(ModelBase)
-    image = models.ForeignKey(Image, related_name="image_link_to_modelbase")
+    modelbase = models.ForeignKey(ModelBase, on_delete=models.CASCADE)
+    image = models.ForeignKey(
+        Image,
+        related_name="image_link_to_modelbase",
+        on_delete=models.CASCADE
+     )
     position = models.PositiveIntegerField(default=0)
     _sort_field_name = "position"
 
@@ -656,6 +670,7 @@ class Relation(models.Model):
     source_content_type = models.ForeignKey(
         ContentType,
         related_name="relation_source_content_type",
+        on_delete=models.CASCADE
     )
     source_object_id = models.PositiveIntegerField()
     source = GenericForeignKey(
@@ -664,6 +679,7 @@ class Relation(models.Model):
     target_content_type = models.ForeignKey(
         ContentType,
         related_name="relation_target_content_type",
+        on_delete=models.CASCADE
     )
     target_object_id = models.PositiveIntegerField()
     target = GenericForeignKey(

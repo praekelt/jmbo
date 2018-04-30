@@ -1,13 +1,13 @@
 import os
 import json
 
-from django.core.urlresolvers import reverse
 from django.core.files.base import File, ContentFile
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.test import TestCase
 from django.test.client import Client
+from django.urls import reverse
 
 from photologue.models import PhotoSizeCache
 from rest_framework.test import APIClient
@@ -47,8 +47,8 @@ class APITestCase(TestCase):
         cls.obj1.save()
         cls.obj2 = TestModel(title="title2", state="published")
         cls.obj2.save()
-        cls.obj2.sites = Site.objects.all()
         cls.obj2.save()
+        cls.obj2.sites.set(Site.objects.all())
 
         cls.image = Image.objects.create(
             title=IMAGE_PATH,

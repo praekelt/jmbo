@@ -384,13 +384,13 @@ class ModelBaseTestCase(TestCase):
     def test_unicode(self):
         obj = TestModel(title="Title")
         obj.save()
-        obj.sites = Site.objects.all()
         obj.publish()
+        obj.sites.set(Site.objects.all())
         self.assertEqual(obj.__unicode__(), u"Title (all sites)")
         obj = TestModel(title="Title")
         obj.save()
-        obj.sites = [1]
         obj.publish()
+        obj.sites.set([1])
         self.assertEqual(obj.__unicode__(), u"Title (testserver)")
 
     def test_get_absolute_url(self):
@@ -444,11 +444,11 @@ class ModelBaseTestCase(TestCase):
 
     def test_get_permitted_related_items(self):
         obj1 = ModelBase.objects.create(title="obj1")
-        obj1.sites = Site.objects.all()
         obj1.publish()
+        obj1.sites.set(Site.objects.all())
         obj2 = ModelBase.objects.create(title="obj2")
-        obj2.sites = Site.objects.all()
         obj2.publish()
+        obj2.sites.set(Site.objects.all())
         obj3 = ModelBase.objects.create(title="obj3")
         Relation.objects.create(
             source=obj1, target=obj2, name="obj-objs"

@@ -3,6 +3,7 @@ from django.conf.urls import include, url
 from jmbo.views import ObjectDetail, ObjectList, image_scale_url
 
 
+app_name = "jmbo"
 urlpatterns = [
     url(
         r"^detail/(?P<slug>[\w-]+)/$",

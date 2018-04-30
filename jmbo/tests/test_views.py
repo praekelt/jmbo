@@ -1,8 +1,8 @@
+from django.conf import settings
 from django.core.management import call_command
-from django.core.urlresolvers import reverse
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.conf import settings
+from django.urls import reverse
 
 from photologue.models import PhotoSizeCache
 
@@ -17,8 +17,8 @@ class ViewsTestCase(TestCase):
         super(ViewsTestCase, cls).setUpTestData()
 
         cls.obj = ModelBase.objects.create(title="title1")
-        cls.obj.sites = Site.objects.all()
         cls.obj.save()
+        cls.obj.sites.set(Site.objects.all())
         cls.obj.publish()
 
         call_command("load_photosizes")
@@ -35,4 +35,3 @@ class ViewsTestCase(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.failUnless("""<div class="jmbo-list""" in response.content.decode("utf-8"))
-        self.failUnless("""<div class="jmbo-view-modifier">""" in response.content.decode("utf-8"))

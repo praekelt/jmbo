@@ -68,13 +68,13 @@ class PermittedManagerTestCase(TestCase):
         with override_settings(LAYERS={"tree": ["basic", ["web"]], "current": "web"}):
             call_command("load_layers")
             obj_layer_basic = ModelBase.objects.create(state="published")
-            obj_layer_basic.sites = Site.objects.all()
-            obj_layer_basic.layers = [Layer.objects.get(name="basic")]
             obj_layer_basic.save()
+            obj_layer_basic.layers.set([Layer.objects.get(name="basic")])
+            obj_layer_basic.sites.set(Site.objects.all())
             obj_layer_web = ModelBase.objects.create(state="published")
-            obj_layer_web.sites = Site.objects.all()
-            obj_layer_web.layers = [Layer.objects.get(name="web")]
             obj_layer_web.save()
+            obj_layer_web.layers.set([Layer.objects.get(name="web")])
+            obj_layer_web.sites.set(Site.objects.all())
             queryset = ModelBase.permitted.all()
             self.failIf(obj_layer_basic in queryset)
             self.failUnless(obj_layer_web in queryset)
