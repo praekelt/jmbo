@@ -11,6 +11,7 @@ from django.contrib.sites.models import Site, SiteManager
 from django.urls import reverse, NoReverseMatch
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.encoding import python_2_unicode_compatible
 
 from crum import get_current_request
 import django_comments
@@ -32,6 +33,7 @@ class JmboPreferences(Preferences):
     __module__ = "preferences.models"
 
 
+@python_2_unicode_compatible
 class Image(ImageModel):
     title = models.CharField(
         _("Title"),
@@ -57,7 +59,7 @@ UI. A subtitle makes a distinction."),
     class Meta:
         ordering = ("title",)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.subtitle:
             return "%s - %s" % (self.title, self.subtitle)
         return self.title
@@ -79,6 +81,7 @@ class ImageOverride(models.Model):
         unique_together = ("image", "photo_size")
 
 
+@python_2_unicode_compatible
 class ModelBase(models.Model):
     objects = DefaultManager()
     permitted = PermittedManager()
@@ -375,7 +378,7 @@ but users won't be able to add new likes."),
 
         super(ModelBase, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         # This method gets called repeatedly in admin so cache
         key = "jmbo-mb-uc-%s-%s" % \
             (self.pk, self.modified and int(self.modified.strftime("%s")) or 0)
