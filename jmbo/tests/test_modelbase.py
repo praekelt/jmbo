@@ -381,17 +381,17 @@ class ModelBaseTestCase(TestCase):
         call_command("jmbo_publish")
         self.assertEqual(ModelBase.objects.get(pk=obj_aware.pk).state, "published")
 
-    def test_unicode(self):
+    def test_str(self):
         obj = TestModel(title="Title")
         obj.save()
         obj.publish()
         obj.sites.set(Site.objects.all())
-        self.assertEqual(obj.__unicode__(), u"Title (all sites)")
+        self.assertEqual(obj.__str__(), u"Title (all sites)")
         obj = TestModel(title="Title")
         obj.save()
         obj.publish()
         obj.sites.set([1])
-        self.assertEqual(obj.__unicode__(), u"Title (testserver)")
+        self.assertEqual(obj.__str__(), u"Title (testserver)")
 
     def test_get_absolute_url(self):
         leaf = LeafModel.objects.create(title="title")
